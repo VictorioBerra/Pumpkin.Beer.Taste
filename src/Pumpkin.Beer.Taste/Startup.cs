@@ -31,7 +31,7 @@ namespace Pumpkin.Beer.Taste
                 options.UseSqlServer(
                     Configuration.GetConnectionString("DefaultConnection")));
             services
-                .AddDefaultIdentity<IdentityUser>(options => {
+                .AddIdentity<IdentityUser, IdentityRole>(options => {
                     options.Password.RequireDigit = true;
                     options.Password.RequiredLength = 4;
                     options.Password.RequireLowercase = false;
@@ -39,9 +39,22 @@ namespace Pumpkin.Beer.Taste
                     options.Password.RequireUppercase = false;
                     options.Password.RequireNonAlphanumeric = false;
                 })
-                .AddEntityFrameworkStores<ApplicationDbContext>();
-            services.AddControllersWithViews();
-            services.AddRazorPages();
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders();
+
+            services.AddControllersWithViews().AddRazorRuntimeCompilation();
+            services.AddRazorPages(options => {
+                options.Conventions.AuthorizeAreaFolder("Identity", "/Account/Manage");
+                options.Conventions.AuthorizeAreaPage("Identity", "/Account/Logout");
+            });
+
+            services.ConfigureApplicationCookie(options =>
+            {
+                options.LoginPath = $"/Identity/Account/Login";
+                options.LogoutPath = $"/Identity/Account/Logout";
+                options.AccessDeniedPath = $"/Identity/Account/AccessDenied";
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
