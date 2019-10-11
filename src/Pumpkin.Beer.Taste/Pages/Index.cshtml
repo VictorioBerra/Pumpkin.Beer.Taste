@@ -1,10 +1,25 @@
 ﻿@page
 @model IndexModel
 @{
-    ViewData["Title"] = "Home page";
+    ViewData["Title"] = "Home";
 }
+@inject SignInManager<IdentityUser> SignInManager
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h1 class="display-4 text-warning">Happy Halloween! 👻 🎃</h1>
+    @if (!SignInManager.IsSignedIn(User))
+    {
+        <p>
+            Click <a asp-area="Identity" asp-page="/Account/Register">Register</a> in the upper-right or
+            <a asp-area="Identity" asp-page="/Account/Login">Login</a> to get started!
+        </p>
+    } else
+    {
+    <ul>
+        @foreach (var blind in Model.Blinds)
+        {
+        <li>@blind.Name</li>
+        }
+    </ul>
+    }
 </div>
