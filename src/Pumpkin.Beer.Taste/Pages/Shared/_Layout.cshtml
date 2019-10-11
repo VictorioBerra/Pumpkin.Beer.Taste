@@ -22,6 +22,12 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-page="/Index">Home</a>
                         </li>
+                        <li>
+                            @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
+                            {
+                                <a class="nav-link" asp-area="" asp-page="/Blind">Manage Taste Tests</a>
+                            }
+                        </li>
                     </ul>
                 </div>
             </div>

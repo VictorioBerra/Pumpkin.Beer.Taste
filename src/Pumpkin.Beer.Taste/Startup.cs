@@ -12,7 +12,9 @@ using Pumpkin.Beer.Taste.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using SharpRepository.Ioc.Microsoft.DependencyInjection;
+using System.Reflection;
+using Pumpkin.Beer.Taste.Models;
+using AutoMapper;
 
 namespace Pumpkin.Beer.Taste
 {
@@ -40,13 +42,15 @@ namespace Pumpkin.Beer.Taste
                     options.Password.RequireUppercase = false;
                     options.Password.RequiredUniqueChars = 0;
                 })
+                .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services
                 .AddRazorPages()
                 .AddRazorRuntimeCompilation();
 
-            services
-                .UseSharpRepository(Configuration.GetSection("sharpRepository"), "efCore");
+            services.AddAutoMapper(typeof(Startup));
+
+            services.AddTransient<IdentitySeed>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
