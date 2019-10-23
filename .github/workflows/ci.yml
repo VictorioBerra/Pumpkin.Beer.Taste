@@ -16,4 +16,4 @@ jobs:
     - name: Build with dotnet
       run: dotnet build --configuration Release
     - name: Publish with dotnet
-      run: dotnet publish --configuration Release --self-contained true -r linux-x64 -o ${{ github.GITHUB_WORKSPACE }}/publish
+      run: dotnet publish --configuration Release --self-contained true -r linux-x64 -o ${{ GITHUB_WORKSPACE }}/publish
