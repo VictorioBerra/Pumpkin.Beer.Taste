@@ -15,6 +15,7 @@ using Microsoft.Extensions.Hosting;
 using System.Reflection;
 using Pumpkin.Beer.Taste.Models;
 using AutoMapper;
+using Microsoft.AspNetCore.HttpOverrides;
 
 namespace Pumpkin.Beer.Taste
 {
@@ -72,14 +73,16 @@ namespace Pumpkin.Beer.Taste
             else
             {
                 app.UseExceptionHandler("/Error");
-                // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
-                app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseRouting();
+
+            app.UseForwardedHeaders(new ForwardedHeadersOptions
+            {
+                ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
+            });
 
             app.UseAuthentication();
             app.UseAuthorization();
