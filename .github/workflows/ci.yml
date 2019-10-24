@@ -44,5 +44,7 @@ jobs:
         script_stop: true
         script: |
           sudo cp -r /home/ec2-user/drop/publish/* /usr/share/nginx/html
+          sudo chgrp nginx /usr/share/nginx/html/Pumpkin.Beer.Taste
+          sudo chmod g+x /usr/share/nginx/html/Pumpkin.Beer.Taste
           sudo systemctl start kestrel-blindtastetest.service
           sudo rm -rf /home/ec2-user/drop
