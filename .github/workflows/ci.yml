@@ -24,7 +24,9 @@ jobs:
         username: ${{ secrets.USER }}
         key: ${{ secrets.KEY }}
         script_stop: true
-        script: sudo systemctl stop kestrel-blindtastetest.service
+        script: |
+          sudo systemctl stop kestrel-blindtastetest.service
+          sudo rm -rf /usr/share/nginx/html/*
     - name: copy file
       uses: appleboy/scp-action@master
       with:
@@ -32,7 +34,6 @@ jobs:
         username: ${{ secrets.USER }}
         key: ${{ secrets.KEY }}
         source: ${{ github.github_workspace }}\publish
-        rm: true
         target: /usr/share/nginx/html
     - name: start site
       uses: appleboy/ssh-action@master
