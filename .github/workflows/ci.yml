@@ -17,3 +17,28 @@ jobs:
       run: dotnet build --configuration Release
     - name: Publish with dotnet
       run: dotnet publish --configuration Release --self-contained true -r linux-x64 -o ${{ github.github_workspace }}\publish
+    - name: stop site
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        key: ${{ secrets.KEY }}
+        script_stop: true
+        script: sudo systemctl stop kestrel-blindtastetest.service
+    - name: copy file
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        key: ${{ secrets.KEY }}
+        source: ${{ github.github_workspace }}\publish
+        rm: true
+        target: /usr/share/nginx/html
+    - name: start site
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USER }}
+        key: ${{ secrets.KEY }}
+        script_stop: true
+        script: sudo systemctl start kestrel-blindtastetest.service
