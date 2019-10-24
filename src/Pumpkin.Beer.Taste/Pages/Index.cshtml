@@ -13,13 +13,21 @@
             Click <a asp-area="Identity" asp-page="/Account/Register">Register</a> in the upper-right or
             <a asp-area="Identity" asp-page="/Account/Login">Login</a> to get started!
         </p>
-    } else
-    {
-    <ul>
-        @foreach (var blind in Model.Blinds)
-        {
-        <li>@blind.Name</li>
-        }
-    </ul>
     }
 </div>
+
+@if (SignInManager.IsSignedIn(User))
+{
+    <hr />
+
+    <h2>Open Tastings:</h2>
+
+    <ul class="list-unstyled">
+        @foreach (var blind in Model.Blinds)
+        {
+            <li>
+                <h3><a asp-area="Identity" asp-page="/Account/Login">@blind.Name</a></h3>
+            </li>
+        }
+    </ul>
+}

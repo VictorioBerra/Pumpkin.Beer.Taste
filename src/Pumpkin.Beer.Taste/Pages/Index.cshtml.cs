@@ -38,7 +38,8 @@ namespace Pumpkin.Beer.Taste.Pages
                 var blinds = context
                     .Blind
                     .AsNoTracking()
-                    .Where(x => x.Started != null && x.Closed == null && x.Started < DateTime.Now)
+                    // TODO system clock service?
+                    .Where(x => x.Started != null && x.Started < DateTime.Now && (x.Closed == null || x.Closed > DateTime.Now))
                     //.ProjectTo<BlindDto>()
                     .ToList();
 

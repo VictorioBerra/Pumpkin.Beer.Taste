@@ -25,7 +25,7 @@
                         <li>
                             @if (User.Identity.IsAuthenticated && User.IsInRole("Admin"))
                             {
-                                <a class="nav-link" asp-area="" asp-page="/Blind">Manage Taste Tests</a>
+                                <a class="nav-link" asp-area="" asp-page="/Blind/Index">Manage Taste Tests</a>
                             }
                         </li>
                     </ul>
