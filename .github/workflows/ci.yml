@@ -33,7 +33,7 @@ jobs:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USER }}
         key: ${{ secrets.KEY }}
-        source: ${{ github.github_workspace }}\publish
+        source: ${{ github.github_workspace }}\publish\*
         target: /home/ec2-user/drop
     - name: start site
       uses: appleboy/ssh-action@master
