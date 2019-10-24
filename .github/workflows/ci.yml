@@ -33,7 +33,7 @@ jobs:
         host: ${{ secrets.HOST }}
         username: ${{ secrets.USER }}
         key: ${{ secrets.KEY }}
-        source: ${{ github.github_workspace }}\publish\*
+        source: ${{ github.github_workspace }}\publish
         target: /home/ec2-user/drop
     - name: start site
       uses: appleboy/ssh-action@master
@@ -43,6 +43,6 @@ jobs:
         key: ${{ secrets.KEY }}
         script_stop: true
         script: |
-          sudo cp -r /home/ec2-user/drop/* /usr/share/nginx/html
+          sudo cp -r /home/ec2-user/drop/publish/* /usr/share/nginx/html
           sudo systemctl start kestrel-blindtastetest.service
           sudo rm -rf /home/ec2-user/drop
