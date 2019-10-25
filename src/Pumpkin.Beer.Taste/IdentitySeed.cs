@@ -36,9 +36,9 @@ namespace Pumpkin.Beer.Taste
                 return;
             }
 
-            var adminRole = "Admin";
-            var adminName = "Tory";
-            var roleNames = new String[] { adminRole, "Manager" };
+            var adminRole = Constants.AdminRole;
+            var adminName = Constants.InitialAdminName;
+            var roleNames = new String[] { adminRole, Constants.ManagerRole };
 
             foreach (var roleName in roleNames)
             {
@@ -53,7 +53,7 @@ namespace Pumpkin.Beer.Taste
             var maybeAdmin = await _userManager.FindByNameAsync(adminName);
             if (maybeAdmin == null)
             {
-                await _userManager.CreateAsync(new IdentityUser(adminName), adminName);
+                await _userManager.CreateAsync(new IdentityUser(adminName), Constants.InitialAdminPassword);
                 _logger.LogInformation("Created default admin {0}", adminName);
             }
 

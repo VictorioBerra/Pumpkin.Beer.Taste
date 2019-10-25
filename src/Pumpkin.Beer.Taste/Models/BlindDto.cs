@@ -17,9 +17,13 @@ namespace Pumpkin.Beer.Taste.Models
 
         public string Name { get; set; }
 
-        public DateTime? Started { get; set; }
+        public string CreatedByUsername { get; set; }
 
-        public DateTime? Closed { get; set; }
+        public DateTimeOffset? Started { get; set; }
+
+        public DateTimeOffset? Closed { get; set; }
+
+        public DateTimeOffset Created { get; set; }
 
         public List<BlindItemDto> BlindItems { get; set; }
     }

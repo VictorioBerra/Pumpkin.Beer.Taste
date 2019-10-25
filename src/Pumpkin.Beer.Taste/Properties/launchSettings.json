@@ -10,11 +10,12 @@
   "profiles": {
     "Pumpkin.Beer.Taste": {
       "commandName": "Project",
+      "commandLineArgs": "/seed",
       "launchBrowser": true,
       "applicationUrl": "https://localhost:5081;http://localhost:5080",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "usesqlite": "1"
+        //"usesqlite": "1"
       }
     },
     "IIS Express": {

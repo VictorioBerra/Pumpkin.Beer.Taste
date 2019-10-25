@@ -1,0 +1,102 @@
+﻿@page
+@model Pumpkin.Beer.Taste.Pages.BlindPages.CreateModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Create</h1>
+
+<h4>Blind</h4>
+<hr />
+
+<div id="createContainer">
+    <form method="post">
+        <div class="row">
+            <div class="col-md-4">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <div class="form-group">
+                    <label asp-for="Blind.Name" class="control-label"></label>
+                    <input asp-for="Blind.Name" class="form-control" />
+                    <span asp-validation-for="Blind.Name" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Blind.Started" class="control-label"></label>
+                    <input asp-for="Blind.Started" class="form-control" v-model="startDate"  type="datetime-local" />
+                    <span asp-validation-for="Blind.Started" class="text-danger"></span>
+                    <button type="button" class="btn btn-default" v-on:click="setStartDate">Start Now</button>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Blind.Closed" class="control-label"></label>
+                    <input asp-for="Blind.Closed" class="form-control" v-model="closedDate" type="datetime-local" />
+                    <span asp-validation-for="Blind.Closed" class="text-danger"></span>
+                    <button type="button" class="btn btn-default" v-on:click="setClosedDate">Close Midnight</button>
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Create" class="btn btn-primary" />
+                </div>
+            </div>
+            <div class="col-md-4">
+                <button id="add" type="button" v-on:click="addBlindItem" class="btn btn-primary">Add another drink</button>
+                <hr />
+                <ul class="list-unstyled">
+                    <li v-for="(blindItem, index) in blindItems">
+                        <div class="form-group">
+                            <span class="h3">{{ blindItem.Letter }}</span>
+                            <input class="form-control" v-model="blindItem.Name" v-bind:name="getInputName(index)" />
+                            <button class="btn btn-danger pt-1" v-on:click="removeBlindItem(blindItem)" type="button">Remove</button>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </form>
+</div>
+
+<div>
+    <a asp-page="Index">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+
+        var app = new Vue({
+            el: '#createContainer',
+            data: {
+                blindItems: [],
+                startDate: null,
+                closedDate: null
+            },
+            methods: {
+                setStartDate: function () {
+                    this.startDate = moment().format(aspNetCoreMomentFormat);
+                },
+                setClosedDate: function () {
+                    let now = moment();
+                    now.hour(23);
+                    now.minute(59);
+                    this.closedDate = now.format(aspNetCoreMomentFormat);
+                },
+                removeBlindItem: function (blindItem) {
+                    this.blindItems.splice(this.blindItems.indexOf(blindItem), 1);
+                    for (var i = 0; i < this.blindItems.length; i++) {
+                        this.blindItems[i].Letter = enAlphabet[i];
+                    }
+                },
+                addBlindItem: function () {
+                    this.blindItems.push({
+                        Name: `${enAlphabet[this.blindItems.length]}`,
+                        Letter: enAlphabet[this.blindItems.length]
+                    });
+                },
+                getInputName: function (index) {
+                    return `Blind.BlindItems[${index}].Name`;
+                }
+            }
+        })
+
+    </script>
+
+}

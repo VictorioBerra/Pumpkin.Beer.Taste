@@ -11,14 +11,21 @@ namespace Pumpkin.Beer.Taste.Models
 {
     public class BlindVoteDto
     {
+
         public int Id { get; set; }
 
-        public string Username { get; set; }
+        [Range(1, 5)]
+        public int Score { get; set; }
 
         public int BlindItemId { get; set; }
 
         public BlindItemDto BlindItem { get; set; }
 
         public int BlindItemOrdinal { get; set; }
+
+        public DateTimeOffset Created { get; set; }
+
+        public string Username { get; set; }
+
     }
 }

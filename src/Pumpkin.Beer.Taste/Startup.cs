@@ -1,21 +1,19 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
 using Pumpkin.Beer.Taste.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System.Reflection;
-using Pumpkin.Beer.Taste.Models;
 using AutoMapper;
 using Microsoft.AspNetCore.HttpOverrides;
+using Pumpkin.Beer.Taste.Services;
+using Autofac;
+using SharpRepository.Ioc.Autofac;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
+using SharpRepository.Repository.Ioc;
 
 namespace Pumpkin.Beer.Taste
 {
@@ -31,17 +29,8 @@ namespace Pumpkin.Beer.Taste
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ApplicationDbContext>(options => { 
-                if(Environment.GetEnvironmentVariable("usesqlite") == "1")
-                {
-                    options.UseSqlite(Configuration.GetConnectionString("DefaultSqliteConnection"));
-                }
-                else
-                {
-                    options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection"));
-                }
-            });
-            //options.UseSqlServer(
+            services.AddHttpContextAccessor();
+
             services
                 .AddDefaultIdentity<IdentityUser>(options => {
                     options.Password.RequireDigit = false;
@@ -55,11 +44,30 @@ namespace Pumpkin.Beer.Taste
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services
                 .AddRazorPages()
+                .AddRazorPagesOptions(options =>
+                {
+                    options.Conventions.AuthorizeFolder("/ManageBlind");
+                })
                 .AddRazorRuntimeCompilation();
+
+            services.AddDbContext<ApplicationDbContext>(options => {
+                options.UseMySql(Configuration.GetConnectionString("MySQLConnection"), mySqlOptions =>
+                {
+                    mySqlOptions.ServerVersion(new Version(5, 7), ServerType.MySql); // replace with your Server Version and Type
+                });
+            }, ServiceLifetime.Transient);
 
             services.AddAutoMapper(typeof(Startup));
 
             services.AddTransient<IdentitySeed>();
+            services.AddTransient<DataSeed>();
+            services.AddSingleton<IClockService, ClockService>();
+
+        }
+
+        public void ConfigureContainer(ContainerBuilder builder)
+        {
+            builder.RegisterSharpRepository(Configuration.GetSection("sharpRepository"), "efCore"); // for Ef Core
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -91,6 +99,10 @@ namespace Pumpkin.Beer.Taste
             {
                 endpoints.MapRazorPages();
             });
+
+            // Passes service provide to SharpRepository
+            // https://github.com/SharpRepository/SharpRepository/blob/develop/SharpRepository.Samples.Core3Mvc/Startup.cs
+            RepositoryDependencyResolver.SetDependencyResolver(app.ApplicationServices);
         }
     }
 }

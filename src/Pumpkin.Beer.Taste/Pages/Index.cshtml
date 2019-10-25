@@ -26,7 +26,10 @@
         @foreach (var blind in Model.Blinds)
         {
             <li>
-                <h3><a asp-area="Identity" asp-page="/Account/Login">@blind.Name</a></h3>
+                <h3>
+                    <a asp-area="Identity" asp-page="/Account/Login">@blind.Name</a>
+                </h3>
+                <small class="utc-local-from-now" data-date="@blind.Started.Value">Loading...</small>
             </li>
         }
     </ul>
