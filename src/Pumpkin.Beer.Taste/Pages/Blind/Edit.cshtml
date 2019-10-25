@@ -9,37 +9,94 @@
 
 <h4>Blind</h4>
 <hr />
-<div class="row">
-    <div class="col-md-4">
-        <form method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <input type="hidden" asp-for="Blind.Id" />
-            <div class="form-group">
-                <label asp-for="Blind.Name" class="control-label"></label>
-                <input asp-for="Blind.Name" class="form-control" />
-                <span asp-validation-for="Blind.Name" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Blind.Started" class="control-label"></label>
-                <input asp-for="Blind.Started" class="form-control" />
-                <span asp-validation-for="Blind.Started" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Blind.Closed" class="control-label"></label>
-                <input asp-for="Blind.Closed" class="form-control" />
-                <span asp-validation-for="Blind.Closed" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+<div id="createContainer">
+    <div class="row">
+        <div class="col-md-4">
+            <form method="post">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="Blind.Id" />
+                <div class="form-group">
+                    <label asp-for="Blind.Name" class="control-label"></label>
+                    <input asp-for="Blind.Name" class="form-control" />
+                    <span asp-validation-for="Blind.Name" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Blind.Started" class="control-label"></label>
+                    <input asp-for="Blind.Started" class="form-control" v-model="startDate" />
+                    <span asp-validation-for="Blind.Started" class="text-danger"></span>
+                    <button type="button" class="btn btn-default" v-on:click="setStartDate">Start Now</button>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Blind.Closed" class="control-label"></label>
+                    <input asp-for="Blind.Closed" class="form-control" v-model="closedDate" />
+                    <span asp-validation-for="Blind.Closed" class="text-danger"></span>
+                    <button type="button" class="btn btn-default" v-on:click="setClosedDate">Close Midnight</button>
+                    <button type="button" class="btn btn-default" v-on:click="setClosedDateNow">Close Now</button>
+
+                </div>
+                <div class="form-group">
+                    <input type="submit" value="Save" class="btn btn-primary" />
+                </div>
+            </form>
+        </div>
+        <div class="col-md-4">
+            <button id="add" type="button" v-on:click="addBlindItem" class="btn btn-primary">Add another drink</button>
+            <hr />
+            <ul class="list-unstyled">
+                <li v-for="(blindItem, index) in blindItems">
+                    <div class="form-group">
+                        <span class="h3">{{ blindItem.Letter }}</span>
+                        <input class="form-control" v-model="blindItem.Name" v-bind:name="getInputName(index)" />
+                        <button class="btn btn-danger pt-1" v-on:click="removeBlindItem(blindItem)" type="button">Remove</button>
+                    </div>
+                </li>
+            </ul>
+        </div>
     </div>
 </div>
+    <div>
+        <a asp-page="./Index">Back to List</a>
+    </div>
 
-<div>
-    <a asp-page="./Index">Back to List</a>
-</div>
+    @section Scripts {
+        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+        <script>
+
+        var app = new Vue({
+            el: '#createContainer',
+            data: {
+                blindItems: (@(JsonSerializer.Serialize(Model?.Blind.BlindItems))),
+                startDate: null,
+                closedDate: null
+            },
+            methods: {
+                setStartDate: function () {
+                    this.startDate = getInputDate();
+                },
+                setClosedDate: function () {
+                    this.closedDate = getInputDateMidnight();
+                },
+                setClosedDateNow: function () {
+                    this.closedDate = getInputDate();
+                },
+                removeBlindItem: function (blindItem) {
+                    this.blindItems.splice(this.blindItems.indexOf(blindItem), 1);
+                    for (var i = 0; i < this.blindItems.length; i++) {
+                        this.blindItems[i].Letter = enAlphabet[i];
+                    }
+                },
+                addBlindItem: function () {
+                    this.blindItems.push({
+                        Name: `${enAlphabet[this.blindItems.length]}`,
+                        Letter: enAlphabet[this.blindItems.length]
+                    });
+                },
+                getInputName: function (index) {
+                    return `Blind.BlindItems[${index}].Name`;
+                }
+            }
+        })
+        </script>
+
+    }

@@ -18,5 +18,18 @@ namespace Pumpkin.Beer.Taste.Data
             : base(options)
         {
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Blind>()
+                .HasKey(x => x.Id);
+
+            modelBuilder.Entity<Blind>()
+                .Property(b => b.Created)
+                .HasDefaultValue(DateTime.Now);
+
+            base.OnModelCreating(modelBuilder);
+
+        }
     }
 }

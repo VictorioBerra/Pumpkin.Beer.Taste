@@ -34,7 +34,7 @@ namespace Pumpkin.Beer.Taste
             services.AddDbContext<ApplicationDbContext>(options => { 
                 if(Environment.GetEnvironmentVariable("usesqlite") == "1")
                 {
-                    options.UseSqlite(@"Data Source=C:\Users\toryb\source\repos\Pumpkin.Beer.Taste\blindtastetestdb.sqlite");
+                    options.UseSqlite(Configuration.GetConnectionString("DefaultSqliteConnection"));
                 }
                 else
                 {

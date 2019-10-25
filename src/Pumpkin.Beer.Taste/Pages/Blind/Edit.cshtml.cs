@@ -47,12 +47,17 @@ namespace Pumpkin.Beer.Taste.Pages.BlindPages
         // more details see https://aka.ms/RazorPagesCRUD.
         public async Task<IActionResult> OnPostAsync()
         {
+            // TODO
+            // Dont allow edits if votes have been placed already!
+
             if (!ModelState.IsValid)
             {
                 return Page();
             }
 
-            _context.Attach(Blind).State = EntityState.Modified;
+            var blind = mapper.Map<Blind>(Blind);
+
+            _context.Attach(blind).State = EntityState.Modified;
 
             try
             {

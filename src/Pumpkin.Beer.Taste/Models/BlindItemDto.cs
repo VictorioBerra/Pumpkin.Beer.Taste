@@ -12,8 +12,6 @@ namespace Pumpkin.Beer.Taste.Models
 
         public string Name { get; set; }
 
-        public string Make { get; set; }
-
         public int BlindId { get; set; }
 
         public BlindDto Blind { get; set; }

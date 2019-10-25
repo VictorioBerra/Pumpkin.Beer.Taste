@@ -11,7 +11,9 @@ namespace Pumpkin.Beer.Taste.Data
 
         public string Name { get; set; }
 
-        public string Make { get; set; }
+        public string Letter { get; set; }
+
+        public int ordinal { get; set; }
 
         public int BlindId { get; set; }
 

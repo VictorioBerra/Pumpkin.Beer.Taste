@@ -8,6 +8,11 @@ namespace Pumpkin.Beer.Taste.Models
 {
     public class BlindDto
     {
+        public BlindDto()
+        {
+            BlindItems = new List<BlindItemDto>();
+        }
+
         public int Id { get; set; }
 
         public string Name { get; set; }
@@ -15,5 +20,7 @@ namespace Pumpkin.Beer.Taste.Models
         public DateTime? Started { get; set; }
 
         public DateTime? Closed { get; set; }
+
+        public List<BlindItemDto> BlindItems { get; set; }
     }
 }

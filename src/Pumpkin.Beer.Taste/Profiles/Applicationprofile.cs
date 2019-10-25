@@ -17,7 +17,7 @@ namespace Pumpkin.Beer.Taste.Profiles
 
             CreateMap<BlindItem, BlindItemDto>().ReverseMap();
 
-            CreateMap<BlindVoteDto, BlindVote>();
+            CreateMap<BlindVoteDto, BlindVote>().ReverseMap();
 
             CreateMap<BlindVote, BlindVoteDto>()
                 .ForMember(dest => dest.Username, opts => opts.MapFrom(src => src.User.UserName));
