@@ -14,11 +14,11 @@ namespace Pumpkin.Beer.Taste.Data
 
         public int Score { get; set; }
 
+        public string Note { get; set; }
+
         public int BlindItemId { get; set; }
 
         public BlindItem BlindItem { get; set; }
-
-        public int BlindItemOrdinal { get; set; }
 
         public DateTimeOffset Created { get; set; }
     }

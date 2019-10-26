@@ -300,9 +300,6 @@ namespace Pumpkin.Beer.Taste.Migrations
                     b.Property<int>("BlindItemId")
                         .HasColumnType("int");
 
-                    b.Property<int>("BlindItemOrdinal")
-                        .HasColumnType("int");
-
                     b.Property<DateTimeOffset>("Created")
                         .HasColumnType("datetime(6)");
 
@@ -312,6 +309,9 @@ namespace Pumpkin.Beer.Taste.Migrations
 
                     b.Property<DateTimeOffset?>("CreatedDate")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("longtext");
 
                     b.Property<int>("Score")
                         .HasColumnType("int");

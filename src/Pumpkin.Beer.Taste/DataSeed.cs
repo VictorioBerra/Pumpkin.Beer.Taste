@@ -29,8 +29,8 @@ namespace Pumpkin.Beer.Taste
             this.logger = loggerFactory.CreateLogger<DataSeed>();
         }
 
-        public async Task Seed()
-        {
+        //public async Task Seed()
+        //{
             // TODO, It is not possible to do this without an HTTP Context
 
             //var adminName = Constants.InitialAdminName;
@@ -68,6 +68,6 @@ namespace Pumpkin.Beer.Taste
 
             //    await context.SaveChangesAsync();
             //}
-        }
+        //}
     }
 }

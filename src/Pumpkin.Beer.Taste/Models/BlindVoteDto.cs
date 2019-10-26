@@ -17,11 +17,11 @@ namespace Pumpkin.Beer.Taste.Models
         [Range(1, 5)]
         public int Score { get; set; }
 
+        public string Note { get; set; }
+
         public int BlindItemId { get; set; }
 
         public BlindItemDto BlindItem { get; set; }
-
-        public int BlindItemOrdinal { get; set; }
 
         public DateTimeOffset Created { get; set; }
 

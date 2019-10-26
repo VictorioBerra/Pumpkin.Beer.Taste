@@ -39,7 +39,7 @@ namespace Pumpkin.Beer.Taste.Pages.BlindPages
 
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
-        public async Task<IActionResult> OnPostAsync()
+        public IActionResult OnPost()
         {
             if (!ModelState.IsValid)
             {
@@ -48,6 +48,13 @@ namespace Pumpkin.Beer.Taste.Pages.BlindPages
 
             var blind = mapper.Map<Blind>(Blind);
             blind.CreatedByUserId = this.userManager.GetUserId(User);
+
+            var BlindItems = blind.BlindItems.ToList();
+            for (int i = 0; i < BlindItems.Count; i++)
+            {
+                BlindItems[i].ordinal = i;
+            }
+            blind.BlindItems = BlindItems;
 
             blindRepository.Add(blind);
 

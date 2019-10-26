@@ -1,0 +1,38 @@
+﻿@page
+@model Pumpkin.Beer.Taste.Pages.ScorePages.IndexModel
+@{
+    ViewData["Title"] = "Scores for " + Model.Blind.Name;
+}
+
+<h1>Scores for  @Model.Blind.Name</h1>
+<hr />
+
+<div class="row">
+    <div class="col-md-12">
+
+        <ul class="list-unstyled">
+            @for (int i = 0; i < Model.BlindItemScore.Count; i++)
+            {
+                var score = Model.BlindItemScore[i];
+                <li>
+                    <h3 title="@score.AmountOfVotes people voted for an average of @(score.TotalScore / score.AmountOfVotes)">
+                        @if (i == 0)
+                        { 
+                            <span>🎉</span>
+                        }
+                        <strong class="text-success"> @score.TotalScore</strong> - <strong>@score.BlindItem.Letter:</strong> @score.BlindItem.Name
+                    </h3>
+                <ul class="list-unstyled">
+                    @foreach (var note in score.Notes.Where(x => !string.IsNullOrEmpty(x)))
+                    {
+                        <li>
+                            @note
+                        </li>
+                    }
+                </ul>
+            </li>
+            }
+        </ul>
+
+    </div>
+</div>

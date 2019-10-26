@@ -9,7 +9,7 @@ using Pumpkin.Beer.Taste.Data;
 namespace Pumpkin.Beer.Taste.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20191025230949_InitialCreate")]
+    [Migration("20191026035529_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -302,9 +302,6 @@ namespace Pumpkin.Beer.Taste.Migrations
                     b.Property<int>("BlindItemId")
                         .HasColumnType("int");
 
-                    b.Property<int>("BlindItemOrdinal")
-                        .HasColumnType("int");
-
                     b.Property<DateTimeOffset>("Created")
                         .HasColumnType("datetime(6)");
 
@@ -314,6 +311,9 @@ namespace Pumpkin.Beer.Taste.Migrations
 
                     b.Property<DateTimeOffset?>("CreatedDate")
                         .HasColumnType("datetime(6)");
+
+                    b.Property<string>("Note")
+                        .HasColumnType("longtext");
 
                     b.Property<int>("Score")
                         .HasColumnType("int");

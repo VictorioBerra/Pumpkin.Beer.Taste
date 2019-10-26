@@ -35,7 +35,7 @@ namespace Pumpkin.Beer.Taste.Pages.BlindPages
         [BindProperty]
         public BlindDto Blind { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(int? id)
+        public IActionResult OnGet(int? id)
         {
             if (id == null)
             {
@@ -43,8 +43,9 @@ namespace Pumpkin.Beer.Taste.Pages.BlindPages
             }
 
             // Kick if it has votes
+            // TODO: They still need to be able to close it. Maybe find a way to disable changing the items but still allow edit?
             var spec = Specifications.GetBlindsWithNoVotes()
-                .And(x => x.Id == id);
+                .AndAlso(x => x.Id == id);
             var blind = blindRepository.Find(spec);
             if (blind == null)
             {
@@ -80,7 +81,7 @@ namespace Pumpkin.Beer.Taste.Pages.BlindPages
 
             // Kick if it has votes
             var spec = Specifications.GetBlindsWithNoVotes()
-                .And(x => x.Id == id);
+                .AndAlso(x => x.Id == id);
             var blind = blindRepository.Find(spec);
             if (blind == null)
             {
@@ -96,6 +97,13 @@ namespace Pumpkin.Beer.Taste.Pages.BlindPages
             }
 
             var blindToEdit = mapper.Map<Blind>(Blind);
+
+            var BlindItems = blind.BlindItems.ToList();
+            for (int i = 0; i < BlindItems.Count; i++)
+            {
+                BlindItems[i].ordinal = i;
+            }
+            blind.BlindItems = BlindItems;
 
             context.Attach(blindToEdit).State = EntityState.Modified;
 

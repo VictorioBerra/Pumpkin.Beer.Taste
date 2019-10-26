@@ -47,6 +47,8 @@ namespace Pumpkin.Beer.Taste
                 .AddRazorPagesOptions(options =>
                 {
                     options.Conventions.AuthorizeFolder("/ManageBlind");
+                    options.Conventions.AuthorizeFolder("/Scores");
+                    options.Conventions.AuthorizeFolder("/Vote");
                 })
                 .AddRazorRuntimeCompilation();
 

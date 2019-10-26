@@ -20,19 +20,50 @@
 {
     <hr />
 
-    <h3>Open Tastings:</h3>
+    <div class="row">
+        <div class="col-md-6">
+            <h3>Open Tastings:</h3>
 
-    <hr />
+            <hr />
 
-    <ul class="list-unstyled">
-        @foreach (var blind in Model.Blinds)
-        {
-            <li>
-                <h1>
-                    <a asp-area="" asp-page="/Vote/Index" asp-route-id="@blind.Id" class="btn btn-lg btn-success btn-block">@blind.Name</a>
-                </h1>
-                <small class="utc-local-from-now" data-date="@blind.Started.Value">Loading...</small>
-            </li>
-        }
-    </ul>
+            @if (!Model.Blinds.Any())
+            {
+                <h4>There are no open tastings at this time.</h4>
+            }
+
+            <ul class="list-unstyled">
+                @foreach (var blind in Model.Blinds)
+                {
+                    <li>
+                        <h1>
+                            <a asp-area="" asp-page="/Vote/Index" asp-route-id="@blind.Id" class="btn btn-lg btn-success btn-block">@blind.Name</a>
+                        </h1>
+                        <small class="utc-local-from-now" data-date="@blind.Started.Value">Loading...</small>
+                    </li>
+                }
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <h3>Closed Tastings:</h3>
+
+            <hr />
+
+            @if (!Model.ClosedBlinds?.Any() ?? false)
+            {
+                <h4>There are no closed tastings at this time.</h4>
+            }
+
+            <ul class="list-unstyled">
+                @foreach (var blind in Model.ClosedBlinds)
+                {
+                    <li>
+                        <h1>
+                            <a asp-area="" asp-page="/Scores/Index" asp-route-id="@blind.Id" class="btn btn-lg btn-info btn-block">@blind.Name</a>
+                        </h1>
+                        <small class="utc-local-from-now" data-date="@blind.Closed.Value">Loading...</small>
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
 }

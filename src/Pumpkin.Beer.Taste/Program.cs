@@ -34,7 +34,7 @@ namespace Pumpkin.Beer.Taste
                 var seed = args.Contains("/seed");
                 if (seed)
                 {
-                    await dataSeed.Seed();
+                    //await dataSeed.Seed();
                 }
             }
 

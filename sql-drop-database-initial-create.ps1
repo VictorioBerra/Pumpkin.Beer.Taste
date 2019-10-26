@@ -22,4 +22,4 @@ dotnet ef database update --project $proj
 # Drop Table BlindItem;
 # Drop Table Blind;
 # Drop Table AspNetUsers;
-# Drop Table EFMigrationsHistory;
+# Drop Table AspNetRoleClaims;

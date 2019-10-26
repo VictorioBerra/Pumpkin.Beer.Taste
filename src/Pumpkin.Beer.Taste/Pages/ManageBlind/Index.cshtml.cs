@@ -31,7 +31,7 @@ namespace Pumpkin.Beer.Taste.Pages.BlindPages
 
         public IList<BlindDto> Blinds { get;set; }
 
-        public async Task OnGetAsync()
+        public void OnGet()
         {
             var userId = userManager.GetUserId(User);
 

@@ -232,8 +232,8 @@ namespace Pumpkin.Beer.Taste.Migrations
                     UpdatedDate = table.Column<DateTimeOffset>(nullable: false),
                     UpdatedByUserId = table.Column<string>(nullable: false),
                     Score = table.Column<int>(nullable: false),
+                    Note = table.Column<string>(nullable: true),
                     BlindItemId = table.Column<int>(nullable: false),
-                    BlindItemOrdinal = table.Column<int>(nullable: false),
                     Created = table.Column<DateTimeOffset>(nullable: false)
                 },
                 constraints: table =>

@@ -22,26 +22,29 @@ namespace Pumpkin.Beer.Taste.Pages.VotePages
         private readonly UserManager<IdentityUser> userManager;
         private readonly IClockService clockService;
         private readonly IRepository<Blind, int> blindRepository;
-        private readonly IRepository<BlindItem, int> blindItemsRepository;
+        private readonly IRepository<BlindVote, int> blindVoteRepository;
+        private readonly IRepository<BlindItem, int> blindItemRepository;
 
         public IndexModel(
             IMapper mapper,
             UserManager<IdentityUser> userManager,
             IClockService clockService,
             IRepository<Blind, int> blindRepository,
-            IRepository<BlindItem, int> blindItemsRepository)
+            IRepository<BlindVote, int> blindVoteRepository,
+            IRepository<BlindItem, int> blindItemRepository)
         {
             this.mapper = mapper;
             this.userManager = userManager;
             this.clockService = clockService;
             this.blindRepository = blindRepository;
-            this.blindItemsRepository = blindItemsRepository;
+            this.blindVoteRepository = blindVoteRepository;
+            this.blindItemRepository = blindItemRepository;
         }
 
         [BindProperty]
-        public BlindItemDto BlindItem { get; set; }
+        public BlindVoteDto BlindVote { get; set; }
 
-        public async Task<IActionResult> OnGetAsync(int? id)
+        public IActionResult OnGet(int? id)
         {
             if (id == null)
             {
@@ -53,9 +56,7 @@ namespace Pumpkin.Beer.Taste.Pages.VotePages
 
             // Is open and not closed?
             var spec = Specifications.GetOpenBlinds(now)
-                .And(x => x.Id == id)
-                // Any items that have no votes, or have no votes of mine
-                .And(x => x.BlindItems.Any(y => !y.BlindVotes.Any() || y.BlindVotes.Any(z => z.CreatedByUserId != userId)));
+                .AndAlso(x => x.Id == id);
 
             var strat = new GenericFetchStrategy<Blind>();
             strat.Include(x => x.BlindItems.First().BlindVotes);
@@ -68,12 +69,71 @@ namespace Pumpkin.Beer.Taste.Pages.VotePages
                 return Page();
             }
 
-            var firstItem = blind.BlindItems.OrderBy(x => x.ordinal).First();
+            var blindItemSpec = Specifications.GetBlindsWithItemsWithNoVotesOfMine(userId)
+                .AndAlso(x => x.BlindId == id);
+            blindItemSpec.FetchStrategy = new GenericFetchStrategy<BlindItem>().Include(x => x.Blind);
 
-            BlindItem = mapper.Map<BlindItemDto>(firstItem);
+            var firstItem = blindItemRepository
+                .FindAll(blindItemSpec)
+                .OrderBy(x => x.ordinal)
+                .FirstOrDefault();
+
+            if(firstItem == null)
+            {
+                return Page();
+            }
+
+            BlindVote = new BlindVoteDto()
+            {
+                BlindItem = mapper.Map<BlindItemDto>(firstItem),
+                BlindItemId = firstItem.Id
+            };
 
             return Page();
 
+        }
+
+
+        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
+        // more details see https://aka.ms/RazorPagesCRUD.
+        public IActionResult OnPost(int? id)
+        {
+            if (!ModelState.IsValid)
+            {
+                return Page();
+            }
+
+            if (id == null)
+            {
+                return NotFound();
+            }
+
+            // TODO, Perform the same checks as above.
+
+            var now = this.clockService.UtcNow;
+            var userId = this.userManager.GetUserId(User);
+
+            // Is open and not closed?
+            var spec = Specifications.GetOpenBlinds(now)
+                .AndAlso(x => x.Id == id);
+
+            var strat = new GenericFetchStrategy<Blind>();
+            strat.Include(x => x.BlindItems.First().BlindVotes);
+
+            spec.FetchStrategy = strat;
+
+            var blind = blindRepository.Find(spec);
+            if (blind == null)
+            {
+                return Page();
+            }
+
+            var newVote = mapper.Map<BlindVote>(BlindVote);
+
+            blindVoteRepository.Add(newVote);
+
+            // Redirect to myself
+            return RedirectToPage("./Index", new { Id = id });
         }
     }
 }
