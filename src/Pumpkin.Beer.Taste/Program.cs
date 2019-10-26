@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Autofac.Extensions.DependencyInjection;
@@ -45,11 +46,14 @@ namespace Pumpkin.Beer.Taste
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder
-                        .UseStartup<Startup>()
-                        .ConfigureAppConfiguration(config => 
+                        .ConfigureAppConfiguration((context, config) =>
                         {
-                            config.AddJsonFile("../data/appsettings.json", optional: true, reloadOnChange: true);
-                        });
+                            // Build out an absolute path to the settings.
+                            var appSettingsProduction = Path.Combine(context.HostingEnvironment.ContentRootPath, @"..\data\appsettings.json");
+                            appSettingsProduction = Path.GetFullPath(appSettingsProduction);
+                            config.AddJsonFile(appSettingsProduction, optional: true, reloadOnChange: true);
+                        })
+                        .UseStartup<Startup>();
                 });
     }
 }
