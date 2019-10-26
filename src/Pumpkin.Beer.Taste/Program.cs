@@ -51,6 +51,7 @@ namespace Pumpkin.Beer.Taste
                             // Build out an absolute path to the settings.
                             var appSettingsProduction = Path.Combine(context.HostingEnvironment.ContentRootPath, @"..\data\appsettings.json");
                             appSettingsProduction = Path.GetFullPath(appSettingsProduction);
+                            Console.WriteLine("Looking for appsettings here: " + appSettingsProduction);
                             config.AddJsonFile(appSettingsProduction, optional: true, reloadOnChange: true);
                         })
                         .UseStartup<Startup>();
