@@ -9,7 +9,7 @@ namespace Pumpkin.Beer.Taste.Models
     {
         public BlindItemScoresDto()
         {
-            Notes = new List<string>();
+            BlindVotes = new List<BlindVoteDto>();
         }
 
         public BlindItemDto BlindItem { get; set; }
@@ -18,6 +18,6 @@ namespace Pumpkin.Beer.Taste.Models
 
         public decimal AmountOfVotes { get; set; }
 
-        public List<string> Notes { get; set; }
+        public List<BlindVoteDto> BlindVotes { get; set; }
     }
 }

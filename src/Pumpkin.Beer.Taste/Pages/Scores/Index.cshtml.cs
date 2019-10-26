@@ -62,7 +62,9 @@ namespace Pumpkin.Beer.Taste.Pages.ScorePages
             var spec = Specifications
                 .GetClosedBlinds(now)
                 .AndAlso(x => x.Id == id);
-            spec.FetchStrategy = Strategies.IncludeItemsAndVotes();
+            spec.FetchStrategy = Strategies
+                .IncludeItemsAndVotes()
+                .Include(x => x.BlindItems.First().BlindVotes.First().CreatedByUser);
             var blind = blindRepository.Find(spec);
             if (blind == null)
             {

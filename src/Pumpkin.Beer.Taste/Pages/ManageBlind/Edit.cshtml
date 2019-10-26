@@ -67,7 +67,7 @@
         var app = new Vue({
             el: '#createContainer',
             data: {
-                blindItems: (@(JsonSerializer.Serialize(Model?.BlindItems))),
+                blindItems: (@Html.Raw(JsonSerializer.Serialize(Model?.BlindItems))),
                 startDate: null,
                 closedDate: null
             },

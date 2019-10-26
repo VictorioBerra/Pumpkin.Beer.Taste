@@ -25,10 +25,10 @@
                         }*@
                     </h3>
                     <ul class="list-unstyled">
-                        @foreach (var note in score.Notes.Where(x => !string.IsNullOrEmpty(x)))
+                        @foreach (var vote in score.BlindVotes.Where(x => !string.IsNullOrEmpty(x.Note)))
                         {
                             <li>
-                                @note
+                                @vote.Note - @vote.Username
                             </li>
                         }
                     </ul>
