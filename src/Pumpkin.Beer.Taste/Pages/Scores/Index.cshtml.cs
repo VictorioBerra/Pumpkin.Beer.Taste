@@ -59,7 +59,8 @@ namespace Pumpkin.Beer.Taste.Pages.ScorePages
 
             var now = this.clockService.UtcNow;
 
-            var spec = Specifications.GetClosedBlinds(now)
+            var spec = Specifications
+                .GetClosedBlinds(now)
                 .AndAlso(x => x.Id == id);
             spec.FetchStrategy = Strategies.IncludeItemsAndVotes();
             var blind = blindRepository.Find(spec);

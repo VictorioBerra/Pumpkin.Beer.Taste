@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Security.Claims;
 using System.Text;
@@ -9,6 +10,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Pumpkin.Beer.Taste.Services;
 
 namespace Pumpkin.Beer.Taste.Data
@@ -95,6 +97,20 @@ namespace Pumpkin.Beer.Taste.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            var mysqlDateTimeOffsetToUTC = new ValueConverter<DateTimeOffset, DateTimeOffset>(
+                v => v.UtcDateTime,
+                v => v);
+
+            modelBuilder
+                .Entity<Blind>()
+                .Property(e => e.Started)
+                .HasConversion(mysqlDateTimeOffsetToUTC);
+
+            modelBuilder
+                .Entity<Blind>()
+                .Property(e => e.Closed)
+                .HasConversion(mysqlDateTimeOffsetToUTC);
+
             base.OnModelCreating(modelBuilder);
         }
     }
