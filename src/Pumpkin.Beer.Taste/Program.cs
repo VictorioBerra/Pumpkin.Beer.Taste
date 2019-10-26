@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Pumpkin.Beer.Taste.Data;
@@ -48,11 +49,9 @@ namespace Pumpkin.Beer.Taste
                     webBuilder
                         .ConfigureAppConfiguration((context, config) =>
                         {
-                            // Build out an absolute path to the settings.
-                            var appSettingsProduction = Path.Combine(context.HostingEnvironment.ContentRootPath, @"..\data\appsettings.json");
-                            appSettingsProduction = Path.GetFullPath(appSettingsProduction);
-                            Console.WriteLine("Looking for appsettings here: " + appSettingsProduction);
-                            config.AddJsonFile(appSettingsProduction, optional: true, reloadOnChange: true);
+                            var provider = new PhysicalFileProvider(Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName, "data"));
+                            Console.WriteLine("Looking for optional prod config in: " + provider.Root);
+                            config.AddJsonFile(provider, "appsettings.json", optional: true, reloadOnChange: false);
                         })
                         .UseStartup<Startup>();
                 });

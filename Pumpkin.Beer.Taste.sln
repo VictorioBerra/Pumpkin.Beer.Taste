@@ -9,6 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pumpkin.Beer.Taste", "src\P
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2FBE2A2A-8591-400E-B381-B9A9B5D99652}"
 	ProjectSection(SolutionItems) = preProject
+		.github\workflows\ci.yml = .github\workflows\ci.yml
 		sql-drop-database-initial-create.ps1 = sql-drop-database-initial-create.ps1
 		sqlite-drop-database-initial-create.ps1 = sqlite-drop-database-initial-create.ps1
 	EndProjectSection
