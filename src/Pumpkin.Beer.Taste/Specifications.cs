@@ -21,8 +21,9 @@ namespace Pumpkin.Beer.Taste
 
         public static Specification<Blind> GetBlindsWithNoVotes()
         {
+            // Give me the blind where there are no items, or
             // Give me all Blinds where there are items with no votes
-            return new Specification<Blind>(x => x.BlindItems.Any(y => !y.BlindVotes.Any()));
+            return new Specification<Blind>(x => !x.BlindItems.Any() || x.BlindItems.Any(y => !y.BlindVotes.Any()));
         }
     }
 }

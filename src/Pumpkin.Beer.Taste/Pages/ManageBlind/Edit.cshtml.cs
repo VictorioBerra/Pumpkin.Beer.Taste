@@ -43,8 +43,8 @@ namespace Pumpkin.Beer.Taste.Pages.BlindPages
             }
 
             // Kick if it has votes
-            var spec = Specifications.GetBlindsWithNoVotes();
-            spec.And(x => x.Id == id);
+            var spec = Specifications.GetBlindsWithNoVotes()
+                .And(x => x.Id == id);
             var blind = blindRepository.Find(spec);
             if (blind == null)
             {
@@ -70,7 +70,7 @@ namespace Pumpkin.Beer.Taste.Pages.BlindPages
 
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for
         // more details see https://aka.ms/RazorPagesCRUD.
-        public async Task<IActionResult> OnPostAsync()
+        public async Task<IActionResult> OnPostAsync(int? id)
         {
 
             if (!ModelState.IsValid)
@@ -79,8 +79,8 @@ namespace Pumpkin.Beer.Taste.Pages.BlindPages
             }
 
             // Kick if it has votes
-            var spec = Specifications.GetBlindsWithNoVotes();
-            spec.And(x => x.Id == Blind.Id);
+            var spec = Specifications.GetBlindsWithNoVotes()
+                .And(x => x.Id == id);
             var blind = blindRepository.Find(spec);
             if (blind == null)
             {

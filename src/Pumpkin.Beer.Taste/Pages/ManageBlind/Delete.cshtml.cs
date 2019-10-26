@@ -43,8 +43,8 @@ namespace Pumpkin.Beer.Taste.Pages.BlindPages
             }
 
             // Kick if it has votes
-            var spec = Specifications.GetBlindsWithNoVotes();
-            spec.And(x => x.Id == id);
+            var spec = Specifications.GetBlindsWithNoVotes()
+                .And(x => x.Id == id);
             var blind = blindRepository.Find(spec);
             if (blind == null)
             {
@@ -75,7 +75,23 @@ namespace Pumpkin.Beer.Taste.Pages.BlindPages
                 return NotFound();
             }
 
-            var blind = await context.Blind.FindAsync(id);
+            // Kick if it has votes
+            var spec = Specifications.GetBlindsWithNoVotes()
+                .And(x => x.Id == id);
+            var blind = blindRepository.Find(spec);
+            if (blind == null)
+            {
+                // TODO better error??
+                return NotFound();
+            }
+
+            // Kick if its not theirs
+            var userId = this.userManager.GetUserId(User);
+            if (blind.CreatedByUserId != userId)
+            {
+                return Unauthorized();
+            }
+
             Blind = mapper.Map<BlindDto>(blind);
 
             if (Blind != null)
