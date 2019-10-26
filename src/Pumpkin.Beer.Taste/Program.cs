@@ -49,9 +49,15 @@ namespace Pumpkin.Beer.Taste
                     webBuilder
                         .ConfigureAppConfiguration((context, config) =>
                         {
-                            var provider = new PhysicalFileProvider(Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName, "data"));
-                            Console.WriteLine("Looking for optional prod config in: " + provider.Root);
-                            config.AddJsonFile(provider, "appsettings.json", optional: true, reloadOnChange: false);
+                            var path = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName, "data");
+
+                            if(Directory.Exists(path))
+                            {
+                                var provider = new PhysicalFileProvider(path);
+                                Console.WriteLine("Looking for optional prod config in: " + provider.Root);
+                                config.AddJsonFile(provider, "appsettings.json", optional: true, reloadOnChange: false);
+                            }
+
                         })
                         .UseStartup<Startup>();
                 });
