@@ -19,7 +19,5 @@ namespace Pumpkin.Beer.Taste.Data
         public int BlindItemId { get; set; }
 
         public BlindItem BlindItem { get; set; }
-
-        public DateTimeOffset Created { get; set; }
     }
 }

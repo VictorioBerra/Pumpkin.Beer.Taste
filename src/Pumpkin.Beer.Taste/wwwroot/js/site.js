@@ -3,14 +3,3 @@
 
 const enAlphabet = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
 const aspNetCoreMomentFormat = "YYYY-MM-DDTHH:mm";
-
-$(function () {
-    // Convert any UTC labels to local datetime and display as `fromNow()`
-    $(".utc-local-from-now").each(function (i, e) {
-        let e$ = $(e);
-        let utcData = e$.data().date;
-        let utcMoment = moment.utc(utcData);
-        let localMoment = utcMoment.local();
-        e$.text(`Opened ${localMoment.fromNow()}`);
-    });
-});

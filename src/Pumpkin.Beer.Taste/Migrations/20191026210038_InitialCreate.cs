@@ -159,13 +159,13 @@ namespace Pumpkin.Beer.Taste.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    CreatedDate = table.Column<DateTimeOffset>(nullable: true),
+                    CreatedDate = table.Column<DateTime>(nullable: false),
                     CreatedByUserId = table.Column<string>(nullable: false),
-                    UpdatedDate = table.Column<DateTimeOffset>(nullable: false),
+                    UpdatedDate = table.Column<DateTime>(nullable: false),
                     UpdatedByUserId = table.Column<string>(nullable: false),
                     Name = table.Column<string>(nullable: true),
-                    Started = table.Column<DateTimeOffset>(nullable: true),
-                    Closed = table.Column<DateTimeOffset>(nullable: true)
+                    Started = table.Column<DateTime>(nullable: true),
+                    Closed = table.Column<DateTime>(nullable: true)
                 },
                 constraints: table =>
                 {
@@ -190,9 +190,9 @@ namespace Pumpkin.Beer.Taste.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    CreatedDate = table.Column<DateTimeOffset>(nullable: true),
+                    CreatedDate = table.Column<DateTime>(nullable: false),
                     CreatedByUserId = table.Column<string>(nullable: false),
-                    UpdatedDate = table.Column<DateTimeOffset>(nullable: false),
+                    UpdatedDate = table.Column<DateTime>(nullable: false),
                     UpdatedByUserId = table.Column<string>(nullable: false),
                     Name = table.Column<string>(nullable: true),
                     ordinal = table.Column<int>(nullable: false),
@@ -227,14 +227,13 @@ namespace Pumpkin.Beer.Taste.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("MySql:ValueGenerationStrategy", MySqlValueGenerationStrategy.IdentityColumn),
-                    CreatedDate = table.Column<DateTimeOffset>(nullable: true),
+                    CreatedDate = table.Column<DateTime>(nullable: false),
                     CreatedByUserId = table.Column<string>(nullable: false),
-                    UpdatedDate = table.Column<DateTimeOffset>(nullable: false),
+                    UpdatedDate = table.Column<DateTime>(nullable: false),
                     UpdatedByUserId = table.Column<string>(nullable: false),
                     Score = table.Column<int>(nullable: false),
                     Note = table.Column<string>(nullable: true),
-                    BlindItemId = table.Column<int>(nullable: false),
-                    Created = table.Column<DateTimeOffset>(nullable: false)
+                    BlindItemId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {

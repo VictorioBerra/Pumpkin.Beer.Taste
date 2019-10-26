@@ -87,31 +87,17 @@ namespace Pumpkin.Beer.Taste.Data
                 if (entry.State == EntityState.Added)
                 {
                     entity.CreatedByUserId = userId;
-                    entity.CreatedDate = now;
+                    entity.CreatedDate = now.UtcDateTime;
                 }
 
                 entity.UpdatedByUserId = userId;
-                entity.UpdatedDate = now;
+                entity.UpdatedDate = now.UtcDateTime;
             }
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
-            var mysqlDateTimeOffsetToUTC = new ValueConverter<DateTimeOffset, DateTimeOffset>(
-                v => v.UtcDateTime,
-                v => v);
-
-            modelBuilder
-                .Entity<Blind>()
-                .Property(e => e.Started)
-                .HasConversion(mysqlDateTimeOffsetToUTC);
-
-            modelBuilder
-                .Entity<Blind>()
-                .Property(e => e.Closed)
-                .HasConversion(mysqlDateTimeOffsetToUTC);
-
-            base.OnModelCreating(modelBuilder);
-        }
+        //protected override void OnModelCreating(ModelBuilder modelBuilder)
+        //{
+        //    base.OnModelCreating(modelBuilder);
+        //}
     }
 }

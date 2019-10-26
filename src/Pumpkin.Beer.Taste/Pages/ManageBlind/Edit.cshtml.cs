@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using Pumpkin.Beer.Taste.Data;
 using Pumpkin.Beer.Taste.Models;
 using SharpRepository.Repository;
+using SharpRepository.Repository.FetchStrategies;
 
 namespace Pumpkin.Beer.Taste.Pages.BlindPages
 {
@@ -19,21 +20,27 @@ namespace Pumpkin.Beer.Taste.Pages.BlindPages
         private readonly ApplicationDbContext context;
         private readonly IMapper mapper;
         private readonly IRepository<Blind, int> blindRepository;
+        private readonly IRepository<BlindItem, int> blindItemRepository;
         private readonly UserManager<IdentityUser> userManager;
 
         public EditModel(ApplicationDbContext context,
             UserManager<IdentityUser> userManager,
             IMapper mapper,
-            IRepository<Blind, int> blindRepository)
+            IRepository<Blind, int> blindRepository,
+            IRepository<BlindItem, int> blindItemRepository)
         {
             this.userManager = userManager;
             this.context = context;
             this.mapper = mapper;
             this.blindRepository = blindRepository;
+            this.blindItemRepository = blindItemRepository;
         }
 
         [BindProperty]
         public BlindDto Blind { get; set; }
+
+        [BindProperty]
+        public List<BlindItemDto> BlindItems { get; set; }
 
         public IActionResult OnGet(int? id)
         {
@@ -44,7 +51,8 @@ namespace Pumpkin.Beer.Taste.Pages.BlindPages
 
             // Kick if it has votes
             // TODO: They still need to be able to close it. Maybe find a way to disable changing the items but still allow edit?
-            var spec = Specifications.GetBlindsWithNoVotes()
+            var spec = Specifications
+                .GetBlindsWithNoVotes()
                 .AndAlso(x => x.Id == id);
             var blind = blindRepository.Find(spec);
             if (blind == null)
@@ -61,6 +69,7 @@ namespace Pumpkin.Beer.Taste.Pages.BlindPages
             }
 
             Blind = mapper.Map<BlindDto>(blind);
+            BlindItems = mapper.Map<List<BlindItemDto>>(blindItemRepository.FindAll(x => x.BlindId == id));
 
             if (Blind == null)
             {

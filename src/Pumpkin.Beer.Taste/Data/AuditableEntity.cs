@@ -9,12 +9,12 @@ namespace Pumpkin.Beer.Taste.Data
 {
     public abstract class AuditableEntity
     {
-        public DateTimeOffset? CreatedDate { get; set; }
+        public DateTime CreatedDate { get; set; }
 
         [Required]
         public string CreatedByUserId { get; set; }
 
-        public DateTimeOffset UpdatedDate { get; set; }
+        public DateTime UpdatedDate { get; set; }
 
         [Required]
         public string UpdatedByUserId { get; set; }

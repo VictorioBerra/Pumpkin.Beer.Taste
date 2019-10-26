@@ -34,11 +34,10 @@
             <ul class="list-unstyled">
                 @foreach (var blind in Model.Blinds)
                 {
-                    <li>
+                    <li title="@blind.Started?.ToString("dddd, dd MMMM yyyy")">
                         <h1>
                             <a asp-area="" asp-page="/Vote/Index" asp-route-id="@blind.Id" class="btn btn-lg btn-success btn-block">@blind.Name</a>
                         </h1>
-                        <small class="utc-local-from-now" data-date="@blind.Started.Value.ToLocalTime()">Loading...</small>
                     </li>
                 }
             </ul>
@@ -56,11 +55,10 @@
             <ul class="list-unstyled">
                 @foreach (var blind in Model.ClosedBlinds)
                 {
-                    <li>
+                    <li title="@blind.Closed?.ToString("dddd, dd MMMM yyyy")">
                         <h1>
                             <a asp-area="" asp-page="/Scores/Index" asp-route-id="@blind.Id" class="btn btn-lg btn-info btn-block">@blind.Name</a>
                         </h1>
-                        <small class="utc-local-from-now" data-date="@blind.Closed.Value">Loading...</small>
                     </li>
                 }
             </ul>

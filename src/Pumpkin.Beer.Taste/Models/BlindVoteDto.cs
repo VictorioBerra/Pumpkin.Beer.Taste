@@ -23,8 +23,6 @@ namespace Pumpkin.Beer.Taste.Models
 
         public BlindItemDto BlindItem { get; set; }
 
-        public DateTimeOffset Created { get; set; }
-
         public string Username { get; set; }
 
     }

@@ -9,7 +9,7 @@ using Pumpkin.Beer.Taste.Data;
 namespace Pumpkin.Beer.Taste.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20191026035529_InitialCreate")]
+    [Migration("20191026210038_InitialCreate")]
     partial class InitialCreate
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -221,27 +221,27 @@ namespace Pumpkin.Beer.Taste.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<DateTimeOffset?>("Closed")
+                    b.Property<DateTime?>("Closed")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("CreatedByUserId")
                         .IsRequired()
                         .HasColumnType("varchar(95)");
 
-                    b.Property<DateTimeOffset?>("CreatedDate")
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Name")
                         .HasColumnType("longtext");
 
-                    b.Property<DateTimeOffset?>("Started")
+                    b.Property<DateTime?>("Started")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("UpdatedByUserId")
                         .IsRequired()
                         .HasColumnType("varchar(95)");
 
-                    b.Property<DateTimeOffset>("UpdatedDate")
+                    b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
@@ -266,7 +266,7 @@ namespace Pumpkin.Beer.Taste.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(95)");
 
-                    b.Property<DateTimeOffset?>("CreatedDate")
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Name")
@@ -276,7 +276,7 @@ namespace Pumpkin.Beer.Taste.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(95)");
 
-                    b.Property<DateTimeOffset>("UpdatedDate")
+                    b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
 
                     b.Property<int>("ordinal")
@@ -302,14 +302,11 @@ namespace Pumpkin.Beer.Taste.Migrations
                     b.Property<int>("BlindItemId")
                         .HasColumnType("int");
 
-                    b.Property<DateTimeOffset>("Created")
-                        .HasColumnType("datetime(6)");
-
                     b.Property<string>("CreatedByUserId")
                         .IsRequired()
                         .HasColumnType("varchar(95)");
 
-                    b.Property<DateTimeOffset?>("CreatedDate")
+                    b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime(6)");
 
                     b.Property<string>("Note")
@@ -322,7 +319,7 @@ namespace Pumpkin.Beer.Taste.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(95)");
 
-                    b.Property<DateTimeOffset>("UpdatedDate")
+                    b.Property<DateTime>("UpdatedDate")
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");

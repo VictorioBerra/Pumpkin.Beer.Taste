@@ -18,10 +18,11 @@
                 <li class="ml-2">
                     <h3 title="@score.AmountOfVotes people voted for an average of @(score.TotalScore / score.AmountOfVotes)">
                         <strong class="text-success"> @score.TotalScore</strong> - <strong>@score.BlindItem.Letter:</strong> @score.BlindItem.Name
-                        @if (i == 0)
+                        @* TODO: Handle a tie *@
+                        @*@if (i == 0)
                         {
                             <span style="font-size:100px">🎉</span>
-                        }
+                        }*@
                     </h3>
                     <ul class="list-unstyled">
                         @foreach (var note in score.Notes.Where(x => !string.IsNullOrEmpty(x)))

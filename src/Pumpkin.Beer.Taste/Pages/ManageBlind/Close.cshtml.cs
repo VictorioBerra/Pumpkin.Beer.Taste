@@ -46,13 +46,9 @@ namespace Pumpkin.Beer.Taste.Pages.BlindPages
                 return NotFound();
             }
 
-            // Kick if it has votes
-            var spec = Specifications.GetBlindsWithNoVotes()
-                .AndAlso(x => x.Id == id);
-            var blind = blindRepository.Find(spec);
+            var blind = blindRepository.Get((int)id);
             if (blind == null)
             {
-                // TODO better error??
                 return NotFound();
             }
 
@@ -81,13 +77,9 @@ namespace Pumpkin.Beer.Taste.Pages.BlindPages
 
             var now = this.clockService.UtcNow;
 
-            // Kick if it has votes
-            var spec = Specifications.GetBlindsWithNoVotes()
-                .AndAlso(x => x.Id == id);
-            var blind = blindRepository.Find(spec);
+            var blind = blindRepository.Get((int)id);
             if (blind == null)
             {
-                // TODO better error??
                 return NotFound();
             }
 
@@ -102,7 +94,7 @@ namespace Pumpkin.Beer.Taste.Pages.BlindPages
 
             if (Blind != null)
             {
-                blind.Closed = now;
+                blind.Closed = now.UtcDateTime;
                 context.Attach(blind).State = EntityState.Modified;
                 await context.SaveChangesAsync();
             }

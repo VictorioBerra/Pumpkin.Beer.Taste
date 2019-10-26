@@ -18,9 +18,9 @@ namespace Pumpkin.Beer.Taste.Data
 
         public string Name { get; set; }
 
-        public DateTimeOffset? Started { get; set; }
+        public DateTime? Started { get; set; }
 
-        public DateTimeOffset? Closed { get; set; }
+        public DateTime? Closed { get; set; }
 
         public ICollection<BlindItem> BlindItems { get; set; }
     }
