@@ -61,7 +61,7 @@ namespace Pumpkin.Beer.Taste.Pages.ScorePages
 
             var spec = Specifications.GetClosedBlinds(now)
                 .AndAlso(x => x.Id == id);
-            spec.FetchStrategy = new GenericFetchStrategy<Blind>().Include(x => x.BlindItems.First().BlindVotes);
+            spec.FetchStrategy = Strategies.IncludeItemsAndVotes();
             var blind = blindRepository.Find(spec);
             if (blind == null)
             {
@@ -69,8 +69,14 @@ namespace Pumpkin.Beer.Taste.Pages.ScorePages
                 return NotFound();
             }
 
+            if (!blind.BlindItems.Any(x => x.BlindVotes.Any()))
+            {
+                // TODO better error??
+                return NotFound();
+            }
+
             Blind = mapper.Map<BlindDto>(blind);
-            BlindItemScore = mapper.Map<List<BlindItemScoresDto>>(blind.BlindItems).OrderBy(x => x.TotalScore).ToList();
+            BlindItemScore = mapper.Map<List<BlindItemScoresDto>>(blind.BlindItems).OrderByDescending(x => x.TotalScore).ToList();
 
             return Page();
         }

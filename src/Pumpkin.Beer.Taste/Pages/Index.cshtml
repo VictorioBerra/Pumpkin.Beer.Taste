@@ -38,7 +38,7 @@
                         <h1>
                             <a asp-area="" asp-page="/Vote/Index" asp-route-id="@blind.Id" class="btn btn-lg btn-success btn-block">@blind.Name</a>
                         </h1>
-                        <small class="utc-local-from-now" data-date="@blind.Started.Value">Loading...</small>
+                        <small class="utc-local-from-now" data-date="@blind.Started.Value.ToLocalTime()">Loading...</small>
                     </li>
                 }
             </ul>

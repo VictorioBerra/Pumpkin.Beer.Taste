@@ -33,26 +33,35 @@
             </td>
             <td>
                 <div>
-                    <span>@item.Started?.LocalDateTime.ToString()</span>
                     @if (@item.Started != null)
                     {
-                        <span> (@item.Started?.Humanize())</span>
+                        <span title="@item.Started?.LocalDateTime.ToString()">@item.Started?.Humanize()</span>
                     }
                 </div>
             </td>
             <td>
                 <div>
-                    <span>@item.Closed?.LocalDateTime.ToString()</span>
                     @if (@item.Closed != null)
                     {
-                        <span> (@item.Closed?.Humanize())</span>
+                        <span title="@item.Closed?.LocalDateTime.ToString()">@item.Closed?.Humanize()</span>
                     }
                 </div>
             </td>
             <td>
-                <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
-                <a asp-page="./Details" asp-route-id="@item.Id">Details</a> |
-                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a>
+                @if (!item.HasVotes)
+                {
+                <span>
+                    <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a> |
+                    <a asp-page="./Close" asp-route-id="@item.Id">Close</a>
+                    @*<a asp-page="./Details" asp-route-id="@item.Id">Details</a> |*@
+                </span>
+                }
+                else
+                {
+                    <span><strong class="text-warning">Edit Disabled</strong> (people have already started voting!)</span>
+                    <a asp-page="./Closed" asp-route-id="@item.Id">Close</a>
+                }
             </td>
         </tr>
 }

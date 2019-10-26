@@ -35,7 +35,10 @@ namespace Pumpkin.Beer.Taste.Pages.BlindPages
         {
             var userId = userManager.GetUserId(User);
 
-            var blinds = blindRepository.FindAll(Specifications.GetOnlyMyBlinds(userId));
+            var strat = Specifications.GetOnlyMyBlinds(userId);
+            strat.FetchStrategy = Strategies.IncludeItemsAndVotes();
+
+            var blinds = blindRepository.FindAll(strat);
 
             Blinds = mapper.Map<List<BlindDto>>(blinds);
         }

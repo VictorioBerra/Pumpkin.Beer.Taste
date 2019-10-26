@@ -17,6 +17,7 @@ namespace Pumpkin.Beer.Taste.Profiles
             CreateMap<BlindDto, Blind>();
 
             CreateMap<Blind, BlindDto>()
+                .ForMember(dest => dest.HasVotes, opts => opts.MapFrom(src => src.BlindItems.Any(x => x.BlindVotes.Any())))
                 .ForMember(dest => dest.CreatedByUsername, opts => opts.MapFrom(src => src.CreatedByUser.UserName));
 
             CreateMap<BlindItem, BlindItemDto>()

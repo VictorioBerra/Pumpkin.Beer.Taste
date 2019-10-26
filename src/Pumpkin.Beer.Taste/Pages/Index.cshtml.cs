@@ -59,7 +59,7 @@ namespace Pumpkin.Beer.Taste.Pages
                 var now = this.clockService.UtcNow;
 
                 var spec = Specifications.GetOpenBlinds(now);
-                spec.FetchStrategy = new GenericFetchStrategy<Blind>().Include(x => x.BlindItems);
+                spec.FetchStrategy = Strategies.IncludeItemsAndVotes();
                 var blinds = blindRepository.FindAll(spec);
 
                 // TODO: Yes I know this is a nightmare, but MySQL was throwing a fit when I tried to do a complex .And
@@ -83,7 +83,7 @@ namespace Pumpkin.Beer.Taste.Pages
 
                 Blinds = this.mapper.Map<List<BlindDto>>(openUnvotedBlinds);
 
-                ClosedBlinds = this.mapper.Map<List<BlindDto>>(blindRepository.FindAll(Specifications.GetClosedBlinds(now)));
+                ClosedBlinds = this.mapper.Map<List<BlindDto>>(blindRepository.FindAll(Specifications.GetClosedBlinds(now).AndNot(Specifications.GetBlindsWithNoVotes())));
 
             }
         }

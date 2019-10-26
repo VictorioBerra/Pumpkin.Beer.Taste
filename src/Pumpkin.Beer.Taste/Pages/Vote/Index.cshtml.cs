@@ -71,7 +71,7 @@ namespace Pumpkin.Beer.Taste.Pages.VotePages
 
             var blindItemSpec = Specifications.GetBlindsWithItemsWithNoVotesOfMine(userId)
                 .AndAlso(x => x.BlindId == id);
-            blindItemSpec.FetchStrategy = new GenericFetchStrategy<BlindItem>().Include(x => x.Blind);
+            blindItemSpec.FetchStrategy = Strategies.IncludeBlindAndVotes();
 
             var firstItem = blindItemRepository
                 .FindAll(blindItemSpec)
@@ -117,8 +117,7 @@ namespace Pumpkin.Beer.Taste.Pages.VotePages
             var spec = Specifications.GetOpenBlinds(now)
                 .AndAlso(x => x.Id == id);
 
-            var strat = new GenericFetchStrategy<Blind>();
-            strat.Include(x => x.BlindItems.First().BlindVotes);
+            var strat = Strategies.IncludeItemsAndVotes();
 
             spec.FetchStrategy = strat;
 

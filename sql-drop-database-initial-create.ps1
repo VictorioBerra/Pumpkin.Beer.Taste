@@ -23,3 +23,8 @@ dotnet ef database update --project $proj
 # Drop Table Blind;
 # Drop Table AspNetUsers;
 # Drop Table AspNetRoleClaims;
+
+# clean up:
+# DELETE FROM BlindVote;
+# DELETE FROM BlindItem;
+# DELETE FROM Blind;

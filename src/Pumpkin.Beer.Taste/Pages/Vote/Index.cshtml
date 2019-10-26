@@ -10,7 +10,7 @@
     <h2>@(Model.BlindVote.BlindItem.Blind.Name)</h2>
     @if (Model.BlindVote.BlindItem.Blind.Closed != null)
     {
-        <h4>Ends in (@Model.BlindVote.BlindItem.Blind.Closed?.Humanize())</h4>
+        <h4>Ends in (@Model.BlindVote.BlindItem.Blind.Closed?.ToLocalTime().Humanize())</h4>
         // TODO: Closes soon! Warning?
     }
     else

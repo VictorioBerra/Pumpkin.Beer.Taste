@@ -17,6 +17,8 @@ namespace Pumpkin.Beer.Taste.Models
 
         public string Name { get; set; }
 
+        public bool HasVotes { get; set; }
+
         public string CreatedByUsername { get; set; }
 
         public DateTimeOffset? Started { get; set; }
