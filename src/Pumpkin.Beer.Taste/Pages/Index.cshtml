@@ -1,67 +1,93 @@
-﻿@page
+@page
 @model IndexModel
 @{
     ViewData["Title"] = "Home";
 }
-@inject SignInManager<IdentityUser> SignInManager
 
 <div class="text-center">
-    <h1 class="display-4 text-warning">Happy Halloween! 👻 🎃</h1>
-    @if (!SignInManager.IsSignedIn(User))
-    {
-        <p>
-            Click <a asp-area="Identity" asp-page="/Account/Register">Register</a> in the upper-right or
-            <a asp-area="Identity" asp-page="/Account/Login">Login</a> to get started!
-        </p>
-    }
+    <div class="card my-4">
+        <div class="card-body">
+            <h1 class="display-4 text-warning">Happy Halloween! 👻 🎃</h1>
+            @if (!User.Identity?.IsAuthenticated ?? false)
+            {
+                <p>
+                    Click <a asp-area="Identity" asp-page="/Account/Register">Register</a> in the upper-right or
+                    <a asp-area="Identity" asp-page="/Account/Login">Login</a> to get started!
+                </p>
+            }
+        </div>
+    </div>
 </div>
 
-@if (SignInManager.IsSignedIn(User))
+@if (User.Identity?.IsAuthenticated ?? false)
 {
-    <hr />
-
     <div class="row">
-        <div class="col-md-6">
-            <h3>Open Tastings:</h3>
 
-            <hr />
+        <div class="col-md-6 pb-2">
+
+            <h3>Open Tastings:</h3>
 
             @if (!Model.Blinds.Any())
             {
-                <h4>There are no open tastings at this time.</h4>
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title pb-2">There are no open tastings at this time.</h5>
+                        <div class="d-grid gap-2">
+                            <a asp-area="" asp-page="/ManageBlind/Index" class="btn btn-lg btn-warning btn-block">Create One!</a>
+                        </div>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <ul class="list-unstyled">
+                    @foreach (var blind in Model.Blinds)
+                    {
+                        <li>
+                            <div class="card mb-2">
+                                <div class="card-body">
+                                    <h5 class="card-title">@blind.Name</h5>
+                                    <p class="card-text">Closes @blind.Closed?.ToLocalTime().Humanize()!</p>
+                                    @* TODO: edit button if owner *@
+                                    <a asp-area="" asp-page="/Vote/Index" asp-route-id="@blind.Id" class="btn btn-lg btn-warning btn-block">Start Tasting!</a>
+                                </div>
+                            </div>
+                        </li>
+                    }
+                </ul>
             }
 
-            <ul class="list-unstyled">
-                @foreach (var blind in Model.Blinds)
-                {
-                    <li title="@blind.Started?.ToString("dddd, dd MMMM yyyy")">
-                        <h1>
-                            <a asp-area="" asp-page="/Vote/Index" asp-route-id="@blind.Id" class="btn btn-lg btn-success btn-block">@blind.Name</a>
-                        </h1>
-                    </li>
-                }
-            </ul>
         </div>
+
         <div class="col-md-6">
             <h3>Closed Tastings:</h3>
 
-            <hr />
-
-            @if (!Model.ClosedBlinds?.Any() ?? false)
+            @if (!Model.ClosedBlinds.Any())
             {
-                <h4>There are no closed tastings at this time.</h4>
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">You have no closed tastings yet.</h5>
+                    </div>
+                </div>
             }
-
-            <ul class="list-unstyled">
-                @foreach (var blind in Model.ClosedBlinds)
-                {
-                    <li title="@blind.Closed?.ToString("dddd, dd MMMM yyyy")">
-                        <h1>
-                            <a asp-area="" asp-page="/Scores/Index" asp-route-id="@blind.Id" class="btn btn-lg btn-info btn-block">@blind.Name</a>
-                        </h1>
-                    </li>
-                }
-            </ul>
+            else
+            {
+                <ul class="list-unstyled">
+                    @foreach (var blind in Model.ClosedBlinds)
+                    {
+                        <li>
+                            <div class="card mb-2">
+                                <div class="card-body">
+                                    <h5 class="card-title">@blind.Name</h5>
+                                    <p class="card-text">@blind.Started?.ToString("dddd, dd MMMM yyyy")</p>
+                                    <a asp-area="" asp-page="/Scores/Index" asp-route-id="@blind.Id" class="btn btn-lg btn-warning btn-block">See Scores</a>
+                                </div>
+                            </div>
+                        </li>
+                    }
+                </ul>
+            }
         </div>
+
     </div>
 }

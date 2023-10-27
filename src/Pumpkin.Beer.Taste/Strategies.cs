@@ -1,30 +1,16 @@
-﻿using Pumpkin.Beer.Taste.Data;
-using SharpRepository.Repository.FetchStrategies;
-using SharpRepository.Repository.Specifications;
-using System;
-using System.Collections.Generic;
+﻿namespace Pumpkin.Beer.Taste;
+
 using System.Linq;
-using System.Threading.Tasks;
+using Pumpkin.Beer.Taste.Data;
+using SharpRepository.Repository.FetchStrategies;
 
-namespace Pumpkin.Beer.Taste
+public static class Strategies
 {
-    public static class Strategies
-    {
-        public static IFetchStrategy<Blind> IncludeItemsAndVotes()
-        {
-            return new GenericFetchStrategy<Blind>().Include(x => x.BlindItems.First().BlindVotes);
-        }
+    public static IFetchStrategy<Blind> IncludeItemsAndVotes() => new GenericFetchStrategy<Blind>().Include(x => x.BlindItems.First().BlindVotes);
 
-        public static IFetchStrategy<BlindItem> IncludeVotes()
-        {
-            return new GenericFetchStrategy<BlindItem>().Include(x => x.BlindVotes);
-        }
+    public static IFetchStrategy<BlindItem> IncludeVotes() => new GenericFetchStrategy<BlindItem>().Include(x => x.BlindVotes);
 
-        public static IFetchStrategy<BlindItem> IncludeBlindAndVotes()
-        {
-            return new GenericFetchStrategy<BlindItem>()
-                .Include(x => x.BlindVotes)
-                .Include(x => x.Blind);
-        }
-    }
+    public static IFetchStrategy<BlindItem> IncludeBlindAndVotes() => new GenericFetchStrategy<BlindItem>()
+            .Include(x => x.BlindVotes)
+            .Include(x => x.Blind);
 }

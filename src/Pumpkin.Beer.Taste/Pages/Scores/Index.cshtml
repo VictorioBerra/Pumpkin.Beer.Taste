@@ -1,40 +1,66 @@
-﻿@page
+@page
 @model Pumpkin.Beer.Taste.Pages.ScorePages.IndexModel
 @{
     ViewData["Title"] = "Scores for " + Model.Blind.Name;
 }
 
 <h1>Scores</h1>
-<h2>@Model.Blind.Name</h2>
-<hr />
 
-<div class="row">
-    <div class="col-md-12">
-
-        <ul class="list-unstyled">
-            @for (int i = 0; i < Model.BlindItemScore.Count; i++)
-            {
-                var score = Model.BlindItemScore[i];
-                <li class="ml-2">
-                    <h3 title="@score.AmountOfVotes people voted for an average of @(score.TotalScore / score.AmountOfVotes)">
-                        <strong class="text-success"> @score.TotalScore</strong> - <strong>@score.BlindItem.Letter:</strong> @score.BlindItem.Name
-                        @* TODO: Handle a tie *@
-                        @*@if (i == 0)
-                        {
-                            <span style="font-size:100px">🎉</span>
-                        }*@
-                    </h3>
-                    <ul class="list-unstyled">
-                        @foreach (var vote in score.BlindVotes.Where(x => !string.IsNullOrEmpty(x.Note)))
-                        {
-                            <li>
-                                @vote.Note - @vote.Username
-                            </li>
-                        }
-                    </ul>
-                </li>
-            }
-        </ul>
-
+<div class="card mb-2">
+    <div class="card-body">
+        <h3 class="card-title">@Model.Blind.Name</h3>
+        @if (Model.Blind.Closed != null)
+        {
+            <span>Closed @Model.Blind.Closed?.ToLocalTime().Humanize()</span>
+            // TODO: Closes soon! Warning?
+        }
+        else
+        {
+            // Never ends...
+        }
     </div>
 </div>
+
+@if (!Model.BlindItemScores.Any())
+{
+    <h4 class="text-danger">No votes were recorded for this tasting.</h4>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-12">
+
+            <ul class="list-unstyled">
+                @for (int i = 0; i < Model.BlindItemScores.Count; i++)
+                {
+                    var score = Model.BlindItemScores[i];
+                    <li class="ml-2">
+                        <div class="card mb-2">
+                            <div class="card-body">
+                                <h3 class="card-title text-success">@score.BlindItem.Letter</h3>
+                                <span><b>Average Score:</b> @score.AverageScore</span>
+                                <br />
+                                <span><b>Total Score:</b> @score.TotalScore</span>
+                                <br />
+                                <span><b># People Voted:</b> @score.AmountOfVotes</span>
+                                <br />
+
+                                <h5 class="mt-2">Notes:</h5>
+                                <ul class="list-unstyled">
+                                    @foreach (var vote in score.Votes.Where(x => !string.IsNullOrEmpty(x.Note)))
+                                    {
+                                        <li>
+                                            @vote.Note - @vote.CreatedByUserDisplayName
+                                        </li>
+                                    }
+                                </ul>
+
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+
+        </div>
+    </div>
+}

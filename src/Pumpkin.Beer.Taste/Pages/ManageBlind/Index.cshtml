@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model Pumpkin.Beer.Taste.Pages.BlindPages.IndexModel
 
 @{
@@ -10,60 +10,66 @@
 <p>
     <a asp-page="Create">Create New</a>
 </p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Blinds[0].Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Blinds[0].Started)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Blinds[0].Closed)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model.Blinds) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                <div>
-                    @if (@item.Started != null)
-                    {
-                        <span title="@item.Started?.ToLocalTime().ToString()">@item.Started?.Humanize()</span>
-                    }
-                </div>
-            </td>
-            <td>
-                <div>
-                    @if (@item.Closed != null)
-                    {
-                        <span title="@item.Closed?.ToLocalTime().ToString()">@item.Closed?.Humanize()</span>
-                    }
-                </div>
-            </td>
-            <td>
-                @if (!item.HasVotes)
-                {
-                <span>
-                    <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
-                    <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a> |
-                    <a asp-page="./Close" asp-route-id="@item.Id">Close</a>
-                    @*<a asp-page="./Details" asp-route-id="@item.Id">Details</a> |*@
-                </span>
-                }
-                else
-                {
-                    <span><strong class="text-warning">Edit Disabled</strong> (people have already started voting!)</span>
-                    <a asp-page="./Close" asp-route-id="@item.Id">Close</a>
-                }
-            </td>
-        </tr>
+
+@if (Model.Blinds?.Any() ?? false)
+{
+    <table class="table table-dark">
+        <thead>
+            <tr>
+                <th>
+                    @Html.DisplayNameFor(model => model.Blinds[0].Name)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Blinds[0].Started)
+                </th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Blinds[0].Closed)
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Blinds)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td>
+                        <div>
+                            @if (@item.Started != null)
+                            {
+                                <span title="@item.Started?.ToLocalTime().ToString()">@item.Started?.ToLocalTime().Humanize()</span>
+                            }
+                        </div>
+                    </td>
+                    <td>
+                        <div>
+                            @if (@item.Closed != null)
+                            {
+                                <span title="@item.Closed?.ToLocalTime().ToString()">@item.Closed?.ToLocalTime().Humanize()</span>
+                            }
+                        </div>
+                    </td>
+                    <td>
+                        @if (!item.HasVotes)
+                        {
+                            <span>
+                                <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
+                                <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a> |
+                                @* TODO: hide close button if close date is past *@
+                                <a asp-page="./Close" asp-route-id="@item.Id">Close</a>
+                                @*<a asp-page="./Details" asp-route-id="@item.Id">Details</a> |*@
+                            </span>
+                        }
+                        else
+                        {
+                            <span><strong class="text-warning">Edit Disabled</strong> (people have already started voting!)</span>
+                            <a asp-page="./Close" asp-route-id="@item.Id">Close</a>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }
-    </tbody>
-</table>

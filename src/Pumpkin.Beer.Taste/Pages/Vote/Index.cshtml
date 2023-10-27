@@ -1,74 +1,78 @@
-﻿@page
+@page
 @model Pumpkin.Beer.Taste.Pages.VotePages.IndexModel
 
 @{
     ViewData["Title"] = "All Blinds";
 }
 
-@if (Model.BlindVote != null)
-{
-    <h2>@(Model.BlindVote.BlindItem.Blind.Name)</h2>
-    @if (Model.BlindVote.BlindItem.Blind.Closed != null)
-    {
-        <h4>Ends in (@Model.BlindVote.BlindItem.Blind.Closed?.ToLocalTime().Humanize())</h4>
-        // TODO: Closes soon! Warning?
-    }
-    else
-    {
-        // Never ends...
-    }
-    <hr />
-}
+
+<div class="card mb-2">
+    <div class="card-body">
+        <h3 class="card-title">@Model.Blind.Name</h3>
+        @if (Model.Blind.Closed != null)
+        {
+            <span>Ends @Model.Blind.Closed?.ToLocalTime().Humanize()</span>
+            // TODO: Closes soon! Warning?
+        }
+        else
+        {
+            // Never ends...
+        }
+    </div>
+</div>
 
 
-@if (Model.BlindVote == null)
+@if (Model.BlindItem == null)
 {
-    <div>
-        <h2>Thats it!</h2>
-        <p>You have either voted on all items in this blind taste test, or, the author never added any items.</p>
-        <a href="/">Home</a>
-        <hr />
+    <div class="card mb-2">
+        <div class="card-body">
+            <h4 class="card-title">Thats it!</h4>
+            <span>Thank you for doing the tasting! Scores will be up when the tasting closes.</span>
+            <a href="/">Home</a>
+        </div>
     </div>
 }
 else
 {
-    <div id="createContainer">
-        <div class="row">
-            <div class="col-md-12">
+    <div id="voteContainer" class="card">
+        <div class="card-body">
+            <h2 class="mb-3">You are voting on: <strong class="text-success">@Model.BlindItem.Letter</strong></h2>
 
-                <h2>You are voting on: <strong class="text-success">@Model.BlindVote.BlindItem.Letter</strong></h2>
-                <hr />
+            <form method="post" onsubmit="return confirm('Once you submit, you can never go back!');">
 
-                <form method="post" onsubmit="return confirm('Once you submit, you can never go back!');">
-                    <div class="form-group">
-                        <label>1 being the worst vote possible, 5 being the best.</label>
-                        <ul class="list-group list-group-horizontal" style="width: 100%;">
-                            <li class="list-group-item w-100">
-                                <label><input type="radio" value="1" name="scoreRadio" v-model="scoreRadio" checked="checked" /> 1 - Ew</label>
-                            </li>
-                            <li class="list-group-item w-100">
-                                <label><input type="radio" value="2" name="scoreRadio" v-model="scoreRadio" /> 2 - Meh</label>
-                            </li>
-                            <li class="list-group-item w-100">
-                                <label><input type="radio" value="3" name="scoreRadio" v-model="scoreRadio" /> 3 - Notsobad</label>
-                            </li>
-                            <li class="list-group-item w-100">
-                                <label><input type="radio" value="4" name="scoreRadio" v-model="scoreRadio" /> 4 - Pretty good!</label>
-                            </li>
-                            <li class="list-group-item w-100">
-                                <label><input type="radio" value="5" name="scoreRadio" v-model="scoreRadio" /> 5 - Holy shitballs</label>
-                            </li>
-                        </ul>
-                    </div>
-                    <div class="form-group">
-                        <label asp-for="BlindVote.Note" class="control-label"></label>
-                        <input asp-for="BlindVote.Note" class="form-control" />
-                    </div>
-                    <input type="hidden" asp-for="BlindVote.Score" v-model="scoreRadio" />
-                    <input type="hidden" asp-for="BlindVote.BlindItemId" />
+                <div class="mb-3">
+                    <ul class="list-group list-group-horizontal" style="width: 100%;">
+                        <li class="list-group-item w-100">
+                            <label><input type="radio" value="1" name="score" v-model="scoreRadio" checked="checked" /> 1 - Ew</label>
+                        </li>
+                        <li class="list-group-item w-100">
+                            <label><input type="radio" value="2" name="score" v-model="scoreRadio" /> 2 - Meh</label>
+                        </li>
+                        <li class="list-group-item w-100">
+                            <label><input type="radio" value="3" name="score" v-model="scoreRadio" /> 3 - Notsobad</label>
+                        </li>
+                        <li class="list-group-item w-100">
+                            <label><input type="radio" value="4" name="score" v-model="scoreRadio" /> 4 - Pretty good!</label>
+                        </li>
+                        <li class="list-group-item w-100">
+                            <label><input type="radio" value="5" name="score" v-model="scoreRadio" /> 5 - Holy shitballs</label>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="BlindVote.Note" class="control-label"></label>
+                    <input asp-for="BlindVote.Note" class="form-control" />
+                    <div id="BlindVoteNoteHelp" class="form-text">Notes are public!</div>
+                </div>
+
+                <div class="mb-3">
                     <button class="btn btn-warning btn-block">Submit</button>
-                </form>
-            </div>
+                </div>
+
+                <input type="hidden" asp-for="BlindVote.Score" v-model="scoreRadio" />
+                <input type="hidden" asp-for="BlindVote.BlindItemId" />
+            </form>
         </div>
     </div>
 }
@@ -76,15 +80,13 @@ else
 
     @section Scripts {
         @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-
         <script>
 
             var app = new Vue({
-                el: '#createContainer',
+            el: '#voteContainer',
                 data: {
                     scoreRadio: 1
                 }
             })
         </script>
-
     }

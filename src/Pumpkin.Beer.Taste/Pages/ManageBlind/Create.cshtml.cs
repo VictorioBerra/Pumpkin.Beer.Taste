@@ -1,64 +1,53 @@
-﻿using System;
-using System.Collections.Generic;
+namespace Pumpkin.Beer.Taste.Pages.BlindPages;
+
 using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Pumpkin.Beer.Taste.Data;
-using Pumpkin.Beer.Taste.Models;
+using Pumpkin.Beer.Taste.Extensions;
+using Pumpkin.Beer.Taste.ViewModels.ManageBlind;
 using SharpRepository.Repository;
 
-namespace Pumpkin.Beer.Taste.Pages.BlindPages
+public class CreateModel : PageModel
 {
-    public class CreateModel : PageModel
+    private readonly IMapper mapper;
+    private readonly IRepository<Blind, int> blindRepository;
+
+    public CreateModel(
+        IMapper mapper,
+        IRepository<Blind, int> blindRepository)
     {
-        private readonly IMapper mapper;
-        private readonly UserManager<IdentityUser> userManager;
-        private readonly IRepository<Blind, int> blindRepository;
+        this.mapper = mapper;
+        this.blindRepository = blindRepository;
+    }
 
-        public CreateModel(
-            IMapper mapper,
-            UserManager<IdentityUser> userManager,
-            IRepository<Blind, int> blindRepository)
+    [BindProperty]
+    public CreateViewModel Blind { get; set; } = null!;
+
+    public IActionResult OnGet() => this.Page();
+
+    public IActionResult OnPost()
+    {
+        if (!this.ModelState.IsValid)
         {
-            this.mapper = mapper;
-            this.userManager = userManager;
-            this.blindRepository = blindRepository;
+            return this.Page();
         }
 
-        public IActionResult OnGet()
+        var blind = this.mapper.Map<Blind>(this.Blind);
+        blind.CreatedByUserId = this.User.GetUserId();
+
+        var blindItems = blind.BlindItems.ToList();
+        for (var i = 0; i < blindItems.Count; i++)
         {
-            return Page();
+            blindItems[i].Ordinal = i;
         }
 
-        [BindProperty]
-        public BlindDto Blind { get; set; }
+        blind.BlindItems = blindItems;
 
-        // To protect from overposting attacks, please enable the specific properties you want to bind to, for
-        // more details see https://aka.ms/RazorPagesCRUD.
-        public IActionResult OnPost()
-        {
-            if (!ModelState.IsValid)
-            {
-                return Page();
-            }
+        this.blindRepository.Add(blind);
 
-            var blind = mapper.Map<Blind>(Blind);
-            blind.CreatedByUserId = this.userManager.GetUserId(User);
-
-            var BlindItems = blind.BlindItems.ToList();
-            for (int i = 0; i < BlindItems.Count; i++)
-            {
-                BlindItems[i].ordinal = i;
-            }
-            blind.BlindItems = BlindItems;
-
-            blindRepository.Add(blind);
-
-            return RedirectToPage("./Index");
-        }
+        return this.RedirectToPage("./Index");
     }
 }

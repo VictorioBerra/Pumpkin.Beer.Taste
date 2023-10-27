@@ -1,46 +1,38 @@
-﻿using System;
+namespace Pumpkin.Beer.Taste.Pages.BlindPages;
+
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 using Pumpkin.Beer.Taste.Data;
-using Pumpkin.Beer.Taste.Models;
+using Pumpkin.Beer.Taste.Extensions;
+using Pumpkin.Beer.Taste.ViewModels.ManageBlind;
 using SharpRepository.Repository;
 
-namespace Pumpkin.Beer.Taste.Pages.BlindPages
+public class IndexModel : PageModel
 {
-    public class IndexModel : PageModel
+    private readonly IMapper mapper;
+    private readonly IRepository<Blind, int> blindRepository;
+
+    public IndexModel(
+        IMapper mapper,
+        IRepository<Blind, int> blindRepository)
     {
-        private readonly IMapper mapper;
-        private readonly UserManager<IdentityUser> userManager;
-        private readonly IRepository<Blind, int> blindRepository;
+        this.mapper = mapper;
+        this.blindRepository = blindRepository;
+    }
 
-        public IndexModel(
-            IMapper mapper,
-            UserManager<IdentityUser> userManager,
-            IRepository<Blind, int> blindRepository)
-        {
-            this.mapper = mapper;
-            this.userManager = userManager;
-            this.blindRepository = blindRepository;
-        }
+    public List<IndexViewModel> Blinds { get; set; } = new();
 
-        public IList<BlindDto> Blinds { get;set; }
+    public void OnGet()
+    {
+        var userId = this.User.GetUserId();
 
-        public void OnGet()
-        {
-            var userId = userManager.GetUserId(User);
+        var strat = Specifications.GetOnlyMyBlinds(userId);
+        strat.FetchStrategy = Strategies.IncludeItemsAndVotes();
 
-            var strat = Specifications.GetOnlyMyBlinds(userId);
-            strat.FetchStrategy = Strategies.IncludeItemsAndVotes();
+        var blinds = this.blindRepository.FindAll(strat);
 
-            var blinds = blindRepository.FindAll(strat);
-
-            Blinds = mapper.Map<List<BlindDto>>(blinds);
-        }
+        this.Blinds = this.mapper.Map<List<IndexViewModel>>(blinds).OrderByDescending(x => x.Closed is not null).ToList();
     }
 }

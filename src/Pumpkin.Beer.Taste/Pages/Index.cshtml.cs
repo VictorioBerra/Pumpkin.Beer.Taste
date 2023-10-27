@@ -1,91 +1,57 @@
-﻿using System;
+namespace Pumpkin.Beer.Taste.Pages;
+
 using System.Collections.Generic;
 using System.Linq;
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Pumpkin.Beer.Taste.Data;
-using Pumpkin.Beer.Taste.Models;
+using Pumpkin.Beer.Taste.Extensions;
 using Pumpkin.Beer.Taste.Services;
+using Pumpkin.Beer.Taste.ViewModels.Home;
 using SharpRepository.Repository;
-using SharpRepository.Repository.FetchStrategies;
-using SharpRepository.Repository.Specifications;
 
-namespace Pumpkin.Beer.Taste.Pages
+public class IndexModel : PageModel
 {
-    public class IndexModel : PageModel
+    private readonly IMapper mapper;
+    private readonly IClockService clockService;
+    private readonly IRepository<Blind, int> blindRepository;
+
+    public IndexModel(
+        IMapper mapper,
+        IClockService clockService,
+        IRepository<Blind, int> blindRepository)
     {
-        private readonly ILogger<IndexModel> _logger;
-        private readonly IMapper mapper;
-        private readonly IClockService clockService;
-        private readonly IRepository<Blind, int> blindRepository;
-        private readonly IRepository<BlindItem, int> blindItemRepository;
-        private readonly UserManager<IdentityUser> userManager;
+        this.mapper = mapper;
+        this.clockService = clockService;
+        this.blindRepository = blindRepository;
 
-        [BindProperty]
-        public IList<BlindDto> Blinds { get; set; }
+        this.ClosedBlinds = new List<IndexViewModel>();
+    }
 
-        public IList<BlindDto> ClosedBlinds { get; set; }
+    [BindProperty]
+    public List<IndexViewModel> Blinds { get; set; } = new();
 
-        public IndexModel(
-            ILogger<IndexModel> logger,
-            IMapper mapper,
-            IClockService clockService,
-            IRepository<Blind, int> blindRepository,
-            IRepository<BlindItem, int> blindItemRepository,
-            UserManager<IdentityUser> userManager)
+    public List<IndexViewModel> ClosedBlinds { get; set; } = new();
+
+    public void OnGet()
+    {
+        // Todo, maybe make two pages? One for authed and one they get bounced to if not authed?
+        if (this.User.Identity?.IsAuthenticated ?? false)
         {
-            _logger = logger;
-            this.mapper = mapper;
-            this.clockService = clockService;
-            this.blindRepository = blindRepository;
-            this.blindItemRepository = blindItemRepository;
-            this.userManager = userManager;
+            var userId = this.User.GetUserId();
 
-            ClosedBlinds = new List<BlindDto>();
-        }
+            var now = this.clockService.UtcNow;
 
-        public void OnGet()
-        {
-            // Todo, maybe make two pages? One for authed and one they get bounced to if not authed?
-            if (User.Identity.IsAuthenticated)
-            {
-                var userId = userManager.GetUserId(User);
+            var spec = Specifications.GetOpenBlinds(now);
+            spec.FetchStrategy = Strategies.IncludeItemsAndVotes();
+            var blinds = this.blindRepository.FindAll(spec);
 
-                var now = this.clockService.UtcNow;
+            this.Blinds = this.mapper.Map<List<IndexViewModel>>(blinds);
 
-                var spec = Specifications.GetOpenBlinds(now);
-                spec.FetchStrategy = Strategies.IncludeItemsAndVotes();
-                var blinds = blindRepository.FindAll(spec);
-
-                // TODO: Yes I know this is a nightmare, but MySQL was throwing a fit when I tried to do a complex .And
-                var openUnvotedBlinds = new List<Blind>();
-                foreach (var blind in blinds)
-                {
-                    var itemSpec = Specifications.GetBlindsWithItemsWithVotesOfMine(userId)
-                        .AndAlso(x => x.BlindId == blind.Id);
-
-                    var foundItemWithNoVote = false;
-                    foreach (var item in blind.BlindItems)
-                    {
-                        foundItemWithNoVote = !blindItemRepository.FindAll(itemSpec.And(x => x.Id == item.Id)).Any();
-                    }
-
-                    if (foundItemWithNoVote)
-                    {
-                        openUnvotedBlinds.Add(blind);
-                    }
-                }
-
-                Blinds = this.mapper.Map<List<BlindDto>>(openUnvotedBlinds);
-
-                ClosedBlinds = this.mapper.Map<List<BlindDto>>(blindRepository.FindAll(Specifications.GetClosedBlinds(now).AndNot(Specifications.GetBlindsWithNoVotes())));
-
-            }
+            this.ClosedBlinds = this.mapper.Map<List<IndexViewModel>>(this.blindRepository.FindAll(Specifications.GetClosedBlinds(now)));
         }
     }
 }

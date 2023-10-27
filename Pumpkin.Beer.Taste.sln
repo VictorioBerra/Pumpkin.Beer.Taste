@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29324.140
+# Visual Studio Version 17
+VisualStudioVersion = 17.7.34031.279
 MinimumVisualStudioVersion = 15.0.26124.0
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{624FD2F9-1040-48A2-9BB0-1A99CA3737A7}"
 EndProject
@@ -9,9 +9,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Pumpkin.Beer.Taste", "src\P
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{2FBE2A2A-8591-400E-B381-B9A9B5D99652}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		.github\workflows\ci.yml = .github\workflows\ci.yml
+		Directory.Build.props = Directory.Build.props
+		README.md = README.md
 		sql-drop-database-initial-create.ps1 = sql-drop-database-initial-create.ps1
-		sqlite-drop-database-initial-create.ps1 = sqlite-drop-database-initial-create.ps1
 	EndProjectSection
 EndProject
 Global

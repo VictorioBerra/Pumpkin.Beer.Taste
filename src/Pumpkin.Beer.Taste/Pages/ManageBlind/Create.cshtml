@@ -1,4 +1,4 @@
-﻿@page
+@page
 @model Pumpkin.Beer.Taste.Pages.BlindPages.CreateModel
 
 @{
@@ -7,51 +7,68 @@
 
 <h1>Create</h1>
 
-<h4>Blind</h4>
 <hr />
 
 <div id="createContainer">
     <form method="post">
         <div class="row">
-            <div class="col-md-4">
+
+            <div class="col-md-6 pb-2">
+
                 <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                <div class="form-group">
+
+                <div class="mb-3 mb-1">
                     <label asp-for="Blind.Name" class="control-label"></label>
-                    <input asp-for="Blind.Name" class="form-control" />
+                    <input asp-for="Blind.Name" class="form-control" placeholder="My Pumpkin Beer Tasting" />
                     <span asp-validation-for="Blind.Name" class="text-danger"></span>
                 </div>
-                <div class="form-group">
+
+                <div class="mb-3 mb-1">
                     <label asp-for="Blind.Started" class="control-label"></label>
-                    <input class="form-control" v-model="startDate" type="datetime-local" />
                     <input asp-for="Blind.Started" class="form-control" v-model="startDateUtc" type="hidden" />
+                    <div class="input-group">
+                        <input class="form-control" v-model="startDate" type="datetime-local" />
+                        <button type="button" class="btn btn-outline-warning" v-on:click="setStartDate">Start Now</button>
+                    </div>
                     <span asp-validation-for="Blind.Started" class="text-danger"></span>
-                    <button type="button" class="btn btn-default" v-on:click="setStartDate">Start Now</button>
                 </div>
-                <div class="form-group">
+
+                <div class="mb-3">
                     <label asp-for="Blind.Closed" class="control-label"></label>
-                    <input class="form-control" v-model="closedDate" type="datetime-local" />
                     <input asp-for="Blind.Closed" class="form-control" v-model="closedDateUtc" type="hidden" />
                     <span asp-validation-for="Blind.Closed" class="text-danger"></span>
-                    @*<button type="button" class="btn btn-default" v-on:click="setClosedDate">Close Midnight</button>*@
-                    <button type="button" class="btn btn-default" v-on:click="setClosedDateOneHour">Close 1 Hour From Now</button>
-                </div>
-                <div class="form-group">
-                    <input type="submit" value="Create" class="btn btn-primary" />
+                    <div class="input-group">
+                        <input class="form-control" v-model="closedDate" type="datetime-local" />
+                        <button type="button" class="btn btn-outline-warning" v-on:click="setClosedDateOneHour">Close 1 Hr From Now</button>
+                        @*<button type="button" class="btn btn-default" v-on:click="setClosedDate">Close Midnight</button>*@
+                    </div>
                 </div>
             </div>
-            <div class="col-md-4">
-                <button id="add" type="button" v-on:click="addBlindItem" class="btn btn-primary">Add another drink</button>
-                <hr />
-                <ul class="list-unstyled">
-                    <li v-for="(blindItem, index) in blindItems">
-                        <div class="form-group">
-                            <span class="h3">{{ blindItem.Letter }}</span>
-                            <input class="form-control" v-model="blindItem.Name" v-bind:name="getInputName(index)" />
-                            <button class="btn btn-danger pt-1" v-on:click="removeBlindItem(blindItem)" type="button">Remove</button>
-                        </div>
-                    </li>
-                </ul>
+
+            <div class="col-md-6 py-1">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Add Drinks</h5>
+                        <ul class="list-unstyled">
+                            <li v-for="(blindItem, index) in blindItems">
+                                <div class="input-group mb-3">
+                                    <span class="input-group-text">Beverage {{ blindItem.Letter }}</span>
+                                    <input class="form-control" v-model="blindItem.Name" v-bind:name="getInputName(index)" />
+                                    <button class="btn btn-outline-danger" v-on:click="removeBlindItem(blindItem)" type="button">Remove</button>
+                                </div>
+                            </li>
+                        </ul>
+                        <button id="add" type="button" v-on:click="addBlindItem" class="btn btn-warning">Add another drink</button>
+                    </div>
+                </div>
+
+
             </div>
+
+            <div class="col-md-12 pt-2">
+                <input type="submit" value="Create Taste Test!" class="btn btn-success" />
+            </div>
+
         </div>
     </form>
 </div>
@@ -68,7 +85,10 @@
         var app = new Vue({
             el: '#createContainer',
             data: {
-                blindItems: [],
+                blindItems: [{
+                    Name: `Drink_A`,
+                    Letter: enAlphabet[0]
+                }],
                 startDate: null,
                 closedDate: null
             },

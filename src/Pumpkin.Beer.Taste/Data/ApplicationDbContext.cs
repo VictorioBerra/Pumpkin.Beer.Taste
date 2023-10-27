@@ -1,103 +1,102 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+namespace Pumpkin.Beer.Taste.Data;
+
 using System.Linq;
 using System.Security.Claims;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Ardalis.GuardClauses;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
+using Pumpkin.Beer.Taste.Extensions;
 using Pumpkin.Beer.Taste.Services;
 
-namespace Pumpkin.Beer.Taste.Data
+public class ApplicationDbContext : DbContext
 {
-    public class ApplicationDbContext : IdentityDbContext
+    private readonly IClockService clockService;
+    private readonly IHttpContextAccessor httpContextAccessor;
+
+    public ApplicationDbContext(
+        DbContextOptions<ApplicationDbContext> options,
+        IClockService clockService,
+        IHttpContextAccessor httpContextAccessor)
+        : base(options)
     {
-        private readonly IClockService clockService;
-        private readonly IHttpContextAccessor httpContextAccessor;
+        this.clockService = clockService;
+        this.httpContextAccessor = httpContextAccessor;
+    }
 
-        public DbSet<Blind> Blind { get; set; }
+    public DbSet<Blind> Blind { get; set; }
 
-        public DbSet<BlindItem> BlindItem { get; set; }
+    public DbSet<BlindItem> BlindItem { get; set; }
 
-        public DbSet<BlindVote> BlindVote { get; set; }
+    public DbSet<BlindVote> BlindVote { get; set; }
 
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options,
-                                    IClockService clockService,
-                                    IHttpContextAccessor httpContextAccessor)
-            : base(options)
+    public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
+    {
+        this.AuditEntities();
+        return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
+    }
+
+    public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+    {
+        this.AuditEntities();
+        return base.SaveChangesAsync(cancellationToken);
+    }
+
+    public override int SaveChanges(bool acceptAllChangesOnSuccess)
+    {
+        this.AuditEntities();
+        return base.SaveChanges(acceptAllChangesOnSuccess);
+    }
+
+    public override int SaveChanges()
+    {
+        this.AuditEntities();
+        return base.SaveChanges();
+    }
+
+    private void AuditEntities()
+    {
+        // get entries that are being Added or Updated
+        var modifiedEntries = this.ChangeTracker.Entries()
+                .Where(x => x.State is EntityState.Added or EntityState.Modified);
+
+        // Theres a good chance we are seeding here.
+        if (this.httpContextAccessor.HttpContext == null)
         {
-            this.clockService = clockService;
-            this.httpContextAccessor = httpContextAccessor;
+            return;
         }
 
-        public override Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess, CancellationToken cancellationToken = default)
-        {
-            AuditEntities();
-            return base.SaveChangesAsync(acceptAllChangesOnSuccess, cancellationToken);
-        }
+        var userId = this.httpContextAccessor.HttpContext.User.GetUserId();
+        var username = this.httpContextAccessor.HttpContext.User.GetUsername();
 
-        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-            AuditEntities();
-            return base.SaveChangesAsync(cancellationToken);
-        }
+        Guard.Against.Null(userId);
 
-        public override int SaveChanges(bool acceptAllChangesOnSuccess)
-        {
-            AuditEntities();
-            return base.SaveChanges(acceptAllChangesOnSuccess);
-        }
+        var now = this.clockService.UtcNow;
 
-        public override int SaveChanges()
+        foreach (var entry in modifiedEntries)
         {
-            AuditEntities();
-            return base.SaveChanges();
-        }
-
-        private void AuditEntities()
-        {
-            // get entries that are being Added or Updated
-            var modifiedEntries = ChangeTracker.Entries()
-                    .Where(x => (x.State == EntityState.Added || x.State == EntityState.Modified));
-
-            // Theres a good chance we are seeding here.
-            if(httpContextAccessor.HttpContext == null)
+            if (entry.Entity is not AuditableEntity entity)
             {
-                return;
+                continue;
             }
 
-            var userId = httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-            var now = clockService.UtcNow;
-
-            foreach (var entry in modifiedEntries)
+            if (entry.State == EntityState.Added)
             {
-                var entity = entry.Entity as AuditableEntity;
-
-                // Identity stuff will never be a `AuditableEntity`
-                if (entity == null)
-                {
-                    continue;
-                }
-
-                if (entry.State == EntityState.Added)
-                {
-                    entity.CreatedByUserId = userId;
-                    entity.CreatedDate = now.UtcDateTime;
-                }
-
-                entity.UpdatedByUserId = userId;
-                entity.UpdatedDate = now.UtcDateTime;
+                entity.CreatedByUserId = userId;
+                entity.CreatedByUserDisplayName = username;
+                entity.CreatedDate = now.UtcDateTime;
             }
-        }
+            else
+            {
+                entry.Property(nameof(AuditableEntity.CreatedByUserId)).IsModified = false;
+                entry.Property(nameof(AuditableEntity.CreatedByUserDisplayName)).IsModified = false;
+                entry.Property(nameof(AuditableEntity.CreatedDate)).IsModified = false;
+            }
 
-        //protected override void OnModelCreating(ModelBuilder modelBuilder)
-        //{
-        //    base.OnModelCreating(modelBuilder);
-        //}
+            entity.UpdatedByUserId = userId;
+            entity.UpdatedByUserDisplayName = username;
+            entity.UpdatedDate = now.UtcDateTime;
+        }
     }
 }

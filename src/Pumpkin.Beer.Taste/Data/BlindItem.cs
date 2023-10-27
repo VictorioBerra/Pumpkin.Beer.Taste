@@ -1,28 +1,20 @@
-﻿using System;
+namespace Pumpkin.Beer.Taste.Data;
+
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace Pumpkin.Beer.Taste.Data
+public class BlindItem : AuditableEntity
 {
-    public class BlindItem : AuditableEntity
-    {
-        public BlindItem()
-        {
-            BlindVotes = new HashSet<BlindVote>();
-        }
+    public BlindItem() => this.BlindVotes = new HashSet<BlindVote>();
 
-        public int Id { get; set; }
+    public int Id { get; set; }
 
-        public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
-        public int ordinal { get; set; }
+    public int Ordinal { get; set; }
 
-        public int BlindId { get; set; }
+    public int BlindId { get; set; }
 
-        public Blind Blind { get; set; }
+    public Blind Blind { get; set; } = null!;
 
-        public ICollection<BlindVote> BlindVotes { get; set; }
-
-    }
+    public ICollection<BlindVote> BlindVotes { get; set; }
 }

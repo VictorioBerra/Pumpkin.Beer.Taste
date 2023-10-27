@@ -1,106 +1,100 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+namespace Pumpkin.Beer.Taste.Pages.BlindPages;
+
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Microsoft.EntityFrameworkCore;
 using Pumpkin.Beer.Taste.Data;
-using Pumpkin.Beer.Taste.Models;
+using Pumpkin.Beer.Taste.Extensions;
+using Pumpkin.Beer.Taste.ViewModels.ManageBlind;
 using SharpRepository.Repository;
 
-namespace Pumpkin.Beer.Taste.Pages.BlindPages
+public class DeleteModel : PageModel
 {
-    public class DeleteModel : PageModel
+    private readonly ApplicationDbContext context;
+    private readonly IMapper mapper;
+    private readonly IRepository<Blind, int> blindRepository;
+
+    public DeleteModel(
+        ApplicationDbContext context,
+        IMapper mapper,
+        IRepository<Blind, int> blindRepository)
     {
-        private readonly ApplicationDbContext context;
-        private readonly IMapper mapper;
-        private readonly IRepository<Blind, int> blindRepository;
-        private readonly UserManager<IdentityUser> userManager;
+        this.context = context;
+        this.mapper = mapper;
+        this.blindRepository = blindRepository;
+    }
 
-        public DeleteModel(
-            ApplicationDbContext context,
-            IMapper mapper,
-            IRepository<Blind, int> blindRepository,
-            UserManager<IdentityUser> userManager)
+    [BindProperty]
+    public DeleteViewModel Blind { get; set; } = null!;
+
+    public IActionResult OnGet(int? id)
+    {
+        if (id == null)
         {
-            this.context = context;
-            this.mapper = mapper;
-            this.blindRepository = blindRepository;
-            this.userManager = userManager;
+            return this.NotFound();
         }
 
-        [BindProperty]
-        public BlindDto Blind { get; set; }
-
-        public IActionResult OnGet(int? id)
+        // Kick if it has votes
+        var spec = Specifications.GetBlindsWithNoVotes()
+            .AndAlso(x => x.Id == id);
+        var blind = this.blindRepository.Find(spec);
+        if (blind == null)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            // Kick if it has votes
-            var spec = Specifications.GetBlindsWithNoVotes()
-                .AndAlso(x => x.Id == id);
-            var blind = blindRepository.Find(spec);
-            if (blind == null)
-            {
-                // TODO better error??
-                return NotFound();
-            }
-
-            // Kick if its not theirs
-            var userId = this.userManager.GetUserId(User);
-            if (blind.CreatedByUserId != userId)
-            {
-                return Unauthorized();
-            }
-
-            Blind = mapper.Map<BlindDto>(blind);
-
-            if (Blind == null)
-            {
-                return NotFound();
-            }
-            return Page();
+            this.ModelState.AddPageError("Voting has already started, you cannot delete this tasting.");
+            return this.Page();
         }
 
-        public async Task<IActionResult> OnPostAsync(int? id)
+        // Kick if its not theirs
+        var userId = this.User.GetUserId();
+        if (blind.CreatedByUserId != userId)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            // Kick if it has votes
-            var spec = Specifications.GetBlindsWithNoVotes()
-                .AndAlso(x => x.Id == id);
-            var blind = blindRepository.Find(spec);
-            if (blind == null)
-            {
-                // TODO better error??
-                return NotFound();
-            }
-
-            // Kick if its not theirs
-            var userId = this.userManager.GetUserId(User);
-            if (blind.CreatedByUserId != userId)
-            {
-                return Unauthorized();
-            }
-
-            Blind = mapper.Map<BlindDto>(blind);
-
-            if (Blind != null)
-            {
-                context.Blind.Remove(blind);
-                await context.SaveChangesAsync();
-            }
-
-            return RedirectToPage("./Index");
+            return this.Unauthorized();
         }
+
+        this.Blind = this.mapper.Map<DeleteViewModel>(blind);
+
+        if (this.Blind == null)
+        {
+            return this.NotFound();
+        }
+
+        return this.Page();
+    }
+
+    public async Task<IActionResult> OnPostAsync(int? id)
+    {
+        if (id == null)
+        {
+            return this.NotFound();
+        }
+
+        // Kick if it has votes
+        var spec = Specifications.GetBlindsWithNoVotes()
+            .AndAlso(x => x.Id == id);
+        var blind = this.blindRepository.Find(spec);
+        if (blind == null)
+        {
+            this.ModelState.AddPageError("Voting has already started, you cannot delete this tasting.");
+            return this.Page();
+        }
+
+        // Kick if its not theirs
+        var userId = this.User.GetUserId();
+        if (blind.CreatedByUserId != userId)
+        {
+            return this.Unauthorized();
+        }
+
+        this.Blind = this.mapper.Map<DeleteViewModel>(blind);
+
+        if (this.Blind != null)
+        {
+            this.context.Blind.Remove(blind);
+            await this.context.SaveChangesAsync();
+        }
+
+        return this.RedirectToPage("./Index");
     }
 }

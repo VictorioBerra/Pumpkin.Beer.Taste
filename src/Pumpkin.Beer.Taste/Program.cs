@@ -1,5 +1,6 @@
+namespace Pumpkin.Beer.Taste;
+
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -10,56 +11,17 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Pumpkin.Beer.Taste.Data;
 
-namespace Pumpkin.Beer.Taste
+public class Program
 {
-    public class Program
-    {
-        public static async Task Main(string[] args)
-        {
-            IHost webHost = CreateHostBuilder(args).Build();
+    public static async Task Main(string[] args)
+        => await CreateHostBuilder(args)
+            .Build()
+            .RunAsync();
 
-            using (var scope = webHost.Services.CreateScope())
-            {
-                var identitySeed = scope.ServiceProvider.GetRequiredService<IdentitySeed>();
-                var dataSeed = scope.ServiceProvider.GetRequiredService<DataSeed>();
-                var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-
-                context.Database.Migrate();
-
-                await identitySeed.CreateRoles();
-
-                var seed = args.Contains("/seed");
-                if (seed)
-                {
-                    //await dataSeed.Seed();
-                }
-            }
-
-            await webHost.RunAsync();
-        }
-
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .UseServiceProviderFactory(new AutofacServiceProviderFactory())
-                .ConfigureWebHostDefaults(webBuilder =>
-                {
-                    webBuilder
-                        .ConfigureAppConfiguration((context, config) =>
-                        {
-                            var path = Path.Combine(Directory.GetParent(Directory.GetCurrentDirectory()).FullName, "data");
-
-                            if(Directory.Exists(path))
-                            {
-                                var provider = new PhysicalFileProvider(path);
-                                Console.WriteLine("Looking for optional prod config in: " + provider.Root);
-                                config.AddJsonFile(provider, "appsettings.json", optional: true, reloadOnChange: false);
-                            }
-
-                        })
-                        .UseStartup<Startup>();
-                });
-    }
+    public static IHostBuilder CreateHostBuilder(string[] args) =>
+        Host.CreateDefaultBuilder(args)
+            .UseServiceProviderFactory(new AutofacServiceProviderFactory())
+            .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>());
 }

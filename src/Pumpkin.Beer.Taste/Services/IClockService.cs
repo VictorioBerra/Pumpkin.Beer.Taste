@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿namespace Pumpkin.Beer.Taste.Services;
 
-namespace Pumpkin.Beer.Taste.Services
+using System;
+
+/// <summary>
+/// Retrieves the current date and/or time. Helps with unit testing by letting you mock the system clock.
+/// </summary>
+public interface IClockService
 {
-    /// <summary>
-    /// Retrieves the current date and/or time. Helps with unit testing by letting you mock the system clock.
-    /// </summary>
-    public interface IClockService
-    {
-        DateTimeOffset UtcNow { get; }
-    }
+    DateTimeOffset UtcNow { get; }
 }

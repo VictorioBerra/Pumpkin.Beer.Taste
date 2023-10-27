@@ -1,26 +1,21 @@
-﻿using Microsoft.AspNetCore.Identity;
+namespace Pumpkin.Beer.Taste.Data;
+
 using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace Pumpkin.Beer.Taste.Data
+public abstract class AuditableEntity
 {
-    public abstract class AuditableEntity
-    {
-        public DateTime CreatedDate { get; set; }
+    public DateTime CreatedDate { get; set; }
 
-        [Required]
-        public string CreatedByUserId { get; set; }
+    [Required]
+    public string CreatedByUserId { get; set; } = null!;
 
-        public DateTime UpdatedDate { get; set; }
+    public DateTime UpdatedDate { get; set; }
 
-        [Required]
-        public string UpdatedByUserId { get; set; }
+    [Required]
+    public string UpdatedByUserId { get; set; } = null!;
 
-        public virtual IdentityUser CreatedByUser { get; set; }
+    public string CreatedByUserDisplayName { get; set; } = null!;
 
-        public virtual IdentityUser UpdatedByUser { get; set; }
-    }
+    public string UpdatedByUserDisplayName { get; set; } = null!;
 }
