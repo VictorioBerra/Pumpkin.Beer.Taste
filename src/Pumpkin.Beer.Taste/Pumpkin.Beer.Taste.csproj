@@ -26,6 +26,8 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="7.0.11" />
 
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="8.0.0" />
+
+    <PackageReference Include="Nanoid" Version="3.0.0" />
     <PackageReference Include="SharpRepository.EfCoreRepository" Version="2.1.2" />
     <PackageReference Include="SharpRepository.Ioc.Autofac" Version="2.2.0" />
     <PackageReference Include="SharpRepository.Repository" Version="2.2.1" />

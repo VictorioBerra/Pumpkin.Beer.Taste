@@ -5,6 +5,7 @@ using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using NanoidDotNet;
 using Pumpkin.Beer.Taste.Data;
 using Pumpkin.Beer.Taste.Extensions;
 using Pumpkin.Beer.Taste.ViewModels.ManageBlind;
@@ -36,7 +37,7 @@ public class CreateModel : PageModel
         }
 
         var blind = this.mapper.Map<Blind>(this.Blind);
-        blind.CreatedByUserId = this.User.GetUserId();
+        blind.InviteCode = Nanoid.Generate(alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", size: 4);
 
         var blindItems = blind.BlindItems.ToList();
         for (var i = 0; i < blindItems.Count; i++)

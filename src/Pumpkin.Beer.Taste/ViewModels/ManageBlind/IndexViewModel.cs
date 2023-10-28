@@ -6,6 +6,8 @@ public class IndexViewModel
 
     public string Name { get; set; } = null!;
 
+    public string InviteCode { get; set; } = null!;
+
     public bool HasVotes { get; set; }
 
     public string CreatedByUserDisplayName { get; set; } = null!;

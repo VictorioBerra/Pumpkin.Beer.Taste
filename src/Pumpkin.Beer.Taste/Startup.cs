@@ -52,7 +52,9 @@ public class Startup
         });
 
         services.AddDbContext<ApplicationDbContext>(
-            options => options.UseSqlServer(this.Configuration.GetConnectionString("DefaultConnection")), ServiceLifetime.Transient);
+            options => options
+                .UseSqlServer(this.Configuration.GetConnectionString("DefaultConnection"), options => options.EnableRetryOnFailure()),
+            ServiceLifetime.Transient);
 
         services.AddAutoMapper(typeof(Startup));
 
@@ -92,6 +94,6 @@ public class Startup
         // https://github.com/SharpRepository/SharpRepository/blob/develop/SharpRepository.Samples.Core3Mvc/Startup.cs
         RepositoryDependencyResolver.SetDependencyResolver(app.ApplicationServices);
 
-        dbContext.Database.EnsureCreated();
+        dbContext.Database.Migrate();
     }
 }

@@ -29,6 +29,8 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<Blind> Blind { get; set; }
 
+    public DbSet<UserInvite> UserInvite { get; set; }
+
     public DbSet<BlindItem> BlindItem { get; set; }
 
     public DbSet<BlindVote> BlindVote { get; set; }

@@ -11,6 +11,8 @@ public class Blind : AuditableEntity
 
     public string Name { get; set; } = null!;
 
+    public string InviteCode { get; set; } = null!;
+
     public DateTime? Started { get; set; }
 
     public DateTime? Closed { get; set; }
