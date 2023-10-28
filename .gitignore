@@ -479,3 +479,5 @@ MigrationBackup/
 
 # End of https://www.gitignore.io/api/visualstudio,aspnetcore
 blindtastetestdb.sqlite
+
+.env

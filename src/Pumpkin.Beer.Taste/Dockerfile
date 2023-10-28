@@ -40,7 +40,7 @@ COPY . .
 # To view the files that have been copied into the container file system for debugging purposes uncomment this line
 # RUN apk add --no-cache tree && tree
 RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
-    dotnet build --configuration $Configuration --no-restore
+    dotnet build --configuration $Configuration
 RUN dotnet test --configuration $Configuration --no-build
 RUN --mount=type=cache,id=nuget,target=/root/.nuget/packages \
     dotnet publish "src/Pumpkin.Beer.Taste/Pumpkin.Beer.Taste.csproj" --configuration $Configuration --no-build --output /app

@@ -25,6 +25,13 @@ public class Startup
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddHttpContextAccessor();
+        services.Configure<ForwardedHeadersOptions>(
+            options =>
+            {
+                options.KnownNetworks.Clear();
+                options.KnownProxies.Clear();
+                options.ForwardedHeaders = ForwardedHeaders.All;
+            });
 
         services
             .AddRazorPages()
@@ -54,7 +61,7 @@ public class Startup
 
     public void ConfigureContainer(ContainerBuilder builder) => builder.RegisterSharpRepository(this.Configuration.GetSection("sharpRepository"), "efCore"); // for Ef Core
 
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+    public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ApplicationDbContext dbContext)
     {
         if (env.IsDevelopment())
         {
@@ -64,6 +71,8 @@ public class Startup
         {
             app.UseExceptionHandler("/Error");
         }
+
+        app.UseForwardedHeaders();
 
         app.UseStaticFiles();
 
@@ -82,5 +91,7 @@ public class Startup
         // Passes service provide to SharpRepository
         // https://github.com/SharpRepository/SharpRepository/blob/develop/SharpRepository.Samples.Core3Mvc/Startup.cs
         RepositoryDependencyResolver.SetDependencyResolver(app.ApplicationServices);
+
+        dbContext.Database.EnsureCreated();
     }
 }
