@@ -1,5 +1,6 @@
 namespace Pumpkin.Beer.Taste.ViewModels.Vote;
 
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 
 public class IndexViewModel
@@ -9,5 +10,6 @@ public class IndexViewModel
 
     public int BlindItemId { get; set; }
 
+    [DisplayName("Public Note")]
     public string? Note { get; set; }
 }

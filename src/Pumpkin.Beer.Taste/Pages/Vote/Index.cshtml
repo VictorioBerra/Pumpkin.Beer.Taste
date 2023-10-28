@@ -6,9 +6,9 @@
 }
 
 
-<div class="card mb-2">
+<div class="card my-2">
     <div class="card-body">
-        <h3 class="card-title">@Model.Blind.Name</h3>
+        <h3 class="card-title">Name: @Model.Blind.Name</h3>
         @if (Model.Blind.Closed != null)
         {
             <span>Ends @Model.Blind.Closed?.ToLocalTime().Humanize()</span>
@@ -21,61 +21,62 @@
     </div>
 </div>
 
-
-@if (Model.BlindItem == null)
-{
-    <div class="card mb-2">
-        <div class="card-body">
-            <h4 class="card-title">Thats it!</h4>
-            <span>Thank you for doing the tasting! Scores will be up when the tasting closes.</span>
-            <a href="/">Home</a>
+<div>
+    @if (Model.BlindItem == null)
+    {
+        <div class="card mb-2">
+            <div class="card-body">
+                <h4 class="card-title">Thats it!</h4>
+                <span>Thank you for doing the tasting! Scores will be up when the tasting closes.</span>
+                <a href="/">Home</a>
+            </div>
         </div>
-    </div>
-}
-else
-{
-    <div id="voteContainer" class="card">
-        <div class="card-body">
-            <h2 class="mb-3">You are voting on: <strong class="text-success">@Model.BlindItem.Letter</strong></h2>
+    }
+    else
+    {
+        <div id="voteContainer" class="card">
+            <div class="card-body">
+                <h2 class="mb-3">You are voting on: <strong class="text-success">@Model.BlindItem.Letter</strong></h2>
 
-            <form method="post" onsubmit="return confirm('Once you submit, you can never go back!');">
+                <form method="post" onsubmit="return confirm('Once you submit, you can never go back!');">
 
-                <div class="mb-3">
-                    <ul class="list-group list-group-horizontal" style="width: 100%;">
-                        <li class="list-group-item w-100">
-                            <label><input type="radio" value="1" name="score" v-model="scoreRadio" checked="checked" /> 1 - Ew</label>
-                        </li>
-                        <li class="list-group-item w-100">
-                            <label><input type="radio" value="2" name="score" v-model="scoreRadio" /> 2 - Meh</label>
-                        </li>
-                        <li class="list-group-item w-100">
-                            <label><input type="radio" value="3" name="score" v-model="scoreRadio" /> 3 - Notsobad</label>
-                        </li>
-                        <li class="list-group-item w-100">
-                            <label><input type="radio" value="4" name="score" v-model="scoreRadio" /> 4 - Pretty good!</label>
-                        </li>
-                        <li class="list-group-item w-100">
-                            <label><input type="radio" value="5" name="score" v-model="scoreRadio" /> 5 - Holy shitballs</label>
-                        </li>
-                    </ul>
-                </div>
+                    <div class="mb-3">
+                        <ul class="list-group list-group" style="width: 100%;">
+                            <li class="list-group-item w-100">
+                                <label><input type="radio" value="1" name="score" v-model="scoreRadio" checked="checked" /> 1 - Ew</label>
+                            </li>
+                            <li class="list-group-item w-100">
+                                <label><input type="radio" value="2" name="score" v-model="scoreRadio" /> 2 - Meh</label>
+                            </li>
+                            <li class="list-group-item w-100">
+                                <label><input type="radio" value="3" name="score" v-model="scoreRadio" /> 3 - Notsobad</label>
+                            </li>
+                            <li class="list-group-item w-100">
+                                <label><input type="radio" value="4" name="score" v-model="scoreRadio" /> 4 - Pretty good!</label>
+                            </li>
+                            <li class="list-group-item w-100">
+                                <label><input type="radio" value="5" name="score" v-model="scoreRadio" /> 5 - Holy shitballs</label>
+                            </li>
+                        </ul>
+                    </div>
 
-                <div class="mb-3">
-                    <label asp-for="BlindVote.Note" class="control-label"></label>
-                    <input asp-for="BlindVote.Note" class="form-control" />
-                    <div id="BlindVoteNoteHelp" class="form-text">Notes are public!</div>
-                </div>
+                    <div class="mb-3">
+                        <label asp-for="BlindVote.Note" class="control-label"></label>
+                        <input asp-for="BlindVote.Note" class="form-control" />
+                        <div id="BlindVoteNoteHelp" class="form-text">Notes are public!</div>
+                    </div>
 
-                <div class="mb-3">
-                    <button class="btn btn-warning btn-block">Submit</button>
-                </div>
+                    <div class="mb-3">
+                        <button class="btn btn-warning btn-block">Submit</button>
+                    </div>
 
-                <input type="hidden" asp-for="BlindVote.Score" v-model="scoreRadio" />
-                <input type="hidden" asp-for="BlindVote.BlindItemId" />
-            </form>
+                    <input type="hidden" asp-for="BlindVote.Score" v-model="scoreRadio" />
+                    <input type="hidden" asp-for="BlindVote.BlindItemId" />
+                </form>
+            </div>
         </div>
-    </div>
-}
+    }
+</div>
 
 
     @section Scripts {
