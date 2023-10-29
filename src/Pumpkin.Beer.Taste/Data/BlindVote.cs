@@ -6,6 +6,8 @@ public class BlindVote : AuditableEntity
 
     public int Score { get; set; }
 
+    public bool Public { get; set; }
+
     public string? Note { get; set; }
 
     public int BlindItemId { get; set; }

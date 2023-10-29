@@ -63,14 +63,20 @@
                     <div class="mb-3">
                         <label asp-for="BlindVote.Note" class="control-label"></label>
                         <input asp-for="BlindVote.Note" class="form-control" />
-                        <div id="BlindVoteNoteHelp" class="form-text">Notes are public!</div>
+                    </div>
+
+                    <div class="form-check mb-3">
+                        <input class="form-check-input" type="checkbox" value="" asp-for="BlindVote.Public" id="flexCheckDefault" value="false" onchange="this.value=this.checked">
+                        <label class="form-check-label" for="flexCheckDefault" asp-for="BlindVote.Public">
+                            Make my <b>Score</b> and <b>Note</b> public 👀
+                        </label>
                     </div>
 
                     <div class="mb-3">
                         <button class="btn btn-warning btn-block">Submit</button>
                     </div>
 
-                    <input type="hidden" asp-for="BlindVote.Score" v-model="scoreRadio" />
+                    <input type="hidden" asp-for="BlindVote.Score" v-model="scoreRadio"/>
                     <input type="hidden" asp-for="BlindVote.BlindItemId" />
                 </form>
             </div>

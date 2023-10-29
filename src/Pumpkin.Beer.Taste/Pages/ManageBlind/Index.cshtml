@@ -22,6 +22,7 @@
                 <h4 class="card-subtitle">Invite Code: <span class="text-warning">@Html.DisplayFor(modelItem => item.InviteCode)</span></h4>
                 <h5>Starts: <span title="@item.Started?.ToLocalTime().ToString()">@item.Started?.ToLocalTime().Humanize()</span></h5>
                 <h5>Closes: <span title="@item.Closed?.ToLocalTime().ToString()">@item.Closed?.ToLocalTime().Humanize()</span></h5>
+                <h5>Members: <span>@item.NumMembers</span></h5>
                 <div>
                     @if (!item.HasVotes)
                     {

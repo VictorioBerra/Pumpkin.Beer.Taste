@@ -71,7 +71,7 @@ public class CloseModel : PageModel
             return this.NotFound();
         }
 
-        var now = this.clockService.UtcNow;
+        var now = this.clockService.Now;
 
         var blind = this.blindRepository.Get((int)id);
         if (blind == null)

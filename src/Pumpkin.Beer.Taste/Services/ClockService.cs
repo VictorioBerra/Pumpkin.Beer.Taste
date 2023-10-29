@@ -1,4 +1,4 @@
-﻿namespace Pumpkin.Beer.Taste.Services;
+namespace Pumpkin.Beer.Taste.Services;
 
 using System;
 
@@ -7,5 +7,5 @@ using System;
 /// </summary>
 public class ClockService : IClockService
 {
-    public DateTimeOffset UtcNow => DateTimeOffset.UtcNow;
+    public DateTimeOffset Now => DateTimeOffset.Now;
 }

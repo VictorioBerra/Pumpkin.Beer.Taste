@@ -1,4 +1,4 @@
-﻿namespace Pumpkin.Beer.Taste;
+namespace Pumpkin.Beer.Taste;
 
 using System.Linq;
 using Pumpkin.Beer.Taste.Data;
@@ -6,7 +6,12 @@ using SharpRepository.Repository.FetchStrategies;
 
 public static class Strategies
 {
-    public static IFetchStrategy<Blind> IncludeItemsAndVotes() => new GenericFetchStrategy<Blind>().Include(x => x.BlindItems.First().BlindVotes);
+    public static IFetchStrategy<Blind> IncludeItemsAndVotesAndMembers() => new GenericFetchStrategy<Blind>()
+        .Include(x => x.BlindItems.First().BlindVotes)
+        .Include(x => x.UserInvites);
+
+    public static IFetchStrategy<Blind> IncludeItemsAndVotes() => new GenericFetchStrategy<Blind>()
+        .Include(x => x.BlindItems.First().BlindVotes);
 
     public static IFetchStrategy<BlindItem> IncludeVotes() => new GenericFetchStrategy<BlindItem>().Include(x => x.BlindVotes);
 

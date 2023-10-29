@@ -34,4 +34,13 @@ One line
 - Use the new docker nuget to remove dockerfile?
 - Cake
 - Dockerfile build does not work with `--no-restore` flag
-- docker-compose traefik development cert. Maybe try this? https://gist.github.com/pyrou/4f555cd55677331c742742ee6007a73a
+- docker-compose traefik development cert. Maybe try this? https://gist.github.com/pyrou/4f555cd55677331c742742ee6007a73a 
+
+
+Think about time zones a little more...
+
+The audit properties save with a zero offset.
+
+When a user creates a tasting, the start and closed date is saved with the offset.
+
+When you use the clock service to get the UtcNow, it comes back without an offset.

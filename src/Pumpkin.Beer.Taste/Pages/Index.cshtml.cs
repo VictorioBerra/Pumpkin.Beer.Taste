@@ -15,6 +15,7 @@ using Pumpkin.Beer.Taste.Extensions;
 using Pumpkin.Beer.Taste.Services;
 using Pumpkin.Beer.Taste.ViewModels.Home;
 using SharpRepository.Repository;
+using SharpRepository.Repository.Specifications;
 
 public class IndexModel : PageModel
 {
@@ -39,27 +40,23 @@ public class IndexModel : PageModel
 
     public List<IndexViewModel> Blinds { get; set; } = new();
 
+    public List<IndexViewModel> ClosedBlinds { get; set; } = new();
+
     [Required]
     [BindProperty]
     [DisplayName("Invite Code")]
     public string? InviteCode { get; set; }
-
-    public List<IndexViewModel> ClosedBlinds { get; set; } = new();
 
     public void OnGet()
     {
         // Todo, maybe make two pages? One for authed and one they get bounced to if not authed?
         if (this.User.Identity?.IsAuthenticated ?? false)
         {
-            var now = this.clockService.UtcNow;
+            var userId = this.User.GetUserId();
+            var now = this.clockService.Now;
 
-            var spec = Specifications.GetOpenBlinds(now);
-            spec.FetchStrategy = Strategies.IncludeItemsAndVotes();
-            var blinds = this.blindRepository.FindAll(spec);
-
-            this.Blinds = this.mapper.Map<List<IndexViewModel>>(blinds);
-
-            this.ClosedBlinds = this.mapper.Map<List<IndexViewModel>>(this.blindRepository.FindAll(Specifications.GetClosedBlinds(now)));
+            this.SetOpenBlinds(userId, now);
+            this.SetClosedBlinds(userId, now);
         }
     }
 
@@ -68,7 +65,7 @@ public class IndexModel : PageModel
         if (this.User.Identity?.IsAuthenticated ?? false)
         {
             var userId = this.User.GetUserId();
-            var now = this.clockService.UtcNow;
+            var now = this.clockService.Now;
 
             var blindForInvite = this.blindRepository.Find(blind => blind.InviteCode == this.InviteCode);
 
@@ -94,7 +91,7 @@ public class IndexModel : PageModel
 
             if (blindForInvite.IsOpen(now))
             {
-                return this.RedirectToPage("/BlindPages/Vote", new { id = blindForInvite.Id });
+                return this.RedirectToPage("/Vote/Index", new { id = blindForInvite.Id });
             }
             else
             {
@@ -103,5 +100,23 @@ public class IndexModel : PageModel
         }
 
         return this.Page();
+    }
+
+    private void SetOpenBlinds(string userId, DateTimeOffset now)
+    {
+        var spec = Specifications.GetOpenBlinds(now).AndAlso(Specifications.GetMemberOfBlinds(userId));
+        spec.FetchStrategy = Strategies.IncludeItemsAndVotesAndMembers();
+        var openBlinds = this.blindRepository.FindAll(spec);
+
+        this.Blinds = this.mapper.Map<List<IndexViewModel>>(openBlinds);
+    }
+
+    private void SetClosedBlinds(string userId, DateTimeOffset now)
+    {
+        var spec = Specifications.GetClosedBlinds(now).AndAlso(Specifications.GetMemberOfBlinds(userId));
+        spec.FetchStrategy = Strategies.IncludeItemsAndVotesAndMembers();
+        var openBlinds = this.blindRepository.FindAll(spec);
+
+        this.ClosedBlinds = this.mapper.Map<List<IndexViewModel>>(openBlinds);
     }
 }

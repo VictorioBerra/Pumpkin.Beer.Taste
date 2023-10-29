@@ -5,7 +5,11 @@ using System.Collections.Generic;
 
 public class Blind : AuditableEntity
 {
-    public Blind() => this.BlindItems = new HashSet<BlindItem>();
+    public Blind()
+    {
+        this.UserInvites = new HashSet<UserInvite>();
+        this.BlindItems = new HashSet<BlindItem>();
+    }
 
     public int Id { get; set; }
 
@@ -13,9 +17,11 @@ public class Blind : AuditableEntity
 
     public string InviteCode { get; set; } = null!;
 
-    public DateTime? Started { get; set; }
+    public DateTimeOffset? Started { get; set; }
 
-    public DateTime? Closed { get; set; }
+    public DateTimeOffset? Closed { get; set; }
+
+    public ICollection<UserInvite> UserInvites { get; set; }
 
     public ICollection<BlindItem> BlindItems { get; set; }
 }

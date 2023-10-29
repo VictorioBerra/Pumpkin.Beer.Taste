@@ -10,6 +10,7 @@ public class IndexViewModel
 
     public int BlindItemId { get; set; }
 
-    [DisplayName("Public Note")]
     public string? Note { get; set; }
+
+    public bool Public { get; set; }
 }

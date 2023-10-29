@@ -39,6 +39,16 @@ public class CreateModel : PageModel
         var blind = this.mapper.Map<Blind>(this.Blind);
         blind.InviteCode = Nanoid.Generate(alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", size: 4);
 
+        if (this.Blind.Started is null || this.Blind.Closed is null)
+        {
+            this.ModelState.AddPageError("Start and End dates are required.");
+            return this.Page();
+        }
+
+        // Strip offset
+        blind.Started = new DateTimeOffset(this.Blind.Started.Value.DateTime, TimeSpan.Zero);
+        blind.Closed = new DateTimeOffset(this.Blind.Closed.Value.DateTime, TimeSpan.Zero);
+
         var blindItems = blind.BlindItems.ToList();
         for (var i = 0; i < blindItems.Count; i++)
         {
@@ -46,6 +56,10 @@ public class CreateModel : PageModel
         }
 
         blind.BlindItems = blindItems;
+        blind.UserInvites.Add(new UserInvite
+        {
+            Blind = blind,
+        });
 
         this.blindRepository.Add(blind);
 

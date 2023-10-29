@@ -10,7 +10,7 @@ public class CloseViewModel
 
     public string CreatedByUserDisplayName { get; set; } = null!;
 
-    public DateTime? Started { get; set; }
+    public DateTimeOffset? Started { get; set; }
 
-    public DateTime? Closed { get; set; }
+    public DateTimeOffset? Closed { get; set; }
 }

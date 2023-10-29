@@ -40,10 +40,12 @@ public class IndexModel : PageModel
             return this.NotFound();
         }
 
-        var now = this.clockService.UtcNow;
+        var userId = this.User.GetUserId();
+        var now = this.clockService.Now;
 
         var spec = Specifications
             .GetClosedBlinds(now)
+            .AndAlso(Specifications.GetMemberOfBlinds(userId))
             .AndAlso(x => x.Id == id);
         spec.FetchStrategy = Strategies
             .IncludeItemsAndVotes();

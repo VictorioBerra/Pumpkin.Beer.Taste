@@ -29,36 +29,38 @@ else
 {
     <div class="row">
         <div class="col-md-12">
-
             <ul class="list-unstyled">
                 @for (int i = 0; i < Model.BlindItemScores.Count; i++)
                 {
                     var score = Model.BlindItemScores[i];
+                    var publicVotes = score.Votes.Where(x => x.Public == true);
                     <li class="ml-2">
                         <div class="card mb-2">
                             <div class="card-body">
-                                <h3 class="card-title text-success">@score.BlindItem.Letter</h3>
-                                <span><b>Average Score:</b> @score.AverageScore</span>
-                                <br />
-                                <span><b># People Voted:</b> @score.AmountOfVotes</span>
-                                <br />
-
-                                <h5 class="mt-2">Notes:</h5>
-                                <ul class="list-unstyled">
-                                    @foreach (var vote in score.Votes.Where(x => !string.IsNullOrEmpty(x.Note)))
-                                    {
-                                        <li>
-                                            @vote.Note - @vote.CreatedByUserDisplayName
-                                        </li>
-                                    }
-                                </ul>
-
+                                <h3 class="card-title text-success">@score.BlindItem.Letter: @score.BlindItem.Name</h3>
+                                <h4><b>Average Score:</b> @score.AverageScore - @score.AmountOfVotes votes</h4>
+                                @if (publicVotes.Any())
+                                {
+                                    <h5 class="mt-2">Public Votes:</h5>
+                                    <ul class="list-unstyled">
+                                        @foreach (var vote in publicVotes)
+                                        {
+                                            <li class="ms-2">
+                                                <label><b>Score:</b> @vote.Score</label>
+                                                <br />
+                                                <label><b>Note:</b> @vote.Note</label>
+                                                <br />
+                                                <label>- @vote.CreatedByUserDisplayName</label>
+                                            </li>
+                                            <hr />
+                                        }
+                                    </ul>
+                                }
                             </div>
                         </div>
                     </li>
                 }
             </ul>
-
         </div>
     </div>
 }

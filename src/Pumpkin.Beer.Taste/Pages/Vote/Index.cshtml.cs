@@ -48,11 +48,12 @@ public class IndexModel : PageModel
             return this.NotFound();
         }
 
-        var now = this.clockService.UtcNow;
+        var now = this.clockService.Now;
         var userId = this.User.GetUserId();
 
-        // Is open and not closed?
+        // Is open and I am a member?
         var spec = Specifications.GetOpenBlinds(now)
+            .AndAlso(Specifications.GetMemberOfBlinds(userId))
             .AndAlso(x => x.Id == id);
 
         var strat = new GenericFetchStrategy<Blind>();
@@ -99,13 +100,13 @@ public class IndexModel : PageModel
             return this.NotFound();
         }
 
-        var now = this.clockService.UtcNow;
+        var now = this.clockService.Now;
         var userId = this.User.GetUserId();
 
         // Is open and not closed?
         var spec = Specifications.GetOpenBlinds(now)
             .AndAlso(x => x.Id == id);
-        var strat = Strategies.IncludeItemsAndVotes();
+        var strat = Strategies.IncludeItemsAndVotesAndMembers();
         spec.FetchStrategy = strat;
         var blind = this.blindRepository.Find(spec);
         if (blind == null)

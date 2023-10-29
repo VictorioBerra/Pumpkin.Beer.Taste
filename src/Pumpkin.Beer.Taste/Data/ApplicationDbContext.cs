@@ -76,7 +76,7 @@ public class ApplicationDbContext : DbContext
 
         Guard.Against.Null(userId);
 
-        var now = this.clockService.UtcNow;
+        var now = this.clockService.Now;
 
         foreach (var entry in modifiedEntries)
         {
@@ -89,7 +89,7 @@ public class ApplicationDbContext : DbContext
             {
                 entity.CreatedByUserId = userId;
                 entity.CreatedByUserDisplayName = username;
-                entity.CreatedDate = now.UtcDateTime;
+                entity.CreatedDate = now;
             }
             else
             {
@@ -100,7 +100,7 @@ public class ApplicationDbContext : DbContext
 
             entity.UpdatedByUserId = userId;
             entity.UpdatedByUserDisplayName = username;
-            entity.UpdatedDate = now.UtcDateTime;
+            entity.UpdatedDate = now;
         }
     }
 }

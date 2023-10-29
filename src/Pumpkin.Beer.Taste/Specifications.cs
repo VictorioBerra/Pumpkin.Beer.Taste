@@ -7,11 +7,14 @@ using SharpRepository.Repository.Specifications;
 
 public static class Specifications
 {
-    public static Specification<Blind> GetOpenBlinds(DateTimeOffset now) => new Specification<Blind>(x => x.Started != null && x.Started < now && x.Closed != null && x.Closed > now);
+    public static Specification<Blind> GetOpenBlinds(DateTimeOffset now)
+        => new Specification<Blind>(x => x.Started != null && x.Started < now && x.Closed != null && x.Closed > now);
 
     public static Specification<Blind> GetClosedBlinds(DateTimeOffset now) => new Specification<Blind>(x => x.Closed != null && x.Closed < now);
 
-    public static Specification<Blind> GetOnlyMyBlinds(string userId) => new Specification<Blind>(x => x.CreatedByUserId == userId);
+    public static Specification<Blind> GetOwnedBlinds(string userId) => new Specification<Blind>(x => x.CreatedByUserId == userId);
+
+    public static Specification<Blind> GetMemberOfBlinds(string userId) => new Specification<Blind>(x => x.UserInvites.Any(y => y.CreatedByUserId == userId));
 
     public static Specification<Blind> GetBlindsWithNoVotes() =>
         // Give me the blind where there are no items, or

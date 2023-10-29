@@ -28,8 +28,8 @@ public class IndexModel : PageModel
     {
         var userId = this.User.GetUserId();
 
-        var strat = Specifications.GetOnlyMyBlinds(userId);
-        strat.FetchStrategy = Strategies.IncludeItemsAndVotes();
+        var strat = Specifications.GetOwnedBlinds(userId);
+        strat.FetchStrategy = Strategies.IncludeItemsAndVotesAndMembers();
 
         var blinds = this.blindRepository.FindAll(strat);
 

@@ -9,5 +9,7 @@ public class IndexVoteViewModel
 
     public string? Note { get; set; }
 
+    public bool Public { get; set; }
+
     public string CreatedByUserDisplayName { get; set; } = null!;
 }

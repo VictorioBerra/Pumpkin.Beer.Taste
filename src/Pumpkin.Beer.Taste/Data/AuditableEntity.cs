@@ -5,12 +5,12 @@ using System.ComponentModel.DataAnnotations;
 
 public abstract class AuditableEntity
 {
-    public DateTime CreatedDate { get; set; }
+    public DateTimeOffset CreatedDate { get; set; }
 
     [Required]
     public string CreatedByUserId { get; set; } = null!;
 
-    public DateTime UpdatedDate { get; set; }
+    public DateTimeOffset UpdatedDate { get; set; }
 
     [Required]
     public string UpdatedByUserId { get; set; } = null!;
