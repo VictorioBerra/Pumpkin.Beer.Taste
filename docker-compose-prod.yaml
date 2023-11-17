@@ -2,7 +2,7 @@ version: "3.9"
 services:
 
   pumpkinbeertaste:
-    image: 246282979715.dkr.ecr.us-east-1.amazonaws.com/pumpkintasting:1.0.5
+    image: 246282979715.dkr.ecr.us-east-1.amazonaws.com/pumpkintasting:latest
     container_name: pumpkin_beer_taste
     restart: always
     depends_on:
@@ -17,6 +17,7 @@ services:
       - LogTo__Scopes__2=${LogTo__Scopes__2}
     networks:
       - shared-traefiknet
+      - shared-logging
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.pumpkintasting.rule=Host(`${PUMPKINTASTING_ROUTER_HOST}`) || Host(`${PUMPKINTASTING_ROUTER_HOST2}`)"
@@ -43,5 +44,7 @@ volumes:
     sqlvolume: {}
 
 networks:
+  shared-logging:
+    external: true
   shared-traefiknet:
     external: true
