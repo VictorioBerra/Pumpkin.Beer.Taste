@@ -20,14 +20,10 @@ Develop in Docker Compose
 
 ## Deployment
 
-- Login to ECR (once a day) `aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 246282979715.dkr.ecr.region.amazonaws.com`
-- Build `docker build . --file .\src\Pumpkin.Beer.Taste\Dockerfile`
-- Tag `docker tag d4729896d0a0 246282979715.dkr.ecr.us-east-1.amazonaws.com/pumpkintasting:1.0.1`
-- Push `docker push 246282979715.dkr.ecr.us-east-1.amazonaws.com/pumpkintasting:1.0.1`
+- Login to ECR (docker login token expires after 12 hours) `aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 246282979715.dkr.ecr.us-east-1.amazonaws.com`
+- Push latest `docker build . --file .\src\Pumpkin.Beer.Taste\Dockerfile -t 246282979715.dkr.ecr.us-east-1.amazonaws.com/pumpkintasting:latest --push`
 
-One line 
-
-- `docker build . --file .\src\Pumpkin.Beer.Taste\Dockerfile -t 246282979715.dkr.ecr.us-east-1.amazonaws.com/pumpkintasting:latest --push`
+Head to portainer and reload stack with a fresh pull.
 
 ## TODO
 

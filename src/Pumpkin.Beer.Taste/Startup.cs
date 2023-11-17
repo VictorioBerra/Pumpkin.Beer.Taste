@@ -33,6 +33,16 @@ public class Startup
                 options.ForwardedHeaders = ForwardedHeaders.All;
             });
 
+        services.Configure<CookiePolicyOptions>(options =>
+        {
+            // This lambda determines whether user consent for non-essential
+            // cookies is needed for a given request.
+            // Setting to false as right now we do not track anything https://law.stackexchange.com/a/85353
+            options.CheckConsentNeeded = context => false;
+
+            options.MinimumSameSitePolicy = SameSiteMode.None;
+        });
+
         services
             .AddRazorPages()
             .AddRazorPagesOptions(options =>
@@ -77,6 +87,7 @@ public class Startup
         app.UseForwardedHeaders();
 
         app.UseStaticFiles();
+        app.UseCookiePolicy();
 
         app.UseRouting();
 

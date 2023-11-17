@@ -19,17 +19,20 @@ using SharpRepository.Repository.Specifications;
 
 public class IndexModel : PageModel
 {
+    private readonly ILogger<IndexModel> logger;
     private readonly IMapper mapper;
     private readonly IClockService clockService;
     private readonly IRepository<Blind, int> blindRepository;
     private readonly IRepository<UserInvite, int> inviteRepository;
 
     public IndexModel(
+        ILogger<IndexModel> logger,
         IMapper mapper,
         IClockService clockService,
         IRepository<Blind, int> blindRepository,
         IRepository<UserInvite, int> inviteRepository)
     {
+        this.logger = logger;
         this.mapper = mapper;
         this.clockService = clockService;
         this.blindRepository = blindRepository;
@@ -57,6 +60,8 @@ public class IndexModel : PageModel
 
             this.SetOpenBlinds(userId, now);
             this.SetClosedBlinds(userId, now);
+
+            this.logger.LogInformation("Logged in user {UserId} loaded dashboard", userId);
         }
     }
 
