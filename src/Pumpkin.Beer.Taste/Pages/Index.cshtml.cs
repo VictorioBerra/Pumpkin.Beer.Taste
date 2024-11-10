@@ -41,9 +41,9 @@ public class IndexModel : PageModel
         this.ClosedBlinds = new List<IndexViewModel>();
     }
 
-    public List<IndexViewModel> Blinds { get; set; } = new();
+    public List<IndexViewModel> Blinds { get; set; } = [];
 
-    public List<IndexViewModel> ClosedBlinds { get; set; } = new();
+    public List<IndexViewModel> ClosedBlinds { get; set; } = [];
 
     [Required]
     [BindProperty]

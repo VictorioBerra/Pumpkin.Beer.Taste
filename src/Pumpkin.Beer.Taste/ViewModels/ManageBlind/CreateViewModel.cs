@@ -14,5 +14,5 @@ public class CreateViewModel
 
     public DateTimeOffset? Closed { get; set; }
 
-    public List<CreateItemViewModel> BlindItems { get; set; } = new();
+    public List<CreateItemViewModel> BlindItems { get; set; } = [];
 }

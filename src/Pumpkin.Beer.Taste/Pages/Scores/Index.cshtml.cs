@@ -29,7 +29,7 @@ public class IndexModel : PageModel
         this.blindRepository = blindRepository;
     }
 
-    public List<IndexViewModel> BlindItemScores { get; set; } = new();
+    public List<IndexViewModel> BlindItemScores { get; set; } = [];
 
     public IndexBlindViewModel Blind { get; set; } = null!;
 

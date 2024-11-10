@@ -1,19 +1,39 @@
-name: ci
+name: Deploy to GHCR
 
-on: [push]
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - '*'
 
 jobs:
-  build:
-
+  build-and-deploy:
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: read
+      packages: write
     steps:
-    - uses: actions/checkout@v1
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 3.0.100
-    - name: Build with dotnet
-      run: dotnet build --configuration Release
-    - name: Publish with dotnet
-      run: dotnet publish --configuration Release --self-contained true -r linux-x64 -o ${{ github.github_workspace }}\publish
+      - uses: actions/checkout@v3
+
+      - name: Preset Image Name
+        run: echo "IMAGE_SHA=$(echo ${{ github.sha }} | cut -c1-7 | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Preset Image URL
+        run: echo "IMAGE_URL=$(echo ghcr.io/${{ github.repository_owner }}/${{ github.event.repository.name }}:${{ env.IMAGE_SHA }} | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
+
+      - name: Build and publish a Docker image for ${{ github.repository }}
+        uses: macbre/push-to-ghcr@master
+        with:
+          image_name: ${{ github.repository }}
+          image_tag: ${{ env.IMAGE_SHA }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy Image to CapRrover
+        uses: caprover/deploy-from-github@v1.1.2
+        with:
+          server: "${{ secrets.CAPROVER_SERVER }}"
+          app: "${{ secrets.APP_NAME }}"
+          token: "${{ secrets.APP_TOKEN }}"
+          image: ${{ env.IMAGE_URL }}
