@@ -12,9 +12,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		.editorconfig = .editorconfig
 		.gitignore = .gitignore
 		.github\workflows\ci.yml = .github\workflows\ci.yml
+		CreateDatabase\db-init.sh = CreateDatabase\db-init.sh
+		CreateDatabase\db-init.sql = CreateDatabase\db-init.sql
 		Directory.Build.props = Directory.Build.props
-		docker-compose-prod.yaml = docker-compose-prod.yaml
 		docker-compose.yaml = docker-compose.yaml
+		CreateDatabase\entrypoint.sh = CreateDatabase\entrypoint.sh
 		README.md = README.md
 		sql-drop-database-initial-create.ps1 = sql-drop-database-initial-create.ps1
 	EndProjectSection

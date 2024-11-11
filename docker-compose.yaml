@@ -1,56 +1,38 @@
 version: "3.9" 
 services:
 
-  pumpkinbeertaste:
+  pumpkinbeertaste-app:
     build:
       context: .
       dockerfile: src/Pumpkin.Beer.Taste/Dockerfile
-    container_name: pumpkin_beer_taste
+    container_name: pumpkinbeertaste-app
+    ports:
+      - "5080:8080"
     depends_on:
-      - sqlserverdb
+      - pumpkinbeertaste-db
     environment:
-      - ConnectionStrings__DefaultConnection=Server=${ConnectionStrings__DefaultConnection}
-      - LogTo__EndPoint=${LogTo__EndPoint}
-      - LogTo__AppId=${LogTo__AppId}
-      - LogTo__AppSecret=${LogTo__AppSecret}
-      - LogTo__Scopes__0=${LogTo__Scopes__0}
-      - LogTo__Scopes__1=${LogTo__Scopes__1}
-      - LogTo__Scopes__2=${LogTo__Scopes__2}
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.pumpkinbeertaste.rule=Host(`localhost`)"
-      - "traefik.http.routers.pumpkinbeertaste.entrypoints=websecure"
-      - "traefik.http.routers.pumpkinbeertaste.entrypoints=web"
-      - "traefik.http.services.pumpkinbeertaste.loadbalancer.server.port=80"
+      - ConnectionStrings__DefaultConnection=${ConnectionStrings__DefaultConnection}
+      - KeyCloak__Authority=${KeyCloak__Authority}
+      - KeyCloak__ClientId=${KeyCloak__ClientId}
+      - KeyCloak__ClientSecret=${KeyCloak__ClientSecret}
 
-  sqlserverdb:
+  pumpkinbeertaste-db:
     image: "mcr.microsoft.com/mssql/server:2022-latest"
-    container_name: sql_server2022
-    ports: # not actually needed, because the two services are on the same network.
+    container_name: pumpkinbeertaste-db
+    command: /bin/bash ./entrypoint.sh
+    ports:
       - "1433:1433" 
     environment:
       - ACCEPT_EULA=y
-      - SA_PASSWORD=${SQLServerPassword}
+      - SA_PASSWORD=${SQLServerSAPassword}
       - TZ=America/Chicago
+      - SQLServerSAPassword=${SQLServerSAPassword}
+      - SQLServerUserPassword=${SQLServerUserPassword}
     volumes:
-      - 'sqlvolume:/var/opt/mssq'
-
-  traefik:
-    image: "traefik:v2.10"
-    container_name: "traefik"
-    command:
-      #- "--log.level=DEBUG"
-      - "--api.insecure=true"
-      - "--providers.docker=true"
-      - "--providers.docker.exposedbydefault=false"
-      - "--entrypoints.websecure.address=:443"
-      - "--entrypoints.web.address=:80"
-    ports:
-      - 80:80
-      - 8080:8080
-      - "443:443"
-    volumes:
-      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+      - 'pumpkinbeertaste-db:/var/opt/mssq'
+      - ./CreateDatabase/entrypoint.sh:/entrypoint.sh
+      - ./CreateDatabase/db-init.sh:/db-init.sh
+      - ./CreateDatabase/db-init.sql:/db-init.sql
 
 volumes:
-    sqlvolume: {}
+    pumpkinbeertaste-db: {}

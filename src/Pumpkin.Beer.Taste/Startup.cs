@@ -15,13 +15,8 @@ using Pumpkin.Beer.Taste.Services;
 using SharpRepository.Ioc.Autofac;
 using SharpRepository.Repository.Ioc;
 
-public class Startup
+public class Startup(IConfiguration configuration)
 {
-    public Startup(IConfiguration configuration)
-        => this.Configuration = configuration;
-
-    public IConfiguration Configuration { get; }
-
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddHttpContextAccessor();
@@ -53,17 +48,11 @@ public class Startup
             })
             .AddRazorRuntimeCompilation();
 
-        services.AddCustomLogToAuthentication(options =>
-        {
-            options.Endpoint = Guard.Against.NullOrEmpty(this.Configuration["LogTo:Endpoint"]);
-            options.AppId = Guard.Against.NullOrEmpty(this.Configuration["LogTo:AppId"]);
-            options.AppSecret = Guard.Against.NullOrEmpty(this.Configuration["LogTo:AppSecret"]);
-            options.Scopes = Guard.Against.Null(this.Configuration.GetSection("LogTo:Scopes").Get<string[]>());
-        });
+        services.AddCustomKeyCloakAuthentication(configuration);
 
         services.AddDbContext<ApplicationDbContext>(
             options => options
-                .UseSqlServer(this.Configuration.GetConnectionString("DefaultConnection"), options => options.EnableRetryOnFailure()),
+                .UseSqlServer(configuration.GetConnectionString("DefaultConnection"), options => options.EnableRetryOnFailure()),
             ServiceLifetime.Transient);
 
         services.AddAutoMapper(typeof(Startup));
@@ -71,9 +60,13 @@ public class Startup
         services.AddSingleton<IClockService, ClockService>();
     }
 
-    public void ConfigureContainer(ContainerBuilder builder) => builder.RegisterSharpRepository(this.Configuration.GetSection("sharpRepository"), "efCore"); // for Ef Core
+    public void ConfigureContainer(ContainerBuilder builder)
+        => builder.RegisterSharpRepository(configuration.GetSection("sharpRepository"), "efCore"); // for Ef Core
 
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ApplicationDbContext dbContext)
+    public void Configure(
+        IApplicationBuilder app,
+        IWebHostEnvironment env,
+        ApplicationDbContext dbContext)
     {
         if (env.IsDevelopment())
         {

@@ -9,20 +9,12 @@ using Pumpkin.Beer.Taste.Extensions;
 using Pumpkin.Beer.Taste.ViewModels.ManageBlind;
 using SharpRepository.Repository;
 
-public class IndexModel : PageModel
+[System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "Razor pages.")]
+public class IndexModel(
+    IMapper mapper,
+    IRepository<Blind, int> blindRepository) : PageModel
 {
-    private readonly IMapper mapper;
-    private readonly IRepository<Blind, int> blindRepository;
-
-    public IndexModel(
-        IMapper mapper,
-        IRepository<Blind, int> blindRepository)
-    {
-        this.mapper = mapper;
-        this.blindRepository = blindRepository;
-    }
-
-    public List<IndexViewModel> Blinds { get; set; } = new();
+    public List<IndexViewModel> Blinds { get; set; } = [];
 
     public void OnGet()
     {
@@ -31,8 +23,8 @@ public class IndexModel : PageModel
         var strat = Specifications.GetOwnedBlinds(userId);
         strat.FetchStrategy = Strategies.IncludeItemsAndVotesAndMembers();
 
-        var blinds = this.blindRepository.FindAll(strat);
+        var blinds = blindRepository.FindAll(strat);
 
-        this.Blinds = this.mapper.Map<List<IndexViewModel>>(blinds).OrderByDescending(x => x.Closed is not null).ToList();
+        this.Blinds = [.. mapper.Map<List<IndexViewModel>>(blinds).OrderByDescending(x => x.Closed is not null)];
     }
 }

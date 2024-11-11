@@ -13,5 +13,5 @@ public class IndexViewModel
 
     public IndexBlindItemViewModel BlindItem { get; set; } = null!;
 
-    public List<IndexVoteViewModel> Votes { get; set; } = new();
+    public List<IndexVoteViewModel> Votes { get; set; } = [];
 }

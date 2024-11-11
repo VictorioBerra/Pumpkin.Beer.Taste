@@ -1,104 +1,44 @@
 namespace Microsoft.Extensions.DependencyInjection;
 
-using System.Net.NetworkInformation;
-using System.Runtime.CompilerServices;
-using Logto.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.Cookies;
+using Ardalis.GuardClauses;
+using Keycloak.AuthServices.Authentication;
+using Keycloak.AuthServices.Common;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Protocols.OpenIdConnect;
-using Microsoft.IdentityModel.Tokens;
+using Pumpkin.Beer.Taste.Options;
 
 public static class CustomServiceCollectionExtensions
 {
-    public static IServiceCollection AddCustomLogToAuthentication(
+    public static IServiceCollection AddCustomKeyCloakAuthentication(
         this IServiceCollection services,
-        Action<LogtoOptions> configureOptions)
+        IConfiguration configuration)
     {
-        var logtoOptions = new LogtoOptions();
-        configureOptions(logtoOptions);
-
-        services.Configure(LogtoDefaults.AuthenticationScheme, configureOptions);
-        services.AddOptions<CookieAuthenticationOptions>(LogtoDefaults.CookieScheme);
+        var keyCloakOptions = Guard.Against.Null(configuration.GetSection("KeyCloak").Get<KeyCloakOptions>());
+        Guard.Against.NullOrEmpty(keyCloakOptions.Authority, nameof(keyCloakOptions.Authority));
+        Guard.Against.NullOrEmpty(keyCloakOptions.ClientId, nameof(keyCloakOptions.ClientId));
+        Guard.Against.NullOrEmpty(keyCloakOptions.ClientSecret, nameof(keyCloakOptions.ClientSecret));
 
         services
-          .AddAuthentication(options =>
-          {
-              options.DefaultScheme = LogtoDefaults.CookieScheme;
-              options.DefaultChallengeScheme = LogtoDefaults.AuthenticationScheme;
-              options.DefaultSignOutScheme = LogtoDefaults.AuthenticationScheme;
-          })
-            .AddCookie(
-                LogtoDefaults.CookieScheme,
-                options =>
+            .AddAuthentication(OpenIdConnectDefaults.AuthenticationScheme)
+            .AddKeycloakWebApp(
+                configureKeycloakOptions: options =>
                 {
-                    options.Cookie.Name = $"PumpkinTasting";
-                    options.SlidingExpiration = true;
-                    options.Events = new CookieAuthenticationEvents
+                    options.Realm = "master";
+                    options.AuthServerUrl = keyCloakOptions.Authority; // "https://keycloak.obf.apps.tberra.com/";
+                    options.SslRequired = "All";
+                    options.Resource = keyCloakOptions.ClientId; // "pumpkinbeertaste";
+                    options.VerifyTokenAudience = true;
+                    options.Credentials = new KeycloakClientInstallationCredentials()
                     {
-                        OnValidatePrincipal = context => new LogtoCookieContextManager(LogtoDefaults.AuthenticationScheme, context).Handle(),
+                        Secret = keyCloakOptions.ClientSecret,
                     };
-                })
-            .AddOpenIdConnect(
-                LogtoDefaults.AuthenticationScheme,
-                options =>
+                },
+                configureOpenIdConnectOptions: options =>
                 {
-                    options.Authority = logtoOptions.Endpoint + "oidc";
-                    options.ClientId = logtoOptions.AppId;
-                    options.ClientSecret = logtoOptions.AppSecret;
-                    options.ResponseType = OpenIdConnectResponseType.Code;
+                    // we need this for front-channel sign-out
                     options.SaveTokens = true;
                     options.UsePkce = true;
-                    options.Prompt = logtoOptions.Prompt;
-                    options.CallbackPath = new PathString(logtoOptions.CallbackPath);
-                    options.SignedOutCallbackPath = new PathString(logtoOptions.SignedOutCallbackPath);
-                    options.GetClaimsFromUserInfoEndpoint = logtoOptions.GetClaimsFromUserInfoEndpoint;
-                    options.MapInboundClaims = false;
-                    options.ClaimActions.MapAllExcept("nbf", "nonce", "c_hash", "at_hash");
-                    options.Events = new OpenIdConnectEvents
-                    {
-                        OnRedirectToIdentityProviderForSignOut = async context =>
-                        {
-                            // Clean up the cookie when signing out.
-                            await context.HttpContext.SignOutAsync(LogtoDefaults.CookieScheme);
-
-                            // Rebuild parameters since we use <c>client_id</c> for sign-out, no need to use <c>id_token_hint</c>.
-                            context.ProtocolMessage.Parameters.Remove(OpenIdConnectParameterNames.IdTokenHint);
-                            context.ProtocolMessage.Parameters.Add(OpenIdConnectParameterNames.ClientId, logtoOptions.AppId);
-                        },
-                    };
-                    options.TokenValidationParameters = new TokenValidationParameters
-                    {
-                        NameClaimType = "username",
-                        RoleClaimType = "role",
-                        ValidateAudience = true,
-                        ValidAudience = logtoOptions.AppId,
-                        ValidateIssuer = true,
-                        ValidIssuer = logtoOptions.Endpoint + "oidc",
-                        ValidateLifetime = true,
-                        ValidateIssuerSigningKey = true,
-                    };
-
-                    // Handle scopes
-                    var scopes = new HashSet<string>(logtoOptions.Scopes)
-                      {
-                          "openid",
-                          "offline_access",
-                          "profile",
-                      };
-
-                    options.Scope.Clear();
-                    foreach (var scope in scopes)
-                    {
-                        options.Scope.Add(scope);
-                    }
-
-                    // Handle resource
-                    if (!string.IsNullOrEmpty(logtoOptions.Resource))
-                    {
-                        options.Resource = logtoOptions.Resource;
-                    }
+                    options.GetClaimsFromUserInfoEndpoint = true;
+                    options.ResponseType = "code";
                 });
 
         return services;

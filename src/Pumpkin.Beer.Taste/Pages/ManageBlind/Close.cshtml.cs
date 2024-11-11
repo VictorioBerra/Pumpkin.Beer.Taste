@@ -12,25 +12,13 @@ using Pumpkin.Beer.Taste.Services;
 using Pumpkin.Beer.Taste.ViewModels.ManageBlind;
 using SharpRepository.Repository;
 
-public class CloseModel : PageModel
+[System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "Razor pages.")]
+public class CloseModel(
+    ApplicationDbContext context,
+    IMapper mapper,
+    IClockService clockService,
+    IRepository<Blind, int> blindRepository) : PageModel
 {
-    private readonly ApplicationDbContext context;
-    private readonly IMapper mapper;
-    private readonly IClockService clockService;
-    private readonly IRepository<Blind, int> blindRepository;
-
-    public CloseModel(
-        ApplicationDbContext context,
-        IMapper mapper,
-        IClockService clockService,
-        IRepository<Blind, int> blindRepository)
-    {
-        this.context = context;
-        this.mapper = mapper;
-        this.clockService = clockService;
-        this.blindRepository = blindRepository;
-    }
-
     [BindProperty]
     public CloseViewModel Blind { get; set; } = null!;
 
@@ -41,7 +29,7 @@ public class CloseModel : PageModel
             return this.NotFound();
         }
 
-        var blind = this.blindRepository.Get((int)id);
+        var blind = blindRepository.Get((int)id);
         if (blind == null)
         {
             return this.NotFound();
@@ -54,7 +42,7 @@ public class CloseModel : PageModel
             return this.Unauthorized();
         }
 
-        this.Blind = this.mapper.Map<CloseViewModel>(blind);
+        this.Blind = mapper.Map<CloseViewModel>(blind);
 
         if (this.Blind == null)
         {
@@ -71,9 +59,9 @@ public class CloseModel : PageModel
             return this.NotFound();
         }
 
-        var now = this.clockService.Now;
+        var now = clockService.Now;
 
-        var blind = this.blindRepository.Get((int)id);
+        var blind = blindRepository.Get((int)id);
         if (blind == null)
         {
             return this.NotFound();
@@ -86,13 +74,13 @@ public class CloseModel : PageModel
             return this.Unauthorized();
         }
 
-        this.Blind = this.mapper.Map<CloseViewModel>(blind);
+        this.Blind = mapper.Map<CloseViewModel>(blind);
 
         if (this.Blind != null)
         {
             blind.Closed = now.UtcDateTime;
-            this.context.Attach(blind).State = EntityState.Modified;
-            await this.context.SaveChangesAsync();
+            context.Attach(blind).State = EntityState.Modified;
+            await context.SaveChangesAsync();
         }
 
         return this.RedirectToPage("./Index");

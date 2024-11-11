@@ -17,6 +17,7 @@ using Pumpkin.Beer.Taste.ViewModels.Home;
 using SharpRepository.Repository;
 using SharpRepository.Repository.Specifications;
 
+[System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "Razor pages.")]
 public class IndexModel : PageModel
 {
     private readonly ILogger<IndexModel> logger;
@@ -36,14 +37,14 @@ public class IndexModel : PageModel
         this.mapper = mapper;
         this.clockService = clockService;
         this.blindRepository = blindRepository;
-        this.ClosedBlinds = new List<IndexViewModel>();
+        this.ClosedBlinds = [];
         this.inviteRepository = inviteRepository;
-        this.ClosedBlinds = new List<IndexViewModel>();
+        this.ClosedBlinds = [];
     }
 
-    public List<IndexViewModel> Blinds { get; set; } = new();
+    public List<IndexViewModel> Blinds { get; set; } = [];
 
-    public List<IndexViewModel> ClosedBlinds { get; set; } = new();
+    public List<IndexViewModel> ClosedBlinds { get; set; } = [];
 
     [Required]
     [BindProperty]

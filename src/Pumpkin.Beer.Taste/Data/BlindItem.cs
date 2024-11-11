@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class BlindItem : AuditableEntity
 {
-    public BlindItem() => this.BlindVotes = new HashSet<BlindVote>();
+    public BlindItem() => this.BlindVotes = [];
 
     public int Id { get; set; }
 

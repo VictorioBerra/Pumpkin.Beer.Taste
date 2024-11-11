@@ -11,19 +11,11 @@ using Pumpkin.Beer.Taste.Extensions;
 using Pumpkin.Beer.Taste.ViewModels.ManageBlind;
 using SharpRepository.Repository;
 
-public class CreateModel : PageModel
+[System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "Razor pages.")]
+public class CreateModel(
+    IMapper mapper,
+    IRepository<Blind, int> blindRepository) : PageModel
 {
-    private readonly IMapper mapper;
-    private readonly IRepository<Blind, int> blindRepository;
-
-    public CreateModel(
-        IMapper mapper,
-        IRepository<Blind, int> blindRepository)
-    {
-        this.mapper = mapper;
-        this.blindRepository = blindRepository;
-    }
-
     [BindProperty]
     public CreateViewModel Blind { get; set; } = null!;
 
@@ -36,7 +28,7 @@ public class CreateModel : PageModel
             return this.Page();
         }
 
-        var blind = this.mapper.Map<Blind>(this.Blind);
+        var blind = mapper.Map<Blind>(this.Blind);
         blind.InviteCode = Nanoid.Generate(alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", size: 4);
 
         if (this.Blind.Started is null || this.Blind.Closed is null)
@@ -61,7 +53,7 @@ public class CreateModel : PageModel
             Blind = blind,
         });
 
-        this.blindRepository.Add(blind);
+        blindRepository.Add(blind);
 
         return this.RedirectToPage("./Index");
     }
