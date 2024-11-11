@@ -29,6 +29,7 @@ jobs:
           image_name: ${{ github.repository }}
           image_tag: ${{ env.IMAGE_SHA }}
           github_token: ${{ secrets.GITHUB_TOKEN }}
+          dockerfile: ./src/Pumpkin.Beer.Taste/Dockerfile
 
       - name: Deploy Image to CapRrover
         uses: caprover/deploy-from-github@v1.1.2
