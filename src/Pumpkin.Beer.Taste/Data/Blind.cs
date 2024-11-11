@@ -7,8 +7,8 @@ public class Blind : AuditableEntity
 {
     public Blind()
     {
-        this.UserInvites = new HashSet<UserInvite>();
-        this.BlindItems = new HashSet<BlindItem>();
+        this.UserInvites = [];
+        this.BlindItems = [];
     }
 
     public int Id { get; set; }

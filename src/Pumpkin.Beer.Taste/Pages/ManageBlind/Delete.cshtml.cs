@@ -10,22 +10,12 @@ using Pumpkin.Beer.Taste.Extensions;
 using Pumpkin.Beer.Taste.ViewModels.ManageBlind;
 using SharpRepository.Repository;
 
-public class DeleteModel : PageModel
+[System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "Razor pages.")]
+public class DeleteModel(
+    ApplicationDbContext context,
+    IMapper mapper,
+    IRepository<Blind, int> blindRepository) : PageModel
 {
-    private readonly ApplicationDbContext context;
-    private readonly IMapper mapper;
-    private readonly IRepository<Blind, int> blindRepository;
-
-    public DeleteModel(
-        ApplicationDbContext context,
-        IMapper mapper,
-        IRepository<Blind, int> blindRepository)
-    {
-        this.context = context;
-        this.mapper = mapper;
-        this.blindRepository = blindRepository;
-    }
-
     [BindProperty]
     public DeleteViewModel Blind { get; set; } = null!;
 
@@ -39,7 +29,7 @@ public class DeleteModel : PageModel
         // Kick if it has votes
         var spec = Specifications.GetBlindsWithNoVotes()
             .AndAlso(x => x.Id == id);
-        var blind = this.blindRepository.Find(spec);
+        var blind = blindRepository.Find(spec);
         if (blind == null)
         {
             this.ModelState.AddPageError("Voting has already started, you cannot delete this tasting.");
@@ -53,7 +43,7 @@ public class DeleteModel : PageModel
             return this.Unauthorized();
         }
 
-        this.Blind = this.mapper.Map<DeleteViewModel>(blind);
+        this.Blind = mapper.Map<DeleteViewModel>(blind);
 
         if (this.Blind == null)
         {
@@ -73,7 +63,7 @@ public class DeleteModel : PageModel
         // Kick if it has votes
         var spec = Specifications.GetBlindsWithNoVotes()
             .AndAlso(x => x.Id == id);
-        var blind = this.blindRepository.Find(spec);
+        var blind = blindRepository.Find(spec);
         if (blind == null)
         {
             this.ModelState.AddPageError("Voting has already started, you cannot delete this tasting.");
@@ -87,12 +77,12 @@ public class DeleteModel : PageModel
             return this.Unauthorized();
         }
 
-        this.Blind = this.mapper.Map<DeleteViewModel>(blind);
+        this.Blind = mapper.Map<DeleteViewModel>(blind);
 
         if (this.Blind != null)
         {
-            this.context.Blind.Remove(blind);
-            await this.context.SaveChangesAsync();
+            context.Blind.Remove(blind);
+            await context.SaveChangesAsync();
         }
 
         return this.RedirectToPage("./Index");

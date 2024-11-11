@@ -48,15 +48,7 @@ public class Startup(IConfiguration configuration)
             })
             .AddRazorRuntimeCompilation();
 
-        services.Configure<ForwardedHeadersOptions>(options =>
-        {
-            options.KnownNetworks.Clear();
-            options.KnownProxies.Clear();
-            options.ForwardedHeaders =
-                ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
-        });
-
-        services.AddCustomKeyCloakAuthentication();
+        services.AddCustomKeyCloakAuthentication(configuration);
 
         services.AddDbContext<ApplicationDbContext>(
             options => options
@@ -71,7 +63,10 @@ public class Startup(IConfiguration configuration)
     public void ConfigureContainer(ContainerBuilder builder)
         => builder.RegisterSharpRepository(configuration.GetSection("sharpRepository"), "efCore"); // for Ef Core
 
-    public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ApplicationDbContext dbContext)
+    public void Configure(
+        IApplicationBuilder app,
+        IWebHostEnvironment env,
+        ApplicationDbContext dbContext)
     {
         if (env.IsDevelopment())
         {

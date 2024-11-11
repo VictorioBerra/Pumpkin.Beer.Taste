@@ -12,21 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage;
 using Pumpkin.Beer.Taste.Extensions;
 using Pumpkin.Beer.Taste.Services;
 
-public class ApplicationDbContext : DbContext
+public class ApplicationDbContext(
+    DbContextOptions<ApplicationDbContext> options,
+    IClockService clockService,
+    IHttpContextAccessor httpContextAccessor) : DbContext(options)
 {
-    private readonly IClockService clockService;
-    private readonly IHttpContextAccessor httpContextAccessor;
-
-    public ApplicationDbContext(
-        DbContextOptions<ApplicationDbContext> options,
-        IClockService clockService,
-        IHttpContextAccessor httpContextAccessor)
-        : base(options)
-    {
-        this.clockService = clockService;
-        this.httpContextAccessor = httpContextAccessor;
-    }
-
     public DbSet<Blind> Blind { get; set; }
 
     public DbSet<UserInvite> UserInvite { get; set; }
@@ -59,6 +49,14 @@ public class ApplicationDbContext : DbContext
         return base.SaveChanges();
     }
 
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        base.OnModelCreating(modelBuilder);
+
+        // Set the default schema
+        modelBuilder.HasDefaultSchema("app");
+    }
+
     private void AuditEntities()
     {
         // get entries that are being Added or Updated
@@ -66,17 +64,17 @@ public class ApplicationDbContext : DbContext
                 .Where(x => x.State is EntityState.Added or EntityState.Modified);
 
         // Theres a good chance we are seeding here.
-        if (this.httpContextAccessor.HttpContext == null)
+        if (httpContextAccessor.HttpContext == null)
         {
             return;
         }
 
-        var userId = this.httpContextAccessor.HttpContext.User.GetUserId();
-        var username = this.httpContextAccessor.HttpContext.User.GetUsername();
+        var userId = httpContextAccessor.HttpContext.User.GetUserId();
+        var username = httpContextAccessor.HttpContext.User.GetUsername();
 
         Guard.Against.Null(userId);
 
-        var now = this.clockService.Now;
+        var now = clockService.Now;
 
         foreach (var entry in modifiedEntries)
         {

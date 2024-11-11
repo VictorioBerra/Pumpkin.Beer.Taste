@@ -13,22 +13,12 @@ using Pumpkin.Beer.Taste.Services;
 using Pumpkin.Beer.Taste.ViewModels.Scores;
 using SharpRepository.Repository;
 
-public class IndexModel : PageModel
+[System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "Razor pages.")]
+public class IndexModel(
+    IMapper mapper,
+    IClockService clockService,
+    IRepository<Blind, int> blindRepository) : PageModel
 {
-    private readonly IMapper mapper;
-    private readonly IClockService clockService;
-    private readonly IRepository<Blind, int> blindRepository;
-
-    public IndexModel(
-        IMapper mapper,
-        IClockService clockService,
-        IRepository<Blind, int> blindRepository)
-    {
-        this.mapper = mapper;
-        this.clockService = clockService;
-        this.blindRepository = blindRepository;
-    }
-
     public List<IndexViewModel> BlindItemScores { get; set; } = [];
 
     public IndexBlindViewModel Blind { get; set; } = null!;
@@ -41,7 +31,7 @@ public class IndexModel : PageModel
         }
 
         var userId = this.User.GetUserId();
-        var now = this.clockService.Now;
+        var now = clockService.Now;
 
         var spec = Specifications
             .GetClosedBlinds(now)
@@ -49,21 +39,21 @@ public class IndexModel : PageModel
             .AndAlso(x => x.Id == id);
         spec.FetchStrategy = Strategies
             .IncludeItemsAndVotes();
-        var blind = this.blindRepository.Find(spec);
+        var blind = blindRepository.Find(spec);
         if (blind == null)
         {
             return this.NotFound();
         }
 
-        this.Blind = this.mapper.Map<IndexBlindViewModel>(blind);
+        this.Blind = mapper.Map<IndexBlindViewModel>(blind);
 
-        if (!blind.BlindItems.Any(x => x.BlindVotes.Any()))
+        if (!blind.BlindItems.Any(x => x.BlindVotes.Count != 0))
         {
-            this.BlindItemScores = new();
+            this.BlindItemScores = [];
             return this.Page();
         }
 
-        this.BlindItemScores = this.mapper.Map<List<IndexViewModel>>(blind.BlindItems).OrderByDescending(x => x.TotalScore).ToList();
+        this.BlindItemScores = [.. mapper.Map<List<IndexViewModel>>(blind.BlindItems).OrderByDescending(x => x.TotalScore)];
 
         return this.Page();
     }

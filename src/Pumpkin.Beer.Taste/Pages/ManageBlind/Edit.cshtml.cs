@@ -13,30 +13,18 @@ using Pumpkin.Beer.Taste.Extensions;
 using Pumpkin.Beer.Taste.ViewModels.ManageBlind;
 using SharpRepository.Repository;
 
-public class EditModel : PageModel
+[System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "Razor pages.")]
+public class EditModel(
+    ApplicationDbContext context,
+    IMapper mapper,
+    IRepository<Blind, int> blindRepository,
+    IRepository<BlindItem, int> blindItemRepository) : PageModel
 {
-    private readonly ApplicationDbContext context;
-    private readonly IMapper mapper;
-    private readonly IRepository<Blind, int> blindRepository;
-    private readonly IRepository<BlindItem, int> blindItemRepository;
-
-    public EditModel(
-        ApplicationDbContext context,
-        IMapper mapper,
-        IRepository<Blind, int> blindRepository,
-        IRepository<BlindItem, int> blindItemRepository)
-    {
-        this.context = context;
-        this.mapper = mapper;
-        this.blindRepository = blindRepository;
-        this.blindItemRepository = blindItemRepository;
-    }
-
     [BindProperty]
     public EditViewModel Blind { get; set; } = null!;
 
     [BindProperty]
-    public List<EditItemViewModel> BlindItems { get; set; } = new();
+    public List<EditItemViewModel> BlindItems { get; set; } = [];
 
     public IActionResult OnGet(int? id)
     {
@@ -49,7 +37,7 @@ public class EditModel : PageModel
         var spec = Specifications
             .GetBlindsWithNoVotes()
             .AndAlso(x => x.Id == id);
-        var blind = this.blindRepository.Find(spec);
+        var blind = blindRepository.Find(spec);
         if (blind == null)
         {
             this.ModelState.AddPageError("Voting has already started, you cannot edit this tasting.");
@@ -63,8 +51,8 @@ public class EditModel : PageModel
             return this.Unauthorized();
         }
 
-        this.Blind = this.mapper.Map<EditViewModel>(blind);
-        this.BlindItems = this.mapper.Map<List<EditItemViewModel>>(this.blindItemRepository.FindAll(x => x.BlindId == id));
+        this.Blind = mapper.Map<EditViewModel>(blind);
+        this.BlindItems = mapper.Map<List<EditItemViewModel>>(blindItemRepository.FindAll(x => x.BlindId == id));
 
         return this.Page();
     }
@@ -84,7 +72,7 @@ public class EditModel : PageModel
         // Kick if it has votes
         var spec = Specifications.GetBlindsWithNoVotes()
             .AndAlso(x => x.Id == id);
-        var blind = this.blindRepository.Find(spec);
+        var blind = blindRepository.Find(spec);
         if (blind == null)
         {
             this.ModelState.AddPageError("Voting has already started, you cannot edit this tasting.");
@@ -98,7 +86,7 @@ public class EditModel : PageModel
             return this.Unauthorized();
         }
 
-        var blindToEdit = this.mapper.Map<Blind>(this.Blind);
+        var blindToEdit = mapper.Map<Blind>(this.Blind);
         blindToEdit.Id = id.Value;
 
         var blindItems = blind.BlindItems.ToList();
@@ -109,11 +97,11 @@ public class EditModel : PageModel
 
         blind.BlindItems = blindItems;
 
-        this.context.Attach(blindToEdit).State = EntityState.Modified;
+        context.Attach(blindToEdit).State = EntityState.Modified;
 
         try
         {
-            await this.context.SaveChangesAsync();
+            await context.SaveChangesAsync();
         }
         catch (DbUpdateConcurrencyException)
         {
@@ -130,5 +118,5 @@ public class EditModel : PageModel
         return this.RedirectToPage("./Index");
     }
 
-    private bool BlindExists(int id) => this.context.Blind.Any(e => e.Id == id);
+    private bool BlindExists(int id) => context.Blind.Any(e => e.Id == id);
 }
