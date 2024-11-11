@@ -434,7 +434,6 @@ dotnet_naming_rule.parameters_rule.symbols              = parameters_group
 dotnet_naming_rule.parameters_rule.style = camel_case_style
 dotnet_naming_rule.parameters_rule.severity = warning
 tab_width = 4
-end_of_line = crlf
 dotnet_diagnostic.VSTHRD111.severity = none
 dotnet_diagnostic.CA1848.severity = suggestion
 
