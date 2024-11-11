@@ -9,7 +9,23 @@
 
 <hr />
 
-<div id="createContainer">
+<div id="createContainer" x-data="{
+    startDate: '',
+    startDateUtc: '',
+    closedDate: '',
+    closedDateUtc: '',
+    setStartDate() {
+        const now = new Date();
+        this.startDate = now.toISOString().slice(0, 16);
+        this.startDateUtc = now.toISOString();
+    },
+    setClosedDateOneHour() {
+        const now = new Date();
+        now.setHours(now.getHours() + 1);
+        this.closedDate = now.toISOString().slice(0, 16);
+        this.closedDateUtc = now.toISOString();
+    }
+}">
     <form method="post">
         <div class="row">
 
@@ -25,114 +41,25 @@
 
                 <div class="mb-3 mb-1">
                     <label asp-for="Blind.Started" class="control-label"></label>
-                    <input asp-for="Blind.Started" class="form-control" v-model="startDateUtc" type="hidden" />
+                    <input asp-for="Blind.Started" class="form-control" x-model="startDateUtc" type="hidden" />
                     <div class="input-group">
-                        <input class="form-control" v-model="startDate" type="datetime-local" />
-                        <button type="button" class="btn btn-outline-warning" v-on:click="setStartDate">Start Now</button>
+                        <input class="form-control" x-model="startDate" type="datetime-local" />
+                        <button type="button" class="btn btn-outline-warning" x-click="setStartDate">Start Now</button>
                     </div>
                     <span asp-validation-for="Blind.Started" class="text-danger"></span>
                 </div>
 
                 <div class="mb-3">
                     <label asp-for="Blind.Closed" class="control-label"></label>
-                    <input asp-for="Blind.Closed" class="form-control" v-model="closedDateUtc" type="hidden" />
+                    <input asp-for="Blind.Closed" class="form-control" x-model="closedDateUtc" type="hidden" />
                     <span asp-validation-for="Blind.Closed" class="text-danger"></span>
                     <div class="input-group">
-                        <input class="form-control" v-model="closedDate" type="datetime-local" />
-                        <button type="button" class="btn btn-outline-warning" v-on:click="setClosedDateOneHour">Close 1 Hr From Now</button>
-                        @*<button type="button" class="btn btn-default" v-on:click="setClosedDate">Close Midnight</button>*@
+                        <input class="form-control" x-model="closedDate" type="datetime-local" />
+                        <button type="button" class="btn btn-outline-warning" x-click="setClosedDateOneHour">Close 1 Hr From Now</button>
+                        @*<button type="button" class="btn btn-default" @click="setClosedDate">Close Midnight</button>*@
                     </div>
                 </div>
             </div>
-
-            <div class="col-md-6 pb-2">
-                <div class="card">
-                    <div class="card-body">
-                        <h5 class="card-title">Add Drinks</h5>
-                        <ul class="list-unstyled">
-                            <li v-for="(blindItem, index) in blindItems">
-                                <div class="input-group mb-3">
-                                    <span class="input-group-text">Beverage {{ blindItem.Letter }}</span>
-                                    <input class="form-control" v-model="blindItem.Name" v-bind:name="getInputName(index)" />
-                                    <button class="btn btn-outline-danger" v-on:click="removeBlindItem(blindItem)" type="button">Remove</button>
-                                </div>
-                            </li>
-                        </ul>
-                        <button id="add" type="button" v-on:click="addBlindItem" class="btn btn-warning">Add another drink</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="d-grid gap-2 d-md-block">
-                <input type="submit" value="Create Taste Test!" class="btn btn-success" />
-                <a class="btn btn-primary" asp-page="Index">Back to List</a>
-            </div>
-
         </div>
     </form>
 </div>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-
-    <script>
-
-        var app = new Vue({
-            el: '#createContainer',
-            data: {
-                blindItems: [{
-                    Name: `Drink_A`,
-                    Letter: enAlphabet[0]
-                }],
-                startDate: null,
-                closedDate: null
-            },
-            computed: {
-                startDateUtc: function () {
-                    if (this.startDate === null) {
-                        return null;
-                    }
-                    return moment(this.startDate).utc().format(aspNetCoreMomentFormat);
-                },
-                closedDateUtc: function () {
-                    if (this.closedDate === null) {
-                        return null;
-                    }
-                    return moment(this.closedDate).utc().format(aspNetCoreMomentFormat);
-                },
-            },
-            methods: {
-                setStartDate: function () {
-                    this.startDate = moment().format(aspNetCoreMomentFormat);
-                },
-                setClosedDate: function () {
-                    let now = moment();
-                    now.hour(23);
-                    now.minute(59);
-                    this.closedDate = now.format(aspNetCoreMomentFormat);
-                },
-                setClosedDateOneHour: function () {
-                    let now = moment().add(1, 'hours');
-                    this.closedDate = now.format(aspNetCoreMomentFormat);
-                },
-                removeBlindItem: function (blindItem) {
-                    this.blindItems.splice(this.blindItems.indexOf(blindItem), 1);
-                    for (var i = 0; i < this.blindItems.length; i++) {
-                        this.blindItems[i].Letter = enAlphabet[i];
-                    }
-                },
-                addBlindItem: function () {
-                    this.blindItems.push({
-                        Name: `Drink_${enAlphabet[this.blindItems.length]}`,
-                        Letter: enAlphabet[this.blindItems.length]
-                    });
-                },
-                getInputName: function (index) {
-                    return `Blind.BlindItems[${index}].Name`;
-                }
-            }
-        })
-
-    </script>
-
-}

@@ -12,39 +12,19 @@ using Microsoft.Extensions.Logging;
 using Pumpkin.Beer.Taste.Data;
 using Pumpkin.Beer.Taste.Eblindtensions;
 using Pumpkin.Beer.Taste.Extensions;
-using Pumpkin.Beer.Taste.Services;
 using Pumpkin.Beer.Taste.ViewModels.Home;
 using SharpRepository.Repository;
 using SharpRepository.Repository.Specifications;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "Razor pages.")]
-public class IndexModel : PageModel
+public class IndexModel(
+    ILogger<IndexModel> logger,
+    IMapper mapper,
+    TimeProvider timeProvider,
+    IRepository<Blind, int> blindRepository,
+    IRepository<UserInvite, int> inviteRepository) : PageModel
 {
-    private readonly ILogger<IndexModel> logger;
-    private readonly IMapper mapper;
-    private readonly IClockService clockService;
-    private readonly IRepository<Blind, int> blindRepository;
-    private readonly IRepository<UserInvite, int> inviteRepository;
-
-    public IndexModel(
-        ILogger<IndexModel> logger,
-        IMapper mapper,
-        IClockService clockService,
-        IRepository<Blind, int> blindRepository,
-        IRepository<UserInvite, int> inviteRepository)
-    {
-        this.logger = logger;
-        this.mapper = mapper;
-        this.clockService = clockService;
-        this.blindRepository = blindRepository;
-        this.ClosedBlinds = [];
-        this.inviteRepository = inviteRepository;
-        this.ClosedBlinds = [];
-    }
-
     public List<IndexViewModel> Blinds { get; set; } = [];
-
-    public List<IndexViewModel> ClosedBlinds { get; set; } = [];
 
     [Required]
     [BindProperty]
@@ -57,12 +37,11 @@ public class IndexModel : PageModel
         if (this.User.Identity?.IsAuthenticated ?? false)
         {
             var userId = this.User.GetUserId();
-            var now = this.clockService.Now;
+            var now = timeProvider.GetLocalNow();
 
             this.SetOpenBlinds(userId, now);
-            this.SetClosedBlinds(userId, now);
 
-            this.logger.LogInformation("Logged in user {UserId} loaded dashboard", userId);
+            logger.LogInformation("Logged in user {UserId} loaded dashboard", userId);
         }
     }
 
@@ -71,9 +50,9 @@ public class IndexModel : PageModel
         if (this.User.Identity?.IsAuthenticated ?? false)
         {
             var userId = this.User.GetUserId();
-            var now = this.clockService.Now;
+            var now = timeProvider.GetLocalNow();
 
-            var blindForInvite = this.blindRepository.Find(blind => blind.InviteCode == this.InviteCode);
+            var blindForInvite = blindRepository.Find(blind => blind.InviteCode == this.InviteCode);
 
             if (blindForInvite is null)
             {
@@ -81,7 +60,7 @@ public class IndexModel : PageModel
                 return this.Page();
             }
 
-            var eblindistingLink = this.inviteRepository.Find(blind => blind.CreatedByUserId == userId && blind.BlindId == blindForInvite.Id);
+            var eblindistingLink = inviteRepository.Find(blind => blind.CreatedByUserId == userId && blind.BlindId == blindForInvite.Id);
             if (eblindistingLink is not null)
             {
                 this.ModelState.AddPageError("You have already joined this tasting.");
@@ -93,7 +72,7 @@ public class IndexModel : PageModel
                 BlindId = blindForInvite.Id,
                 CreatedByUserId = userId,
             };
-            this.inviteRepository.Add(invite);
+            inviteRepository.Add(invite);
 
             if (blindForInvite.IsOpen(now))
             {
@@ -112,17 +91,8 @@ public class IndexModel : PageModel
     {
         var spec = Specifications.GetOpenBlinds(now).AndAlso(Specifications.GetMemberOfBlinds(userId));
         spec.FetchStrategy = Strategies.IncludeItemsAndVotesAndMembers();
-        var openBlinds = this.blindRepository.FindAll(spec);
+        var openBlinds = blindRepository.FindAll(spec);
 
-        this.Blinds = this.mapper.Map<List<IndexViewModel>>(openBlinds);
-    }
-
-    private void SetClosedBlinds(string userId, DateTimeOffset now)
-    {
-        var spec = Specifications.GetClosedBlinds(now).AndAlso(Specifications.GetMemberOfBlinds(userId));
-        spec.FetchStrategy = Strategies.IncludeItemsAndVotesAndMembers();
-        var openBlinds = this.blindRepository.FindAll(spec);
-
-        this.ClosedBlinds = this.mapper.Map<List<IndexViewModel>>(openBlinds);
+        this.Blinds = mapper.Map<List<IndexViewModel>>(openBlinds);
     }
 }

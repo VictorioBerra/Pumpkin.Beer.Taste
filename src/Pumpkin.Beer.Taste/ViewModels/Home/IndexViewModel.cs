@@ -1,7 +1,5 @@
 namespace Pumpkin.Beer.Taste.ViewModels.Home;
 
-using Pumpkin.Beer.Taste.ViewModels.ManageBlind;
-
 public class IndexViewModel
 {
     public int Id { get; set; }
@@ -15,4 +13,8 @@ public class IndexViewModel
     public DateTimeOffset? Started { get; set; }
 
     public DateTimeOffset? Closed { get; set; }
+
+    public string CreatedBy { get; set; } = null!;
+
+    public string CreatedByDisplayName { get; set; } = null!;
 }

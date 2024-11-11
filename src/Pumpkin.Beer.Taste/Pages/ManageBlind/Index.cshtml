@@ -18,7 +18,15 @@
     {
         <div class="card mb-2">
             <div class="card-body">
-                <h3 class="card-title">Name: @Html.DisplayFor(modelItem => item.Name)</h3>
+                <h3 class="card-title">
+                    @if (!item.IsOpen)
+                    {
+                        <a asp-area="" asp-page="/Scores/Index" asp-route-id="@item.Id">Name: @Html.DisplayFor(modelItem => item.Name)</a>
+                    } else
+                    {
+                        <span>Name: @Html.DisplayFor(modelItem => item.Name)</span>
+                    }
+                </h3>
                 <h4 class="card-subtitle">Invite Code: <span class="text-warning">@Html.DisplayFor(modelItem => item.InviteCode)</span></h4>
                 <h5>Starts: <span title="@item.Started?.ToLocalTime().ToString()">@item.Started?.ToLocalTime().Humanize()</span></h5>
                 <h5>Closes: <span title="@item.Closed?.ToLocalTime().ToString()">@item.Closed?.ToLocalTime().Humanize()</span></h5>

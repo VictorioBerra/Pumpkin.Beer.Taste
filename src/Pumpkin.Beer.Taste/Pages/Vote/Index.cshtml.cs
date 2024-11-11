@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Pumpkin.Beer.Taste.Data;
 using Pumpkin.Beer.Taste.Extensions;
-using Pumpkin.Beer.Taste.Services;
 using Pumpkin.Beer.Taste.ViewModels.Vote;
 using SharpRepository.Repository;
 using SharpRepository.Repository.FetchStrategies;
@@ -15,7 +14,7 @@ using SharpRepository.Repository.FetchStrategies;
 [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "Razor pages.")]
 public class IndexModel(
     IMapper mapper,
-    IClockService clockService,
+    TimeProvider timeProvider,
     IRepository<Blind, int> blindRepository,
     IRepository<BlindVote, int> blindVoteRepository,
     IRepository<BlindItem, int> blindItemRepository) : PageModel
@@ -34,7 +33,7 @@ public class IndexModel(
             return this.NotFound();
         }
 
-        var now = clockService.Now;
+        var now = timeProvider.GetLocalNow();
         var userId = this.User.GetUserId();
 
         // Is open and I am a member?
@@ -86,7 +85,7 @@ public class IndexModel(
             return this.NotFound();
         }
 
-        var now = clockService.Now;
+        var now = timeProvider.GetLocalNow();
         var userId = this.User.GetUserId();
 
         // Is open and not closed?

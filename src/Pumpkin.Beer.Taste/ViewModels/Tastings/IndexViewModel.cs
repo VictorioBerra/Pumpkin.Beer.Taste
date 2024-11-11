@@ -1,4 +1,4 @@
-namespace Pumpkin.Beer.Taste.ViewModels.ManageBlind;
+namespace Pumpkin.Beer.Taste.ViewModels.Tastings;
 
 public class IndexViewModel
 {
@@ -6,13 +6,9 @@ public class IndexViewModel
 
     public string Name { get; set; } = null!;
 
-    public string InviteCode { get; set; } = null!;
-
     public bool HasVotes { get; set; }
 
     public int NumMembers { get; set; }
-
-    public bool IsOpen { get; set; }
 
     public DateTimeOffset? Started { get; set; }
 

@@ -10,11 +10,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
 using Pumpkin.Beer.Taste.Extensions;
-using Pumpkin.Beer.Taste.Services;
 
 public class ApplicationDbContext(
     DbContextOptions<ApplicationDbContext> options,
-    IClockService clockService,
+    TimeProvider timeProvider,
     IHttpContextAccessor httpContextAccessor) : DbContext(options)
 {
     public DbSet<Blind> Blind { get; set; }
@@ -74,7 +73,7 @@ public class ApplicationDbContext(
 
         Guard.Against.Null(userId);
 
-        var now = clockService.Now;
+        var now = timeProvider.GetLocalNow();
 
         foreach (var entry in modifiedEntries)
         {

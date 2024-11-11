@@ -9,14 +9,13 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 using Pumpkin.Beer.Taste.Data;
 using Pumpkin.Beer.Taste.Extensions;
-using Pumpkin.Beer.Taste.Services;
 using Pumpkin.Beer.Taste.ViewModels.Scores;
 using SharpRepository.Repository;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "Razor pages.")]
 public class IndexModel(
     IMapper mapper,
-    IClockService clockService,
+    TimeProvider timeProvider,
     IRepository<Blind, int> blindRepository) : PageModel
 {
     public List<IndexViewModel> BlindItemScores { get; set; } = [];
@@ -31,7 +30,7 @@ public class IndexModel(
         }
 
         var userId = this.User.GetUserId();
-        var now = clockService.Now;
+        var now = timeProvider.GetLocalNow();
 
         var spec = Specifications
             .GetClosedBlinds(now)

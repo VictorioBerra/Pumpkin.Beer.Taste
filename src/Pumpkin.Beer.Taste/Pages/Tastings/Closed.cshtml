@@ -1,0 +1,32 @@
+@page
+@model Pumpkin.Beer.Taste.Pages.Tastings.ClosedModel
+
+<h3>Closed Tastings</h3>
+
+@if (!Model.ClosedBlinds.Any())
+{
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-subtitle pb-2">You have no closed tastings yet.</h5>
+        </div>
+    </div>
+}
+else
+{
+    <ul class="list-unstyled">
+        @foreach (var blind in Model.ClosedBlinds)
+        {
+            <li>
+                <div class="card mb-2">
+                    <div class="card-body">
+                        <h5 class="card-title">@blind.Name</h5>
+                        <p class="card-teblindt">@blind.Started?.ToString("dddd, dd MMMM yyyy")</p>
+                        <div class="d-grid gap-2">
+                            <a asp-area="" asp-page="/Scores/Index" asp-route-id="@blind.Id" class="btn btn-warning">See Scores</a>
+                        </div>
+                    </div>
+                </div>
+            </li>
+        }
+    </ul>
+}
