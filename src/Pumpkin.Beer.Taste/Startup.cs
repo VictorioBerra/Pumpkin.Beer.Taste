@@ -57,7 +57,9 @@ public class Startup(IConfiguration configuration)
 
         services.AddAutoMapper(typeof(Startup));
 
-        services.AddSingleton<IClockService, ClockService>();
+        services.AddSingleton(TimeProvider.System);
+
+        services.AddScoped<IApplicationService, ApplicationService>();
     }
 
     public void ConfigureContainer(ContainerBuilder builder)

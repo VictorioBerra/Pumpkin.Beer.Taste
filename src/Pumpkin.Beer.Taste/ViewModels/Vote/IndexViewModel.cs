@@ -12,5 +12,5 @@ public class IndexViewModel
 
     public string? Note { get; set; }
 
-    public bool Public { get; set; }
+    public bool Public { get; set; } = true;
 }

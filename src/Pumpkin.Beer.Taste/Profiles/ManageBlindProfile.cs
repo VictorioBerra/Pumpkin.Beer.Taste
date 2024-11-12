@@ -10,7 +10,8 @@ public class ManageBlindProfile : Profile
     {
         this.CreateMap<Blind, IndexViewModel>()
             .ForMember(dest => dest.NumMembers, opts => opts.MapFrom(src => src.UserInvites.Count()))
-            .ForMember(dest => dest.HasVotes, opts => opts.MapFrom(src => src.BlindItems.Any(x => x.BlindVotes.Count != 0)));
+            .ForMember(dest => dest.NumItems, opts => opts.MapFrom(src => src.BlindItems.Count()))
+            .ForMember(dest => dest.NumVotes, opts => opts.MapFrom(src => src.BlindItems.SelectMany(x => x.BlindVotes).Count()));
 
         this.CreateMap<Blind, CloseViewModel>();
 

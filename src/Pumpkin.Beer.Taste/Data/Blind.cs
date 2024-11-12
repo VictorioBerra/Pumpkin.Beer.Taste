@@ -5,12 +5,6 @@ using System.Collections.Generic;
 
 public class Blind : AuditableEntity
 {
-    public Blind()
-    {
-        this.UserInvites = [];
-        this.BlindItems = [];
-    }
-
     public int Id { get; set; }
 
     public string Name { get; set; } = null!;
@@ -21,7 +15,7 @@ public class Blind : AuditableEntity
 
     public DateTimeOffset? Closed { get; set; }
 
-    public ICollection<UserInvite> UserInvites { get; set; }
+    public ICollection<UserInvite> UserInvites { get; set; } = [];
 
-    public ICollection<BlindItem> BlindItems { get; set; }
+    public ICollection<BlindItem> BlindItems { get; set; } = [];
 }

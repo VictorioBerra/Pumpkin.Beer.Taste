@@ -4,21 +4,18 @@
     ViewData["Title"] = "Scores for " + Model.Blind.Name;
 }
 
-<h1>Scores</h1>
-
-<div class="card mb-2">
-    <div class="card-body">
-        <h3 class="card-title">@Model.Blind.Name</h3>
-        @if (Model.Blind.Closed != null)
-        {
-            <span>Closed @Model.Blind.Closed?.ToLocalTime().Humanize()</span>
-            // TODO: Closes soon! Warning?
-        }
-        else
-        {
-            // Never ends...
-        }
-    </div>
+<div class="my-4">
+    <h1 class="display-1">Scores</h1>
+    <h2 class="display-3">@Model.Blind.Name</h2>
+    @if (Model.Blind.Closed != null)
+    {
+        <span>Closed @Model.Blind.Closed?.ToLocalTime().Humanize()</span>
+        <!-- TODO: Closes soon! Warning? -->
+    }
+    else
+    {
+        <!-- Never ends... -->
+    }
 </div>
 
 @if (!Model.BlindItemScores.Any())
@@ -34,25 +31,26 @@ else
                 {
                     var score = Model.BlindItemScores[i];
                     var publicVotes = score.Votes.Where(x => x.Public == true);
-                    <li class="ml-2">
-                        <div class="card mb-2">
+                    <li class="mb-3">
+                        <div class="card border-primary">
+                            <div class="card-header">
+                                @score.BlindItem.Letter: @score.BlindItem.Name
+                            </div>
                             <div class="card-body">
-                                <h3 class="card-title text-success">@score.BlindItem.Letter: @score.BlindItem.Name</h3>
-                                <h4><b>Average Score:</b> @score.AverageScore - @score.AmountOfVotes votes</h4>
+                                <h4 class="card-subtitle mb-2 text-muted"><b>Average Score:</b> @score.AverageScore (@score.AmountOfVotes votes)</h4>
                                 @if (publicVotes.Any())
                                 {
-                                    <h5 class="mt-2">Public Votes:</h5>
+                                    <h5 class="mt-3">Public Votes:</h5>
                                     <ul class="list-unstyled">
                                         @foreach (var vote in publicVotes)
                                         {
-                                            <li class="ms-2">
+                                            <li class="mb-2">
                                                 <label><b>Score:</b> @vote.Score</label>
                                                 <br />
                                                 <label><b>Note:</b> @vote.Note</label>
                                                 <br />
                                                 <label>- @vote.CreatedByUserDisplayName</label>
                                             </li>
-                                            <hr />
                                         }
                                     </ul>
                                 }

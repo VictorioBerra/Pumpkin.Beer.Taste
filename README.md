@@ -1,10 +1,14 @@
 # Blind Taste Test App
 
+## Contributing
+
+Spin up the MSSQL container using `docker compose up pumpkinbeertaste-db -d`. This is a one-time thing unless you want to blow away the container and volume and start again.
+
 ## Docker
 
 - `docker build . --file .\src\Pumpkin.Beer.Taste\Dockerfile`
 
-Develop in Docker Compose
+Build using Docker Compose
 
 - `docker-compose up --remove-orphans --build`
 
@@ -20,23 +24,24 @@ Develop in Docker Compose
 
 ## Deployment
 
-- Login to ECR (docker login token expires after 12 hours) `aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin 246282979715.dkr.ecr.us-east-1.amazonaws.com`
-- Push latest `docker build . --file .\src\Pumpkin.Beer.Taste\Dockerfile -t 246282979715.dkr.ecr.us-east-1.amazonaws.com/pumpkintasting:latest --push`
+- Automated by GitHub Actions
 
-Head to portainer and reload stack with a fresh pull.
+# Migrations
+
+- `cd ./src/Pumpkin.Beer.Taste`
+- `dotnet ef migrations add Whatever`
 
 ## TODO
 
-- Use the new docker nuget to remove dockerfile?
-- Cake
+- Use the new docker nuget to remove dockerfile? https://learn.microsoft.com/en-us/dotnet/core/docker/publish-as-container?pivots=dotnet-8-0#add-nuget-package
 - Dockerfile build does not work with `--no-restore` flag
-- docker-compose traefik development cert. Maybe try this? https://gist.github.com/pyrou/4f555cd55677331c742742ee6007a73a 
+- User profiles
+    - Num tastings done, etc.
 
-
-Think about time zones a little more...
+TimeZones are not implemented at all basically. This app fully assumes CT time zone. Docker compose sets DB to TZ=America/Chicago.
 
 The audit properties save with a zero offset.
 
 When a user creates a tasting, the start and closed date is saved with the offset.
 
-When you use the clock service to get the UtcNow, it comes back without an offset.
+When you use the clock service to get the UtcNow, it comes back without an offset. - TODO did this change when I upgraded TimeProvider? Need to test...

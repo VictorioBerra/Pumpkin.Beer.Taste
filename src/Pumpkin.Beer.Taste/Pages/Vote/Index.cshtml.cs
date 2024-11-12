@@ -15,7 +15,8 @@ using SharpRepository.Repository.FetchStrategies;
 [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "Razor pages.")]
 public class IndexModel(
     IMapper mapper,
-    IClockService clockService,
+    TimeProvider timeProvider,
+    IApplicationService applicationService,
     IRepository<Blind, int> blindRepository,
     IRepository<BlindVote, int> blindVoteRepository,
     IRepository<BlindItem, int> blindItemRepository) : PageModel
@@ -27,14 +28,25 @@ public class IndexModel(
 
     public IndexBlindViewModel Blind { get; set; } = null!;
 
-    public IActionResult OnGet(int? id)
+    public IActionResult OnGet(int? id, string inviteCode)
     {
         if (id == null)
         {
             return this.NotFound();
         }
 
-        var now = clockService.Now;
+        if (!string.IsNullOrWhiteSpace(inviteCode))
+        {
+            var inviteAcceptResult = applicationService.AcceptInvite(this.User, inviteCode);
+
+            if (inviteAcceptResult.Status is Ardalis.Result.ResultStatus.Error)
+            {
+                // TODO: Maybe show them the error via this.ModelState.AddPageError(inviteAcceptResult);?
+                return this.RedirectToPage("/Index");
+            }
+        }
+
+        var now = timeProvider.GetLocalNow();
         var userId = this.User.GetUserId();
 
         // Is open and I am a member?
@@ -86,7 +98,7 @@ public class IndexModel(
             return this.NotFound();
         }
 
-        var now = clockService.Now;
+        var now = timeProvider.GetLocalNow();
         var userId = this.User.GetUserId();
 
         // Is open and not closed?

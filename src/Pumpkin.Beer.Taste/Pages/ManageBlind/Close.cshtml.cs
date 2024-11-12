@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.EntityFrameworkCore;
 using Pumpkin.Beer.Taste.Data;
 using Pumpkin.Beer.Taste.Extensions;
-using Pumpkin.Beer.Taste.Services;
 using Pumpkin.Beer.Taste.ViewModels.ManageBlind;
 using SharpRepository.Repository;
 
@@ -16,7 +15,7 @@ using SharpRepository.Repository;
 public class CloseModel(
     ApplicationDbContext context,
     IMapper mapper,
-    IClockService clockService,
+    TimeProvider timeProvider,
     IRepository<Blind, int> blindRepository) : PageModel
 {
     [BindProperty]
@@ -59,7 +58,7 @@ public class CloseModel(
             return this.NotFound();
         }
 
-        var now = clockService.Now;
+        var now = timeProvider.GetLocalNow();
 
         var blind = blindRepository.Get((int)id);
         if (blind == null)

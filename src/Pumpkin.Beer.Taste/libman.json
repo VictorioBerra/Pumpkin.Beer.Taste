@@ -7,13 +7,13 @@
       "destination": "wwwroot/lib/moment.js/"
     },
     {
-      "provider": "unpkg",
-      "library": "vue@2.6.10",
-      "destination": "wwwroot/lib/vue/",
-      "files": [
-        "dist/vue.js",
-        "dist/vue.min.js"
-      ]
+      "library": "alpinejs@3.14.3",
+      "destination": "wwwroot/lib/alpinejs/"
+    },
+    {
+      "provider": "cdnjs",
+      "library": "qrcodejs@1.0.0",
+      "destination": "wwwroot/lib/qrcodejs/"
     }
   ]
 }

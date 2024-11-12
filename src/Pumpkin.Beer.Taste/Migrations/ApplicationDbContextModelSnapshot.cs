@@ -68,7 +68,7 @@ namespace Pumpkin.Beer.Taste.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Blind");
+                    b.ToTable("Blind", (string)null);
                 });
 
             modelBuilder.Entity("Pumpkin.Beer.Taste.Data.BlindItem", b =>
@@ -115,7 +115,7 @@ namespace Pumpkin.Beer.Taste.Migrations
 
                     b.HasIndex("BlindId");
 
-                    b.ToTable("BlindItem");
+                    b.ToTable("BlindItem", (string)null);
                 });
 
             modelBuilder.Entity("Pumpkin.Beer.Taste.Data.BlindVote", b =>
@@ -164,7 +164,7 @@ namespace Pumpkin.Beer.Taste.Migrations
 
                     b.HasIndex("BlindItemId");
 
-                    b.ToTable("BlindVote");
+                    b.ToTable("BlindVote", (string)null);
                 });
 
             modelBuilder.Entity("Pumpkin.Beer.Taste.Data.UserInvite", b =>
@@ -204,7 +204,7 @@ namespace Pumpkin.Beer.Taste.Migrations
 
                     b.HasIndex("BlindId");
 
-                    b.ToTable("UserInvite");
+                    b.ToTable("UserInvite", (string)null);
                 });
 
             modelBuilder.Entity("Pumpkin.Beer.Taste.Data.BlindItem", b =>

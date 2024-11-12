@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Ardalis.GuardClauses;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -18,33 +19,14 @@ using SharpRepository.Repository;
 using SharpRepository.Repository.Specifications;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "Razor pages.")]
-public class IndexModel : PageModel
+public class IndexModel(
+    ILogger<IndexModel> logger,
+    IMapper mapper,
+    TimeProvider timeProvider,
+    IRepository<Blind, int> blindRepository,
+    IApplicationService applicationService) : PageModel
 {
-    private readonly ILogger<IndexModel> logger;
-    private readonly IMapper mapper;
-    private readonly IClockService clockService;
-    private readonly IRepository<Blind, int> blindRepository;
-    private readonly IRepository<UserInvite, int> inviteRepository;
-
-    public IndexModel(
-        ILogger<IndexModel> logger,
-        IMapper mapper,
-        IClockService clockService,
-        IRepository<Blind, int> blindRepository,
-        IRepository<UserInvite, int> inviteRepository)
-    {
-        this.logger = logger;
-        this.mapper = mapper;
-        this.clockService = clockService;
-        this.blindRepository = blindRepository;
-        this.ClosedBlinds = [];
-        this.inviteRepository = inviteRepository;
-        this.ClosedBlinds = [];
-    }
-
     public List<IndexViewModel> Blinds { get; set; } = [];
-
-    public List<IndexViewModel> ClosedBlinds { get; set; } = [];
 
     [Required]
     [BindProperty]
@@ -57,51 +39,37 @@ public class IndexModel : PageModel
         if (this.User.Identity?.IsAuthenticated ?? false)
         {
             var userId = this.User.GetUserId();
-            var now = this.clockService.Now;
+            var now = timeProvider.GetLocalNow();
 
             this.SetOpenBlinds(userId, now);
-            this.SetClosedBlinds(userId, now);
 
-            this.logger.LogInformation("Logged in user {UserId} loaded dashboard", userId);
+            logger.LogInformation("Logged in user {UserId} loaded dashboard", userId);
         }
     }
 
     public IActionResult OnPost()
     {
+        Guard.Against.NullOrWhiteSpace(this.InviteCode, nameof(this.InviteCode));
+
+        // Cant put [Authorize] attribute on Razor Page handlers, so check here.
         if (this.User.Identity?.IsAuthenticated ?? false)
         {
-            var userId = this.User.GetUserId();
-            var now = this.clockService.Now;
+            var inviteAcceptResult = applicationService.AcceptInvite(this.User, this.InviteCode);
 
-            var blindForInvite = this.blindRepository.Find(blind => blind.InviteCode == this.InviteCode);
-
-            if (blindForInvite is null)
+            if (inviteAcceptResult.Status is Ardalis.Result.ResultStatus.Error)
             {
-                this.ModelState.AddPageError("Invalid invite code.");
+                this.ModelState.AddPageError(inviteAcceptResult);
                 return this.Page();
             }
 
-            var eblindistingLink = this.inviteRepository.Find(blind => blind.CreatedByUserId == userId && blind.BlindId == blindForInvite.Id);
-            if (eblindistingLink is not null)
+            // No blind means it was probably closed, send to see results.
+            if (inviteAcceptResult.Value is null)
             {
-                this.ModelState.AddPageError("You have already joined this tasting.");
-                return this.Page();
-            }
-
-            var invite = new UserInvite
-            {
-                BlindId = blindForInvite.Id,
-                CreatedByUserId = userId,
-            };
-            this.inviteRepository.Add(invite);
-
-            if (blindForInvite.IsOpen(now))
-            {
-                return this.RedirectToPage("/Vote/Index", new { id = blindForInvite.Id });
+                return this.RedirectToPage("/Index");
             }
             else
             {
-                return this.RedirectToPage("/Index");
+                return this.RedirectToPage("/Vote/Index", new { id = inviteAcceptResult.Value.Id });
             }
         }
 
@@ -112,17 +80,8 @@ public class IndexModel : PageModel
     {
         var spec = Specifications.GetOpenBlinds(now).AndAlso(Specifications.GetMemberOfBlinds(userId));
         spec.FetchStrategy = Strategies.IncludeItemsAndVotesAndMembers();
-        var openBlinds = this.blindRepository.FindAll(spec);
+        var openBlinds = blindRepository.FindAll(spec);
 
-        this.Blinds = this.mapper.Map<List<IndexViewModel>>(openBlinds);
-    }
-
-    private void SetClosedBlinds(string userId, DateTimeOffset now)
-    {
-        var spec = Specifications.GetClosedBlinds(now).AndAlso(Specifications.GetMemberOfBlinds(userId));
-        spec.FetchStrategy = Strategies.IncludeItemsAndVotesAndMembers();
-        var openBlinds = this.blindRepository.FindAll(spec);
-
-        this.ClosedBlinds = this.mapper.Map<List<IndexViewModel>>(openBlinds);
+        this.Blinds = mapper.Map<List<IndexViewModel>>(openBlinds);
     }
 }
