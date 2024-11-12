@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using Ardalis.GuardClauses;
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -12,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Pumpkin.Beer.Taste.Data;
 using Pumpkin.Beer.Taste.Eblindtensions;
 using Pumpkin.Beer.Taste.Extensions;
+using Pumpkin.Beer.Taste.Services;
 using Pumpkin.Beer.Taste.ViewModels.Home;
 using SharpRepository.Repository;
 using SharpRepository.Repository.Specifications;
@@ -22,7 +24,7 @@ public class IndexModel(
     IMapper mapper,
     TimeProvider timeProvider,
     IRepository<Blind, int> blindRepository,
-    IRepository<UserInvite, int> inviteRepository) : PageModel
+    IApplicationService applicationService) : PageModel
 {
     public List<IndexViewModel> Blinds { get; set; } = [];
 
@@ -47,40 +49,27 @@ public class IndexModel(
 
     public IActionResult OnPost()
     {
+        Guard.Against.NullOrWhiteSpace(this.InviteCode, nameof(this.InviteCode));
+
+        // Cant put [Authorize] attribute on Razor Page handlers, so check here.
         if (this.User.Identity?.IsAuthenticated ?? false)
         {
-            var userId = this.User.GetUserId();
-            var now = timeProvider.GetLocalNow();
+            var inviteAcceptResult = applicationService.AcceptInvite(this.User, this.InviteCode);
 
-            var blindForInvite = blindRepository.Find(blind => blind.InviteCode == this.InviteCode);
-
-            if (blindForInvite is null)
+            if (inviteAcceptResult.Status is Ardalis.Result.ResultStatus.Error)
             {
-                this.ModelState.AddPageError("Invalid invite code.");
+                this.ModelState.AddPageError(inviteAcceptResult);
                 return this.Page();
             }
 
-            var eblindistingLink = inviteRepository.Find(blind => blind.CreatedByUserId == userId && blind.BlindId == blindForInvite.Id);
-            if (eblindistingLink is not null)
+            // No blind means it was probably closed, send to see results.
+            if (inviteAcceptResult.Value is null)
             {
-                this.ModelState.AddPageError("You have already joined this tasting.");
-                return this.Page();
-            }
-
-            var invite = new UserInvite
-            {
-                BlindId = blindForInvite.Id,
-                CreatedByUserId = userId,
-            };
-            inviteRepository.Add(invite);
-
-            if (blindForInvite.IsOpen(now))
-            {
-                return this.RedirectToPage("/Vote/Index", new { id = blindForInvite.Id });
+                return this.RedirectToPage("/Index");
             }
             else
             {
-                return this.RedirectToPage("/Index");
+                return this.RedirectToPage("/Vote/Index", new { id = inviteAcceptResult.Value.Id });
             }
         }
 

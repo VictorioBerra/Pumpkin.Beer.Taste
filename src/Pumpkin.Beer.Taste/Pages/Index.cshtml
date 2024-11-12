@@ -4,39 +4,23 @@
     ViewData["Title"] = "Home";
 }
 
-<div class="text-center">
-    <div class="card my-2 mt-4">
-        <div class="card-body">
-            <h1 class="display-4 text-warning">Blind Taste Tests</h1>
-            @if (!User.Identity?.IsAuthenticated ?? false)
-            {
-                <p>
-                    <a class="text-warning" asp-area="" asp-page="/Account/Login">Login/Register</a> to get started!
-                </p>
-            }
-        </div>
-    </div>
-</div>
-
 @if (User.Identity?.IsAuthenticated ?? false)
 {
     <div class="row mt-4">
-        <div class="col-md-12 mb-2">
-            <div class="card">
+        <div class="col-md-6 offset-md-3 mb-4">
+            <div class="card border-primary">
                 <div class="card-body">
-
                     <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
                     <h3 class="card-title pb-2">Join a Tasting</h3>
-                    <h6 class="card-subtitle pb-2">Enter an invite code to join an existing tasting.</h6>
+                    <h6 class="card-subtitle pb-2 text-muted">Enter an invite code to join an existing tasting.</h6>
                     <form method="post">
                         <div class="mb-3">
-                            <label asp-for="InviteCode" class="control-label"></label>
+                            <label asp-for="InviteCode" class="form-label"></label>
                             <input asp-for="InviteCode" class="form-control" />
                             <span asp-validation-for="InviteCode" class="text-danger"></span>
                         </div>
-                        <div class="d-grid gap-2">  
-                            <input type="submit" value="Join!" class="btn btn-success" />
+                        <div class="d-grid gap-2">
+                            <input type="submit" value="Join!" class="btn btn-primary" />
                         </div>
                     </form>
                 </div>
@@ -49,11 +33,11 @@
             <h3>Open Tastings</h3>
             @if (!Model.Blinds.Any())
             {
-                <div class="card">
+                <div class="card border-primary">
                     <div class="card-body">
                         <h5 class="card-title pb-2">There are no open tastings at this time.</h5>
                         <div class="d-grid gap-2">
-                            <a asp-area="" asp-page="/ManageBlind/Create" class="btn btn-warning">Create One!</a>
+                            <a asp-area="" asp-page="/ManageBlind/Create" class="btn btn-primary">Create One!</a>
                         </div>
                     </div>
                 </div>
@@ -64,24 +48,24 @@
                     @foreach (var blind in Model.Blinds)
                     {
                         <li>
-                            <div class="card mb-2">
+                            <div class="card border-primary mb-3">
                                 <div class="card-body">
                                     <h5 class="card-title">@blind.Name</h5>
-                                    <div class="d-flex justify-content-between">                                          
-                                        <p>Closes @blind.Closed?.ToLocalTime().Humanize()!</p>                                      
-                                        <p>Created By: @blind.CreatedByDisplayName</p>
+                                    <div class="d-flex justify-content-between">
+                                        <p>Closes @blind.Closed?.ToLocalTime().Humanize()!</p>
+                                        <p>Created By: @blind.CreatedByUserDisplayName</p>
                                     </div>
-                                    @if (blind.CreatedBy == this.User.GetUserId())
-                                    {                                        
+                                    @if (blind.CreatedByUserId == this.User.GetUserId())
+                                    {
                                         <div class="d-flex justify-content-evenly gap-2">
-                                            <a asp-area="" asp-page="/Vote/Index" asp-route-id="@blind.Id" class="flex-fill btn btn-warning">Start Tasting!</a>
+                                            <a asp-area="" asp-page="/Vote/Index" asp-route-id="@blind.Id" class="flex-fill btn btn-primary">Start Tasting!</a>
                                             <a asp-area="" asp-page="/ManageBlind/Edit" asp-route-id="@blind.Id" class="flex-fill btn btn-info">Edit</a>
                                         </div>
                                     }
                                     else
                                     {
                                         <div class="d-grid gap-2">
-                                            <a asp-area="" asp-page="/Vote/Index" asp-route-id="@blind.Id" class="btn btn-warning">Start Tasting!</a>
+                                            <a asp-area="" asp-page="/Vote/Index" asp-route-id="@blind.Id" class="btn btn-primary">Start Tasting!</a>
                                         </div>
                                     }
                                 </div>

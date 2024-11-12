@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Pumpkin.Beer.Taste.Data;
 using Pumpkin.Beer.Taste.Extensions;
+using Pumpkin.Beer.Taste.Services;
 using Pumpkin.Beer.Taste.ViewModels.Vote;
 using SharpRepository.Repository;
 using SharpRepository.Repository.FetchStrategies;
@@ -15,6 +16,7 @@ using SharpRepository.Repository.FetchStrategies;
 public class IndexModel(
     IMapper mapper,
     TimeProvider timeProvider,
+    IApplicationService applicationService,
     IRepository<Blind, int> blindRepository,
     IRepository<BlindVote, int> blindVoteRepository,
     IRepository<BlindItem, int> blindItemRepository) : PageModel
@@ -26,11 +28,22 @@ public class IndexModel(
 
     public IndexBlindViewModel Blind { get; set; } = null!;
 
-    public IActionResult OnGet(int? id)
+    public IActionResult OnGet(int? id, string inviteCode)
     {
         if (id == null)
         {
             return this.NotFound();
+        }
+
+        if (!string.IsNullOrWhiteSpace(inviteCode))
+        {
+            var inviteAcceptResult = applicationService.AcceptInvite(this.User, inviteCode);
+
+            if (inviteAcceptResult.Status is Ardalis.Result.ResultStatus.Error)
+            {
+                // TODO: Maybe show them the error via this.ModelState.AddPageError(inviteAcceptResult);?
+                return this.RedirectToPage("/Index");
+            }
         }
 
         var now = timeProvider.GetLocalNow();

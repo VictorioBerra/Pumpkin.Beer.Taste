@@ -8,9 +8,11 @@ public class IndexViewModel
 
     public string InviteCode { get; set; } = null!;
 
-    public bool HasVotes { get; set; }
-
     public int NumMembers { get; set; }
+
+    public int NumItems { get; set; }
+
+    public int NumVotes { get; set; }
 
     public bool IsOpen { get; set; }
 
@@ -18,5 +20,5 @@ public class IndexViewModel
 
     public DateTimeOffset? Closed { get; set; }
 
-    public string CreatedByDisplayName { get; set; } = null!;
+    public string CreatedByUserDisplayName { get; set; } = null!;
 }

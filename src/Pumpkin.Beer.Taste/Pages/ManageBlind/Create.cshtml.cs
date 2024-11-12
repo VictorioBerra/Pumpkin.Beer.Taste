@@ -53,9 +53,6 @@ public class CreateModel(
             Blind = blind,
         });
 
-        blind.CreatedBy = this.User.GetUserId();
-        blind.CreatedByDisplayName = this.User.GetUsername();
-
         blindRepository.Add(blind);
 
         return this.RedirectToPage("./Index");

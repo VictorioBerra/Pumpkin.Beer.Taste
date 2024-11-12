@@ -15,10 +15,6 @@ public class Blind : AuditableEntity
 
     public DateTimeOffset? Closed { get; set; }
 
-    public string CreatedBy { get; set; } = null!;
-
-    public string CreatedByDisplayName { get; set; } = null!;
-
     public ICollection<UserInvite> UserInvites { get; set; } = [];
 
     public ICollection<BlindItem> BlindItems { get; set; } = [];

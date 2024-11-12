@@ -79,25 +79,53 @@ public class EditModel(
             return this.Page();
         }
 
-        // Kick if its not theirs
+        // Kick if it's not theirs
         var userId = this.User.GetUserId();
         if (blind.CreatedByUserId != userId)
         {
             return this.Unauthorized();
         }
 
-        var blindToEdit = mapper.Map<Blind>(this.Blind);
-        blindToEdit.Id = id.Value;
+        // Update the properties of the existing Blind entity
+        blind.Name = this.Blind.Name;
+        blind.Started = this.Blind.Started;
+        blind.Closed = this.Blind.Closed;
 
-        var blindItems = blind.BlindItems.ToList();
-        for (var i = 0; i < blindItems.Count; i++)
+        // Update BlindItems
+        var existingBlindItems = blindItemRepository.FindAll(x => x.BlindId == id).ToList();
+        var updatedBlindItems = this.BlindItems.Select((item, index) => new BlindItem
         {
-            blindItems[i].Ordinal = i;
+            Id = item.Id,
+            Name = item.Name,
+            Ordinal = index,
+            BlindId = blind.Id,
+        }).ToList();
+
+        // Remove old items that are not in the updated list
+        foreach (var existingItem in existingBlindItems)
+        {
+            if (!updatedBlindItems.Any(x => x.Id == existingItem.Id))
+            {
+                blindItemRepository.Delete(existingItem);
+            }
         }
 
-        blind.BlindItems = blindItems;
+        // Add or update items
+        foreach (var updatedItem in updatedBlindItems)
+        {
+            var existingItem = existingBlindItems.FirstOrDefault(x => x.Id == updatedItem.Id);
+            if (existingItem != null)
+            {
+                existingItem.Name = updatedItem.Name;
+                existingItem.Ordinal = updatedItem.Ordinal;
+            }
+            else
+            {
+                blindItemRepository.Add(updatedItem);
+            }
+        }
 
-        context.Attach(blindToEdit).State = EntityState.Modified;
+        context.Attach(blind).State = EntityState.Modified;
 
         try
         {

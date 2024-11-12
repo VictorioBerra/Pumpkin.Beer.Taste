@@ -1,54 +1,92 @@
 @page
 @model Pumpkin.Beer.Taste.Pages.BlindPages.IndexModel
-
 @{
     ViewData["Title"] = "All Blinds";
 }
 
-<div class="card my-2">
-    <div class="card-body">
-        <h3 class="card-title">My Tastings</h3>
-        <a asp-page="Create">Create New</a>
-    </div>
+<div class="my-3">
+    <h3 class="card-title mb-0">My Tastings</h3>
+    <hr />
+    <a asp-page="Create">Create New</a>
 </div>
 
 @if (Model.Blinds?.Any() ?? false)
 {
     @foreach (var item in Model.Blinds)
     {
-        <div class="card mb-2">
+        <div class="card border-primary mb-3" x-data="blindData(@item.Id, '@Url.Page("/Vote/Index", new { id = item.Id, inviteCode = item.InviteCode })')">
             <div class="card-body">
                 <h3 class="card-title">
-                    @if (!item.IsOpen)
-                    {
-                        <a asp-area="" asp-page="/Scores/Index" asp-route-id="@item.Id">Name: @Html.DisplayFor(modelItem => item.Name)</a>
-                    } else
-                    {
-                        <span>Name: @Html.DisplayFor(modelItem => item.Name)</span>
-                    }
+                    Name: @Html.DisplayFor(modelItem => item.Name)
                 </h3>
-                <h4 class="card-subtitle">Invite Code: <span class="text-warning">@Html.DisplayFor(modelItem => item.InviteCode)</span></h4>
-                <h5>Starts: <span title="@item.Started?.ToLocalTime().ToString()">@item.Started?.ToLocalTime().Humanize()</span></h5>
-                <h5>Closes: <span title="@item.Closed?.ToLocalTime().ToString()">@item.Closed?.ToLocalTime().Humanize()</span></h5>
-                <h5>Members: <span>@item.NumMembers</span></h5>
-                <div>
-                    @if (!item.HasVotes)
-                    {
-                        <span>
-                            <a asp-page="./Edit" asp-route-id="@item.Id">Edit</a> |
-                            <a asp-page="./Delete" asp-route-id="@item.Id">Delete</a> |
-                            @* TODO: hide close button if close date is past *@
-                            <a asp-page="./Close" asp-route-id="@item.Id">Close</a>
-                            @*<a asp-page="./Details" asp-route-id="@item.Id">Details</a> |*@
-                        </span>
-                    }
-                    else
-                    {
-                        <span><strong class="teblindt-warning">Edit Disabled</strong> (people have already started voting!)</span>
-                        <a asp-page="./Close" asp-route-id="@item.Id">Close</a>
-                    }
+                <h4 class="card-subtitle mb-2 text-muted">
+                    Invite Code: <span class="text-warning">@Html.DisplayFor(modelItem => item.InviteCode)</span>
+                </h4>
+                <p class="mb-1"><strong>Starts:</strong> <span title="@item.Started?.ToLocalTime().ToString()">@item.Started?.ToLocalTime().Humanize()</span></p>
+                <p class="mb-1"><strong>Closes:</strong> <span title="@item.Closed?.ToLocalTime().ToString()">@item.Closed?.ToLocalTime().Humanize()</span></p>
+                <p class="mb-1"><strong>Member Count:</strong> <span>@item.NumMembers</span></p>
+                <p class="mb-1"><strong>Items Count:</strong> <span>@item.NumItems</span></p>
+                <p class="mb-3"><strong>Votes Count:</strong> <span>@item.NumVotes</span></p>
+
+                <div class="d-flex gap-2">
+                    <div>
+                        @if (item.NumVotes == 0)
+                        {
+                            <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm">Edit</a>
+                            <a asp-page="./Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">Delete</a>
+                            <a asp-page="./Close" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">Close Now</a>
+                        }
+                        else if (item.IsOpen)
+                        {
+                            <a asp-page="./Close" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">Close</a>
+                        }
+                        else
+                        {
+                            <a asp-area="" asp-page="/Scores/Index" asp-route-id="@item.Id" class="btn btn-outline-info btn-sm">View Scores</a>
+                        }
+
+                        <button @@click="copyInvite"
+                                class="btn btn-outline-success btn-sm"
+                                :class="{ 'btn-success text-white': copied }">
+                            <span x-text="copied ? 'Copied!' : 'Copy Invite Link'"></span>
+                        </button>
+                    </div>
                 </div>
+                <div id="qrcode-@item.Id" class="mt-3"></div>
             </div>
         </div>
     }
+}
+
+@section Scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script>
+        function blindData(id, inviteUrl) {
+            return {
+                copied: false,
+                inviteUrl: inviteUrl,
+                async copyInvite() {
+                    try {
+                        await navigator.clipboard.writeText(`${window.location.origin}${this.inviteUrl}`);
+                        this.copied = true;
+                        setTimeout(() => this.copied = false, 2000);
+                    } catch (err) {
+                        console.error('Failed to copy:', err);
+                    }
+                },
+                generateQRCode() {
+                    const qrCodeContainer = document.getElementById(`qrcode-${id}`);
+                    qrCodeContainer.innerHTML = '';
+                    new QRCode(qrCodeContainer, `${window.location.origin}${this.inviteUrl}`);
+                },
+                init() {
+                    this.generateQRCode();
+                }
+            };
+        }
+
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('blindData', blindData);
+        });
+    </script>
 }

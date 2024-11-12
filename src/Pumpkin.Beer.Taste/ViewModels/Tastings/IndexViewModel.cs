@@ -14,5 +14,5 @@ public class IndexViewModel
 
     public DateTimeOffset? Closed { get; set; }
 
-    public string CreatedByDisplayName { get; set; } = null!;
+    public string CreatedByUserDisplayName { get; set; } = null!;
 }

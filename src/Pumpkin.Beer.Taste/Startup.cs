@@ -11,6 +11,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Pumpkin.Beer.Taste.Data;
+using Pumpkin.Beer.Taste.Services;
 using SharpRepository.Ioc.Autofac;
 using SharpRepository.Repository.Ioc;
 
@@ -57,6 +58,8 @@ public class Startup(IConfiguration configuration)
         services.AddAutoMapper(typeof(Startup));
 
         services.AddSingleton(TimeProvider.System);
+
+        services.AddScoped<IApplicationService, ApplicationService>();
     }
 
     public void ConfigureContainer(ContainerBuilder builder)

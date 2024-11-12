@@ -17,8 +17,7 @@ namespace Pumpkin.Beer.Taste.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("app")
-                .HasAnnotation("ProductVersion", "8.0.10")
+                .HasAnnotation("ProductVersion", "7.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -33,14 +32,6 @@ namespace Pumpkin.Beer.Taste.Migrations
 
                     b.Property<DateTimeOffset?>("Closed")
                         .HasColumnType("datetimeoffset");
-
-                    b.Property<string>("CreatedBy")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("CreatedByDisplayName")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("CreatedByUserDisplayName")
                         .IsRequired()
@@ -77,7 +68,7 @@ namespace Pumpkin.Beer.Taste.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Blind", "app");
+                    b.ToTable("Blind", (string)null);
                 });
 
             modelBuilder.Entity("Pumpkin.Beer.Taste.Data.BlindItem", b =>
@@ -124,7 +115,7 @@ namespace Pumpkin.Beer.Taste.Migrations
 
                     b.HasIndex("BlindId");
 
-                    b.ToTable("BlindItem", "app");
+                    b.ToTable("BlindItem", (string)null);
                 });
 
             modelBuilder.Entity("Pumpkin.Beer.Taste.Data.BlindVote", b =>
@@ -173,7 +164,7 @@ namespace Pumpkin.Beer.Taste.Migrations
 
                     b.HasIndex("BlindItemId");
 
-                    b.ToTable("BlindVote", "app");
+                    b.ToTable("BlindVote", (string)null);
                 });
 
             modelBuilder.Entity("Pumpkin.Beer.Taste.Data.UserInvite", b =>
@@ -213,7 +204,7 @@ namespace Pumpkin.Beer.Taste.Migrations
 
                     b.HasIndex("BlindId");
 
-                    b.ToTable("UserInvite", "app");
+                    b.ToTable("UserInvite", (string)null);
                 });
 
             modelBuilder.Entity("Pumpkin.Beer.Taste.Data.BlindItem", b =>

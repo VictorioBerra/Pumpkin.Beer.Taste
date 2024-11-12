@@ -9,57 +9,129 @@
 
 <hr />
 
-<div id="createContainer" x-data="{
-    startDate: '',
-    startDateUtc: '',
-    closedDate: '',
-    closedDateUtc: '',
-    setStartDate() {
-        const now = new Date();
-        this.startDate = now.toISOString().slice(0, 16);
-        this.startDateUtc = now.toISOString();
-    },
-    setClosedDateOneHour() {
-        const now = new Date();
-        now.setHours(now.getHours() + 1);
-        this.closedDate = now.toISOString().slice(0, 16);
-        this.closedDateUtc = now.toISOString();
-    }
-}">
-    <form method="post">
-        <div class="row">
+<div id="createContainer" x-data="blindCreateData">
+    <div class="card border-primary">
+        <div class="card-body">
+            <form method="post">
+                <div class="row">
+                    <div class="col-md-6 pb-2">
+                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <div class="col-md-6 pb-2">
+                        <div class="mb-3">
+                            <label asp-for="Blind.Name" class="control-label"></label>
+                            <input asp-for="Blind.Name" class="form-control" placeholder="My Pumpkin Beer Tasting" />
+                            <span asp-validation-for="Blind.Name" class="text-danger"></span>
+                        </div>
 
-                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div class="mb-3">
+                            <label asp-for="Blind.Started" class="control-label"></label>
+                            <input asp-for="Blind.Started" class="form-control" x-model="startDateUtc" type="hidden" />
+                            <div class="input-group">
+                                <input class="form-control" x-model="startDate" type="datetime-local" />
+                                <button type="button" class="btn btn-outline-warning" x-on:click="setStartDate">Start Now</button>
+                            </div>
+                            <span asp-validation-for="Blind.Started" class="text-danger"></span>
+                        </div>
 
-                <div class="mb-3 mb-1">
-                    <label asp-for="Blind.Name" class="control-label"></label>
-                    <input asp-for="Blind.Name" class="form-control" placeholder="My Pumpkin Beer Tasting" />
-                    <span asp-validation-for="Blind.Name" class="text-danger"></span>
-                </div>
-
-                <div class="mb-3 mb-1">
-                    <label asp-for="Blind.Started" class="control-label"></label>
-                    <input asp-for="Blind.Started" class="form-control" x-model="startDateUtc" type="hidden" />
-                    <div class="input-group">
-                        <input class="form-control" x-model="startDate" type="datetime-local" />
-                        <button type="button" class="btn btn-outline-warning" x-click="setStartDate">Start Now</button>
+                        <div class="mb-3">
+                            <label asp-for="Blind.Closed" class="control-label"></label>
+                            <input asp-for="Blind.Closed" class="form-control" x-model="closedDateUtc" type="hidden" />
+                            <div class="input-group">
+                                <input class="form-control" x-model="closedDate" type="datetime-local" />
+                                <button type="button" class="btn btn-outline-warning" x-on:click="setClosedDateOneHour">Close 1 Hr From Now</button>
+                            </div>
+                            <span asp-validation-for="Blind.Closed" class="text-danger"></span>
+                        </div>
                     </div>
-                    <span asp-validation-for="Blind.Started" class="text-danger"></span>
-                </div>
 
-                <div class="mb-3">
-                    <label asp-for="Blind.Closed" class="control-label"></label>
-                    <input asp-for="Blind.Closed" class="form-control" x-model="closedDateUtc" type="hidden" />
-                    <span asp-validation-for="Blind.Closed" class="text-danger"></span>
-                    <div class="input-group">
-                        <input class="form-control" x-model="closedDate" type="datetime-local" />
-                        <button type="button" class="btn btn-outline-warning" x-click="setClosedDateOneHour">Close 1 Hr From Now</button>
-                        @*<button type="button" class="btn btn-default" @click="setClosedDate">Close Midnight</button>*@
+                    <div class="col-md-6 pb-2">
+                        <div class="card border-primary">
+                            <div class="card-body">
+                                <h5 class="card-title">Add Items</h5>
+                                <ul class="list-unstyled">
+                                    <template x-for="(blindItem, index) in blindItems" :key="index">
+                                        <li>
+                                            <div class="input-group mb-3">
+                                                <span class="input-group-text" x-text="'Item ' + blindItem.Letter"></span>
+                                                <input class="form-control" x-model="blindItem.Name" :name="getInputName(index)" />
+                                                <button class="btn btn-outline-danger" x-on:click="removeBlindItem(index)" type="button">Remove</button>
+                                            </div>
+                                        </li>
+                                    </template>
+                                </ul>
+                                <button id="add" type="button" x-on:click="addBlindItem" class="btn btn-outline-primary">Add another item</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2 d-md-block">
+                        <input type="submit" value="Create Taste Test!" class="btn btn-success" />
+                        | <a asp-page="Index">Back</a>
                     </div>
                 </div>
-            </div>
+            </form>
         </div>
-    </form>
+    </div>
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <script>
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('blindCreateData', () => ({
+                 blindItems: [{
+                     Name: 'Drink_A',
+                     Letter: enAlphabet[0]
+                 }],
+                 startDate: null,
+                 closedDate: null,
+                 get startDateUtc() {
+                     if (this.startDate === null) {
+                        return null;
+                     }
+                    return moment(this.startDate).utc().format(aspNetCoreMomentFormat);
+                 },
+                 get closedDateUtc() {
+                     if (this.closedDate === null) {
+                        return null;
+                     }
+                     return moment(this.closedDate).utc().format(aspNetCoreMomentFormat);
+                 },
+                 setStartDate() {
+                    this.startDate=moment().format(aspNetCoreMomentFormat);
+                 },
+                 setClosedDate() {
+                     let now=moment();
+                     now.hour(23);
+                     now.minute(59);
+                     this.closedDate=now.format(aspNetCoreMomentFormat);
+                 },
+                 setClosedDateOneHour() {
+                     let now=moment().add(1, 'hours' );
+                     this.closedDate=now.format(aspNetCoreMomentFormat);
+                 },
+                 removeBlindItem(index) {
+                    this.blindItems.splice(index, 1);
+                    this.blindItems.forEach((item, i)=>
+                    {
+                        item.Letter = enAlphabet[i];
+                    });
+                },
+
+                addBlindItem() {
+                    this.blindItems.push({
+                        Name: `Drink_${enAlphabet[this.blindItems.length]}`,
+                        Letter: enAlphabet[this.blindItems.length]
+                    });
+                },
+
+                getInputName(index) {
+                    return `Blind.BlindItems[${index}].Name`;
+                }
+            }))
+        })
+    </script>
+}
