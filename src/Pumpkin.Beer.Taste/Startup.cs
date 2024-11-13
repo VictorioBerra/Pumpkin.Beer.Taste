@@ -53,7 +53,8 @@ public class Startup(IConfiguration configuration)
 
         services.AddDbContext<ApplicationDbContext>(
             options => options
-                .UseSqlServer(configuration.GetConnectionString("DefaultConnection"), options => options.EnableRetryOnFailure()));
+                .UseSqlServer(configuration.GetConnectionString("DefaultConnection"), options => options.EnableRetryOnFailure()),
+            ServiceLifetime.Transient);
 
         services.AddDbContext<MyKeysContext>(options =>
             options.UseSqlServer(
