@@ -4,13 +4,6 @@
     ViewData["Title"] = "Home";
 }
 
-<style>
-    .card-img-top {
-        max-height: 200px;
-        object-fit: cover;
-    }
-</style>
-
 <div class="row mt-4">
     <div class="col-md-6 offset-md-3 mb-4">
         <div class="card border-primary">
@@ -56,7 +49,7 @@
             <div class="d-flex gap-4 flex-wrap justify-content-center">
                 @foreach (var blind in Model.Blinds)
                 {
-                    <div class="card border-primary mx-auto" style="width: 18rem;">
+                    <div class="card border-primary mx-auto" style="width: 23rem;">
                         @if (blind.CoverPhotoBase64 is not null)
                         {
                             <img src="data:image/jpeg;base64,@blind.CoverPhotoBase64" class="card-img-top rounded-top" alt="Cover Photo" />

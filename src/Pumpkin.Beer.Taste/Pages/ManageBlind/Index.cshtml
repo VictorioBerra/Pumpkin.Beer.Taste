@@ -20,7 +20,7 @@
     <div class="d-flex gap-4 flex-wrap justify-content-center">
         @foreach (var item in Model.Blinds)
         {
-            <div class="card border-primary mb-3" x-data="blindData(@item.Id, '@Url.Page("/Vote/Index", new { id = item.Id, inviteCode = item.InviteCode })')" style="width: 18rem;">
+            <div class="card border-primary mb-3" x-data="blindData(@item.Id, '@Url.Page("/Vote/Index", new { id = item.Id, inviteCode = item.InviteCode })')" style="width: 23rem;">
                 @if (item.CoverPhotoBase64 is not null)
                 {
                     <img src="data:image/jpeg;base64,@item.CoverPhotoBase64" class="card-img-top rounded-top" alt="Cover Photo" />
