@@ -4,65 +4,78 @@
     ViewData["Title"] = "All Blinds";
 }
 
+<style>
+    .card-img-top {
+        max-height: 200px;
+        object-fit: cover;
+    }
+</style>
+
 <page-heading heading="Manage Tastings">
     <a asp-page="Create">Create New</a>
 </page-heading>
 
 @if (Model.Blinds?.Any() ?? false)
 {
-    @foreach (var item in Model.Blinds)
-    {
-        <div class="card border-primary mb-3" x-data="blindData(@item.Id, '@Url.Page("/Vote/Index", new { id = item.Id, inviteCode = item.InviteCode })')">
-            <div class="card-body">
-                <h3 class="card-title">
-                    Name: @Html.DisplayFor(modelItem => item.Name)
-                </h3>
-                <h4 class="card-subtitle mb-2 text-muted">
-                    Invite Code: <span class="text-warning">@Html.DisplayFor(modelItem => item.InviteCode)</span>
-                </h4>
-                <p class="mb-1"><strong>Starts:</strong> <span title="@item.Started?.ToLocalTime().ToString()">@item.Started?.ToLocalTime().Humanize()</span></p>
-                <p class="mb-1"><strong>Closes:</strong> <span title="@item.Closed?.ToLocalTime().ToString()">@item.Closed?.ToLocalTime().Humanize()</span></p>
-                <p class="mb-1"><strong>Member Count:</strong> <span>@item.NumMembers</span></p>
-                <p class="mb-1"><strong>Items Count:</strong> <span>@item.NumItems</span></p>
-                <p class="mb-3"><strong>Votes Count:</strong> <span>@item.NumVotes</span></p>
+    <div class="d-flex gap-4 flex-wrap justify-content-center">
+        @foreach (var item in Model.Blinds)
+        {
+            <div class="card border-primary mb-3" x-data="blindData(@item.Id, '@Url.Page("/Vote/Index", new { id = item.Id, inviteCode = item.InviteCode })')" style="width: 18rem;">
+                @if (item.CoverPhotoBase64 is not null)
+                {
+                    <img src="data:image/jpeg;base64,@item.CoverPhotoBase64" class="card-img-top rounded-top" alt="Cover Photo" />
+                }
+                <div class="card-body">
+                    <h3 class="card-title">
+                        Name: @Html.DisplayFor(modelItem => item.Name)
+                    </h3>
+                    <h4 class="card-subtitle mb-2 text-muted">
+                        Invite Code: <span class="text-warning">@Html.DisplayFor(modelItem => item.InviteCode)</span>
+                    </h4>
+                    <p class="mb-1"><strong>Starts:</strong> <span title="@item.Started?.ToLocalTime().ToString()">@item.Started?.ToLocalTime().Humanize()</span></p>
+                    <p class="mb-1"><strong>Closes:</strong> <span title="@item.Closed?.ToLocalTime().ToString()">@item.Closed?.ToLocalTime().Humanize()</span></p>
+                    <p class="mb-1"><strong>Member Count:</strong> <span>@item.NumMembers</span></p>
+                    <p class="mb-1"><strong>Items Count:</strong> <span>@item.NumItems</span></p>
+                    <p class="mb-3"><strong>Votes Count:</strong> <span>@item.NumVotes</span></p>
 
-                <div class="d-flex gap-2">
-                    <div>
-                        @if (item.NumVotes == 0)
-                        {
-                            <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm">Edit</a>
-                            <a asp-page="./Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">Delete</a>
-                            if (item.IsOpen)
+                    <div class="d-flex gap-2">
+                        <div>
+                            @if (item.NumVotes == 0)
                             {
-                                <a asp-page="./Close" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">Close Now</a>
+                                <a asp-page="./Edit" asp-route-id="@item.Id" class="btn btn-outline-primary btn-sm">Edit</a>
+                                <a asp-page="./Delete" asp-route-id="@item.Id" class="btn btn-outline-danger btn-sm">Delete</a>
+                                if (item.IsOpen)
+                                {
+                                    <a asp-page="./Close" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">Close Now</a>
+                                }
                             }
-                        }
-                        else if (item.IsOpen)
-                        {
-                            <a asp-page="./Close" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">Close</a>
-                        }
-                        else
-                        {
-                            <a asp-area="" asp-page="/Scores/Index" asp-route-id="@item.Id" class="btn btn-outline-info btn-sm">View Scores</a>
-                        }
+                            else if (item.IsOpen)
+                            {
+                                <a asp-page="./Close" asp-route-id="@item.Id" class="btn btn-outline-warning btn-sm">Close</a>
+                            }
+                            else
+                            {
+                                <a asp-area="" asp-page="/Scores/Index" asp-route-id="@item.Id" class="btn btn-outline-info btn-sm">View Scores</a>
+                            }
 
-                        @if (item.IsOpen)
-                        {
-                            <div id="qrcode-@item.Id" class="mt-3"></div>
+                            @if (item.IsOpen)
+                            {
+                                <div id="qrcode-@item.Id" class="mt-3"></div>
 
-                            <div class="mt-3">
-                                <button @@click="copyInvite"
-                                        class="btn btn-outline-success btn-sm"
-                                        :class="{ 'btn-success text-white': copied }">
-                                    <span x-text="copied ? 'Copied!' : 'Copy Invite Link'"></span>
-                                </button>
-                            </div>
-                        }
+                                <div class="mt-3">
+                                    <button @@click="copyInvite"
+                                            class="btn btn-outline-success btn-sm"
+                                            :class="{ 'btn-success text-white': copied }">
+                                        <span x-text="copied ? 'Copied!' : 'Copy Invite Link'"></span>
+                                    </button>
+                                </div>
+                            }
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    }
+        }
+    </div>
 }
 
 @section Scripts {

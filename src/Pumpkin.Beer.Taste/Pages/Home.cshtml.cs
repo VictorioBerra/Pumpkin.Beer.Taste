@@ -41,31 +41,38 @@ public class HomeModel(
 
     public IActionResult OnPost()
     {
-        Guard.Against.NullOrWhiteSpace(this.InviteCode, nameof(this.InviteCode));
+        var userId = this.User.GetUserId();
+        var now = timeProvider.GetLocalNow();
 
-        // Cant put [Authorize] attribute on Razor Page handlers, so check here.
-        if (this.User.Identity?.IsAuthenticated ?? false)
+        if (string.IsNullOrWhiteSpace(this.InviteCode))
         {
-            var inviteAcceptResult = applicationService.AcceptInvite(this.User, this.InviteCode);
+            this.ModelState.AddPageError("Missing code.");
 
-            if (inviteAcceptResult.Status is Ardalis.Result.ResultStatus.Error)
-            {
-                this.ModelState.AddPageError(inviteAcceptResult);
-                return this.Page();
-            }
+            this.SetOpenBlinds(userId, now);
 
-            // No blind means it was probably closed, send to see results.
-            if (inviteAcceptResult.Value is null)
-            {
-                return this.RedirectToPage("/Index");
-            }
-            else
-            {
-                return this.RedirectToPage("/Vote/Index", new { id = inviteAcceptResult.Value.Id });
-            }
+            return this.Page();
         }
 
-        return this.Page();
+        var inviteAcceptResult = applicationService.AcceptInvite(this.User, this.InviteCode);
+
+        if (inviteAcceptResult.Status is Ardalis.Result.ResultStatus.Error)
+        {
+            this.ModelState.AddPageError(inviteAcceptResult);
+
+            this.SetOpenBlinds(userId, now);
+
+            return this.Page();
+        }
+
+        // No blind means it was probably closed, send to see results.
+        if (inviteAcceptResult.Value is null)
+        {
+            return this.RedirectToPage("/Index");
+        }
+        else
+        {
+            return this.RedirectToPage("/Vote/Index", new { id = inviteAcceptResult.Value.Id });
+        }
     }
 
     private void SetOpenBlinds(string userId, DateTimeOffset now)
@@ -76,6 +83,7 @@ public class HomeModel(
         {
             Id = x.Id,
             Name = x.Name,
+            CoverPhotoBase64 = x.CoverPhoto != null ? Convert.ToBase64String(x.CoverPhoto) : null,
             HasVotes = x.BlindItems.Any(x => x.BlindVotes.Count != 0),
             Started = x.Started,
             Closed = x.Closed,

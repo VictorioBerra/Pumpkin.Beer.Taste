@@ -6,6 +6,8 @@ public class IndexViewModel
 
     public string Name { get; set; } = null!;
 
+    public string? CoverPhotoBase64 { get; set; }
+
     public bool HasVotes { get; set; }
 
     public int NumMembers { get; set; }

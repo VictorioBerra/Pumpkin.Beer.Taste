@@ -4,6 +4,13 @@
     ViewData["Title"] = "Home";
 }
 
+<style>
+    .card-img-top {
+        max-height: 200px;
+        object-fit: cover;
+    }
+</style>
+
 <div class="row mt-4">
     <div class="col-md-6 offset-md-3 mb-4">
         <div class="card border-primary">
@@ -46,44 +53,46 @@
         }
         else
         {
-            <ul class="list-unstyled">
+            <div class="d-flex gap-4 flex-wrap justify-content-center">
                 @foreach (var blind in Model.Blinds)
                 {
-                    <li>
-                        <div class="card border-primary mb-3">
-                            <div class="card-body">
-                                <h5 class="card-title">@blind.Name</h5>
-                                <div class="d-flex justify-content-between">
-                                    <p>Closes @blind.Closed?.ToLocalTime().Humanize()!</p>
-                                    <p>Created By: @blind.CreatedByUserDisplayName</p>
-                                </div>
-                                @if (blind.CreatedByUserId == this.User.GetUserId())
+                    <div class="card border-primary mx-auto" style="width: 18rem;">
+                        @if (blind.CoverPhotoBase64 is not null)
+                        {
+                            <img src="data:image/jpeg;base64,@blind.CoverPhotoBase64" class="card-img-top rounded-top" alt="Cover Photo" />
+                        }
+                        <div class="card-body">
+                            <h5 class="card-title">@blind.Name</h5>
+                            <div class="d-flex justify-content-between">
+                                <p>Closes @blind.Closed?.ToLocalTime().Humanize()!</p>
+                                <p>Created By: @blind.CreatedByUserDisplayName</p>
+                            </div>
+                            @if (blind.CreatedByUserId == this.User.GetUserId())
+                            {
+                                @if (blind.HasVotes)
                                 {
-                                    @if (blind.HasVotes)
-                                    {
-                                        <div class="d-grid gap-2">
-                                            <a asp-area="" asp-page="/Vote/Index" asp-route-id="@blind.Id" class="flex-fill btn btn-primary">Start Tasting!</a>
-                                        </div>
-                                    }
-                                    else
-                                    {
-                                        <div class="d-flex justify-content-evenly gap-2">
-                                            <a asp-area="" asp-page="/Vote/Index" asp-route-id="@blind.Id" class="flex-fill btn btn-primary">Start Tasting!</a>
-                                            <a asp-area="" asp-page="/ManageBlind/Edit" asp-route-id="@blind.Id" class="flex-fill btn btn-info">Edit</a>
-                                        </div>
-                                    }
+                                    <div class="d-grid gap-2">
+                                        <a asp-area="" asp-page="/Vote/Index" asp-route-id="@blind.Id" class="flex-fill btn btn-primary">Start Tasting!</a>
+                                    </div>
                                 }
                                 else
                                 {
-                                    <div class="d-grid gap-2">
-                                        <a asp-area="" asp-page="/Vote/Index" asp-route-id="@blind.Id" class="btn btn-primary">Start Tasting!</a>
+                                    <div class="d-flex justify-content-evenly gap-2">
+                                        <a asp-area="" asp-page="/Vote/Index" asp-route-id="@blind.Id" class="flex-fill btn btn-primary">Start Tasting!</a>
+                                        <a asp-area="" asp-page="/ManageBlind/Edit" asp-route-id="@blind.Id" class="flex-fill btn btn-info">Edit</a>
                                     </div>
                                 }
-                            </div>
+                            }
+                            else
+                            {
+                                <div class="d-grid gap-2">
+                                    <a asp-area="" asp-page="/Vote/Index" asp-route-id="@blind.Id" class="btn btn-primary">Start Tasting!</a>
+                                </div>
+                            }
                         </div>
-                    </li>
+                    </div>
                 }
-            </ul>
+            </div>
         }
     </div>
 </div>

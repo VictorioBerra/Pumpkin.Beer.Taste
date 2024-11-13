@@ -11,6 +11,8 @@ public class Blind : AuditableEntity
 
     public string InviteCode { get; set; } = null!;
 
+    public byte[]? CoverPhoto { get; set; }
+
     public DateTimeOffset? Started { get; set; }
 
     public DateTimeOffset? Closed { get; set; }

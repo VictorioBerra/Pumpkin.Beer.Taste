@@ -28,6 +28,7 @@ public class IndexModel(
         {
             Id = x.Id,
             Name = x.Name,
+            CoverPhotoBase64 = x.CoverPhoto != null ? Convert.ToBase64String(x.CoverPhoto) : null,
             InviteCode = x.InviteCode,
             NumMembers = x.UserInvites.Count,
             NumItems = x.BlindItems.Count,
