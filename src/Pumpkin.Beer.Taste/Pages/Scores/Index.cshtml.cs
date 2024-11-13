@@ -2,7 +2,6 @@ namespace Pumpkin.Beer.Taste.Pages.ScorePages;
 
 using System.Collections.Generic;
 using System.Linq;
-using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -14,13 +13,10 @@ using SharpRepository.Repository;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "Razor pages.")]
 public class IndexModel(
-    IMapper mapper,
     TimeProvider timeProvider,
     IRepository<Blind, int> blindRepository) : PageModel
 {
-    public List<IndexViewModel> BlindItemScores { get; set; } = [];
-
-    public IndexBlindViewModel Blind { get; set; } = null!;
+    public ScoreBlindViewModel Blind { get; set; } = null!;
 
     public IActionResult OnGet(int? id)
     {
@@ -38,21 +34,40 @@ public class IndexModel(
             .AndAlso(x => x.Id == id);
         spec.FetchStrategy = Strategies
             .IncludeItemsAndVotes();
-        var blind = blindRepository.Find(spec);
+
+        var blind = blindRepository.Find(spec, x => new ScoreBlindViewModel
+        {
+            Id = x.Id,
+            Name = x.Name,
+            HasVotes = x.BlindItems.Any(x => x.BlindVotes.Count != 0),
+            Started = x.Started,
+            Closed = x.Closed,
+            BlindItemScores = x.BlindItems.Select(y => new ScoreViewModel
+            {
+                TotalScore = y.BlindVotes.Count,
+                AverageScore = y.BlindVotes.Sum(x => x.Score),
+                AmountOfVotes = y.BlindVotes.Average(x => x.Score),
+                BlindItem = new ScoreBlindItemViewModel
+                {
+                    Id = x.Id,
+                    Name = y.Name,
+                    Ordinal = y.Ordinal,
+                    Votes = y.BlindVotes
+                        .Select(z => new ScoreBlindItemVoteViewModel
+                        {
+                            Score = z.Score,
+                            Note = z.Note,
+                            Public = z.Public,
+                            CreatedByUserDisplayName = x.CreatedByUserDisplayName,
+                        }).ToList(),
+                },
+            }).ToList(),
+        });
+
         if (blind == null)
         {
             return this.NotFound();
         }
-
-        this.Blind = mapper.Map<IndexBlindViewModel>(blind);
-
-        if (!blind.BlindItems.Any(x => x.BlindVotes.Count != 0))
-        {
-            this.BlindItemScores = [];
-            return this.Page();
-        }
-
-        this.BlindItemScores = [.. mapper.Map<List<IndexViewModel>>(blind.BlindItems).OrderByDescending(x => x.TotalScore)];
 
         return this.Page();
     }

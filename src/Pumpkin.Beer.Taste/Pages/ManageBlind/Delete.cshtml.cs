@@ -1,7 +1,6 @@
 namespace Pumpkin.Beer.Taste.Pages.BlindPages;
 
 using System.Threading.Tasks;
-using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -13,7 +12,6 @@ using SharpRepository.Repository;
 [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "Razor pages.")]
 public class DeleteModel(
     ApplicationDbContext context,
-    IMapper mapper,
     IRepository<Blind, int> blindRepository) : PageModel
 {
     [BindProperty]
@@ -43,12 +41,15 @@ public class DeleteModel(
             return this.Unauthorized();
         }
 
-        this.Blind = mapper.Map<DeleteViewModel>(blind);
-
-        if (this.Blind == null)
+        this.Blind = new DeleteViewModel
         {
-            return this.NotFound();
-        }
+            Id = blind.Id,
+            Name = blind.Name,
+            HasVotes = blind.BlindItems.Any(y => y.BlindVotes.Count != 0),
+            Started = blind.Started,
+            Closed = blind.Closed,
+            CreatedByUserDisplayName = blind.CreatedByUserDisplayName,
+        };
 
         return this.Page();
     }
@@ -77,13 +78,8 @@ public class DeleteModel(
             return this.Unauthorized();
         }
 
-        this.Blind = mapper.Map<DeleteViewModel>(blind);
-
-        if (this.Blind != null)
-        {
-            context.Blind.Remove(blind);
-            await context.SaveChangesAsync();
-        }
+        context.Blind.Remove(blind);
+        await context.SaveChangesAsync();
 
         return this.RedirectToPage("./Index");
     }

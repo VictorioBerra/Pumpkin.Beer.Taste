@@ -4,6 +4,8 @@
     ViewData["Title"] = "Scores for " + Model.Blind.Name;
 }
 
+<page-heading heading="Scores" />
+
 <div class="my-4">
     <h1 class="display-1">Scores</h1>
     <h2 class="display-3">@Model.Blind.Name</h2>
@@ -18,7 +20,7 @@
     }
 </div>
 
-@if (!Model.BlindItemScores.Any())
+@if (!Model.Blind.BlindItemScores.Any())
 {
     <h4 class="text-danger">No votes were recorded for this tasting.</h4>
 }
@@ -27,10 +29,10 @@ else
     <div class="row">
         <div class="col-md-12">
             <ul class="list-unstyled">
-                @for (int i = 0; i < Model.BlindItemScores.Count; i++)
+                @for (int i = 0; i < Model.Blind.BlindItemScores.Count; i++)
                 {
-                    var score = Model.BlindItemScores[i];
-                    var publicVotes = score.Votes.Where(x => x.Public == true);
+                    var score = Model.Blind.BlindItemScores[i];
+                    var publicVotes = score.BlindItem.Votes.Where(x => x.Public == true);
                     <li class="mb-3">
                         <div class="card border-primary">
                             <div class="card-header">

@@ -1,7 +1,6 @@
 namespace Pumpkin.Beer.Taste.Pages.BlindPages;
 
 using System.Collections.Generic;
-using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Pumpkin.Beer.Taste.Data;
@@ -12,7 +11,6 @@ using SharpRepository.Repository;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "Razor pages.")]
 public class IndexModel(
-    IMapper mapper,
     TimeProvider timeProvider,
     IRepository<Blind, int> blindRepository) : PageModel
 {
@@ -21,20 +19,24 @@ public class IndexModel(
     public void OnGet()
     {
         var userId = this.User.GetUserId();
+        var now = timeProvider.GetLocalNow();
 
         var strat = Specifications.GetOwnedBlinds(userId);
         strat.FetchStrategy = Strategies.IncludeItemsAndVotesAndMembers();
 
-        var blinds = blindRepository.FindAll(strat);
-
-        this.Blinds = [.. mapper.Map<List<IndexViewModel>>(blinds).OrderByDescending(x => x.Closed is not null)];
-
-        var now = timeProvider.GetLocalNow();
-
-        foreach (var blind in this.Blinds)
+        this.Blinds = [.. blindRepository.FindAll(strat, x => new IndexViewModel
         {
-            var origBlind = blinds.Single(x => x.Id == blind.Id);
-            blind.IsOpen = origBlind.IsOpen(now);
-        }
+            Id = x.Id,
+            Name = x.Name,
+            InviteCode = x.InviteCode,
+            NumMembers = x.UserInvites.Count,
+            NumItems = x.BlindItems.Count,
+            NumVotes = x.BlindItems.SelectMany(x => x.BlindVotes).Count(),
+            IsOpen = x.IsOpen(now),
+            Started = x.Started,
+            Closed = x.Closed,
+            CreatedByUserDisplayName = x.CreatedByUserDisplayName,
+        })
+        .OrderByDescending(x => x.Started)];
     }
 }

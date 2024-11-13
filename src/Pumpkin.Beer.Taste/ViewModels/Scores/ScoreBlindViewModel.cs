@@ -2,7 +2,7 @@ namespace Pumpkin.Beer.Taste.ViewModels.Scores;
 
 using Pumpkin.Beer.Taste.Data;
 
-public class IndexBlindViewModel
+public class ScoreBlindViewModel
 {
     public int Id { get; set; }
 
@@ -13,4 +13,6 @@ public class IndexBlindViewModel
     public DateTimeOffset? Started { get; set; }
 
     public DateTimeOffset? Closed { get; set; }
+
+    public List<ScoreViewModel> BlindItemScores { get; set; } = [];
 }

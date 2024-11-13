@@ -5,7 +5,9 @@
     ViewData["Title"] = "Close Blind";
 }
 
-<div class="card mb-2">
+<page-heading heading="Close" />
+
+<div class="card border-primary mb-2">
     <div class="card-body">
         <h3 class="card-title">@Model.Blind.Name</h3>
         @if (Model.Blind.Closed != null)

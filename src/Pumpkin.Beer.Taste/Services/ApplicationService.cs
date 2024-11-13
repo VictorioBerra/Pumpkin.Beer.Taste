@@ -2,7 +2,6 @@ namespace Pumpkin.Beer.Taste.Services;
 
 using System.Security.Claims;
 using Ardalis.Result;
-using AutoMapper;
 using Pumpkin.Beer.Taste.Data;
 using Pumpkin.Beer.Taste.Eblindtensions;
 using Pumpkin.Beer.Taste.Extensions;

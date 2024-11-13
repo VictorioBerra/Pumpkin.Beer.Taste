@@ -11,6 +11,4 @@ public class EditViewModel
     public DateTimeOffset? Started { get; set; }
 
     public DateTimeOffset? Closed { get; set; }
-
-    public List<EditItemViewModel> BlindItems { get; set; } = [];
 }

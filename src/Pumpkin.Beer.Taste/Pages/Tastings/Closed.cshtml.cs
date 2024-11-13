@@ -1,6 +1,5 @@
 namespace Pumpkin.Beer.Taste.Pages.Tastings;
 
-using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Pumpkin.Beer.Taste.Data;
@@ -10,7 +9,6 @@ using SharpRepository.Repository;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "Razor pages.")]
 public class ClosedModel(
-    IMapper mapper,
     TimeProvider timeProvider,
     IRepository<Blind, int> blindRepository) : PageModel
 {
@@ -28,8 +26,15 @@ public class ClosedModel(
     {
         var spec = Specifications.GetClosedBlinds(now).AndAlso(Specifications.GetMemberOfBlinds(userId));
         spec.FetchStrategy = Strategies.IncludeItemsAndVotesAndMembers();
-        var openBlinds = blindRepository.FindAll(spec);
-
-        this.ClosedBlinds = mapper.Map<List<IndexViewModel>>(openBlinds);
+        this.ClosedBlinds = blindRepository.FindAll(spec, x => new IndexViewModel
+        {
+            Id = x.Id,
+            Name = x.Name,
+            HasVotes = x.BlindItems.Any(x => x.BlindVotes.Count != 0),
+            Started = x.Started,
+            Closed = x.Closed,
+            CreatedByUserDisplayName = x.CreatedByUserDisplayName,
+            NumMembers = x.UserInvites.Count,
+        }).ToList();
     }
 }

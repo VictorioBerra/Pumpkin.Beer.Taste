@@ -1,7 +1,6 @@
 namespace Pumpkin.Beer.Taste.Pages.BlindPages;
 
 using System.Threading.Tasks;
-using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -14,7 +13,6 @@ using SharpRepository.Repository;
 [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "Razor pages.")]
 public class CloseModel(
     ApplicationDbContext context,
-    IMapper mapper,
     TimeProvider timeProvider,
     IRepository<Blind, int> blindRepository) : PageModel
 {
@@ -41,7 +39,15 @@ public class CloseModel(
             return this.Unauthorized();
         }
 
-        this.Blind = mapper.Map<CloseViewModel>(blind);
+        this.Blind = new CloseViewModel
+        {
+            Id = blind.Id,
+            Name = blind.Name,
+            HasVotes = blind.BlindItems.Any(y => y.BlindVotes.Count != 0),
+            CreatedByUserDisplayName = blind.CreatedByUserDisplayName,
+            Started = blind.Started,
+            Closed = blind.Closed,
+        };
 
         if (this.Blind == null)
         {
@@ -73,14 +79,9 @@ public class CloseModel(
             return this.Unauthorized();
         }
 
-        this.Blind = mapper.Map<CloseViewModel>(blind);
-
-        if (this.Blind != null)
-        {
-            blind.Closed = now.UtcDateTime;
-            context.Attach(blind).State = EntityState.Modified;
-            await context.SaveChangesAsync();
-        }
+        blind.Closed = now.UtcDateTime;
+        context.Attach(blind).State = EntityState.Modified;
+        await context.SaveChangesAsync();
 
         return this.RedirectToPage("./Index");
     }

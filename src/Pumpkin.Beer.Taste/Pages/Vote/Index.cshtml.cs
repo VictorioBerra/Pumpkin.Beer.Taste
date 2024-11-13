@@ -1,7 +1,6 @@
 namespace Pumpkin.Beer.Taste.Pages.VotePages;
 
 using System.Linq;
-using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -14,7 +13,6 @@ using SharpRepository.Repository.FetchStrategies;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "Razor pages.")]
 public class IndexModel(
-    IMapper mapper,
     TimeProvider timeProvider,
     IApplicationService applicationService,
     IRepository<Blind, int> blindRepository,
@@ -59,34 +57,43 @@ public class IndexModel(
 
         spec.FetchStrategy = strat;
 
-        var blind = blindRepository.Find(spec);
-        if (blind == null)
+        this.Blind = blindRepository.Find(spec, x => new IndexBlindViewModel
+        {
+            Id = x.Id,
+            Name = x.Name,
+            Started = x.Started,
+            Closed = x.Closed,
+        });
+        if (this.Blind == null)
         {
             return this.NotFound();
         }
-
-        this.Blind = mapper.Map<IndexBlindViewModel>(blind);
 
         var blindItemSpec = Specifications.GetBlindsWithItemsWithNoVotesOfMine(userId)
             .AndAlso(x => x.BlindId == id);
         blindItemSpec.FetchStrategy = Strategies.IncludeBlindAndVotes();
 
-        var nextUnvotedItem = blindItemRepository
-            .FindAll(blindItemSpec)
-            .OrderBy(x => x.Ordinal)
-            .FirstOrDefault();
+        var blindItem = blindItemRepository
+            .FindAll(blindItemSpec, x => new IndexBlindItemViewModel
+            {
+                Id = x.Id,
+                Ordinal = x.Ordinal,
+            });
 
-        if (nextUnvotedItem == null)
+        if (blindItem == null || !blindItem.Any())
         {
             return this.Page();
         }
 
+        this.BlindItem =
+            blindItem
+            .OrderBy(x => x.Ordinal)
+            .FirstOrDefault()!;
+
         this.BlindVote = new IndexViewModel()
         {
-            BlindItemId = nextUnvotedItem.Id,
+            BlindItemId = this.BlindItem.Id,
         };
-
-        this.BlindItem = mapper.Map<IndexBlindItemViewModel>(nextUnvotedItem);
 
         return this.Page();
     }
@@ -106,13 +113,20 @@ public class IndexModel(
             .AndAlso(x => x.Id == id);
         var strat = Strategies.IncludeItemsAndVotesAndMembers();
         spec.FetchStrategy = strat;
-        var blind = blindRepository.Find(spec);
+        var blind = blindRepository.Find(spec, x => new IndexBlindViewModel
+        {
+            Id = x.Id,
+            Name = x.Name,
+            Started = x.Started,
+            Closed = x.Closed,
+        });
+
         if (blind == null)
         {
             return this.NotFound();
         }
 
-        this.Blind = mapper.Map<IndexBlindViewModel>(blind);
+        this.Blind = blind;
 
         if (!this.ModelState.IsValid)
         {
@@ -121,12 +135,21 @@ public class IndexModel(
                 BlindItemId = this.BlindVote.BlindItemId,
             };
 
-            this.BlindItem = mapper.Map<IndexBlindItemViewModel>(blindItemRepository.Get(this.BlindVote.BlindItemId));
+            this.BlindItem = new IndexBlindItemViewModel()
+            {
+                Id = this.BlindVote.BlindItemId,
+            };
 
             return this.Page();
         }
 
-        var newVote = mapper.Map<BlindVote>(this.BlindVote);
+        var newVote = new BlindVote
+        {
+            Score = this.BlindVote.Score,
+            Public = this.BlindVote.Public,
+            Note = this.BlindVote.Note,
+            BlindItemId = this.BlindVote.BlindItemId,
+        };
 
         blindVoteRepository.Add(newVote);
 

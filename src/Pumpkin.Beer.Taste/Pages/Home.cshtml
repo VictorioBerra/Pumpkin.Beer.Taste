@@ -1,0 +1,89 @@
+@page
+@model HomeModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+<div class="row mt-4">
+    <div class="col-md-6 offset-md-3 mb-4">
+        <div class="card border-primary">
+            <div class="card-body">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <h3 class="card-title pb-2">Join a Tasting</h3>
+                <h6 class="card-subtitle pb-2 text-muted">Enter an invite code to join an existing tasting.</h6>
+                <form method="post">
+                    <div class="mb-3">
+                        <label asp-for="InviteCode" class="form-label"></label>
+                        <input asp-for="InviteCode" class="form-control" />
+                        <span asp-validation-for="InviteCode" class="text-danger"></span>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <input type="submit" value="Join!" class="btn btn-primary" />
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col">
+
+        <page-heading heading="Open Tastings">
+            <a asp-area="" asp-page="/Tastings/Closed">closed tastings</a>
+        </page-heading>
+
+        @if (!Model.Blinds.Any())
+        {
+            <div class="card border-primary">
+                <div class="card-body">
+                    <h5 class="card-title pb-2">There are no open tastings at this time.</h5>
+                    <div class="d-grid gap-2">
+                        <a asp-area="" asp-page="/ManageBlind/Create" class="btn btn-primary">Create One!</a>
+                    </div>
+                </div>
+            </div>
+        }
+        else
+        {
+            <ul class="list-unstyled">
+                @foreach (var blind in Model.Blinds)
+                {
+                    <li>
+                        <div class="card border-primary mb-3">
+                            <div class="card-body">
+                                <h5 class="card-title">@blind.Name</h5>
+                                <div class="d-flex justify-content-between">
+                                    <p>Closes @blind.Closed?.ToLocalTime().Humanize()!</p>
+                                    <p>Created By: @blind.CreatedByUserDisplayName</p>
+                                </div>
+                                @if (blind.CreatedByUserId == this.User.GetUserId())
+                                {
+                                    @if (blind.HasVotes)
+                                    {
+                                        <div class="d-grid gap-2">
+                                            <a asp-area="" asp-page="/Vote/Index" asp-route-id="@blind.Id" class="flex-fill btn btn-primary">Start Tasting!</a>
+                                        </div>
+                                    }
+                                    else
+                                    {
+                                        <div class="d-flex justify-content-evenly gap-2">
+                                            <a asp-area="" asp-page="/Vote/Index" asp-route-id="@blind.Id" class="flex-fill btn btn-primary">Start Tasting!</a>
+                                            <a asp-area="" asp-page="/ManageBlind/Edit" asp-route-id="@blind.Id" class="flex-fill btn btn-info">Edit</a>
+                                        </div>
+                                    }
+                                }
+                                else
+                                {
+                                    <div class="d-grid gap-2">
+                                        <a asp-area="" asp-page="/Vote/Index" asp-route-id="@blind.Id" class="btn btn-primary">Start Tasting!</a>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    </li>
+                }
+            </ul>
+        }
+    </div>
+</div>

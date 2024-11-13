@@ -55,8 +55,6 @@ public class Startup(IConfiguration configuration)
                 .UseSqlServer(configuration.GetConnectionString("DefaultConnection"), options => options.EnableRetryOnFailure()),
             ServiceLifetime.Transient);
 
-        services.AddAutoMapper(typeof(Startup));
-
         services.AddSingleton(TimeProvider.System);
 
         services.AddScoped<IApplicationService, ApplicationService>();

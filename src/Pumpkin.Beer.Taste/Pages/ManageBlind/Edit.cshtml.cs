@@ -3,7 +3,6 @@ namespace Pumpkin.Beer.Taste.Pages.BlindPages;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -16,7 +15,6 @@ using SharpRepository.Repository;
 [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "Razor pages.")]
 public class EditModel(
     ApplicationDbContext context,
-    IMapper mapper,
     IRepository<Blind, int> blindRepository,
     IRepository<BlindItem, int> blindItemRepository) : PageModel
 {
@@ -40,8 +38,8 @@ public class EditModel(
         var blind = blindRepository.Find(spec);
         if (blind == null)
         {
-            this.ModelState.AddPageError("Voting has already started, you cannot edit this tasting.");
-            return this.Page();
+            // Voting has already started, you cannot edit this tasting
+            return this.RedirectToPage("/Error");
         }
 
         // Kick if its not theirs
@@ -51,8 +49,21 @@ public class EditModel(
             return this.Unauthorized();
         }
 
-        this.Blind = mapper.Map<EditViewModel>(blind);
-        this.BlindItems = mapper.Map<List<EditItemViewModel>>(blindItemRepository.FindAll(x => x.BlindId == id));
+        this.Blind = new EditViewModel
+        {
+            Id = blind.Id,
+            Name = blind.Name,
+            HasVotes = blind.BlindItems.Any(y => y.BlindVotes.Count != 0),
+            Started = blind.Started,
+            Closed = blind.Closed,
+        };
+
+        this.BlindItems = blindItemRepository.FindAll(x => x.BlindId == id, x => new EditItemViewModel
+        {
+            Id = x.Id,
+            Name = x.Name,
+            Ordinal = x.Ordinal,
+        }).ToList();
 
         return this.Page();
     }
