@@ -4,6 +4,7 @@ using Ardalis.GuardClauses;
 using Autofac;
 using Logto.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
@@ -52,8 +53,14 @@ public class Startup(IConfiguration configuration)
 
         services.AddDbContext<ApplicationDbContext>(
             options => options
-                .UseSqlServer(configuration.GetConnectionString("DefaultConnection"), options => options.EnableRetryOnFailure()),
-            ServiceLifetime.Transient);
+                .UseSqlServer(configuration.GetConnectionString("DefaultConnection"), options => options.EnableRetryOnFailure()));
+
+        services.AddDbContext<MyKeysContext>(options =>
+            options.UseSqlServer(
+                configuration.GetConnectionString("DefaultConnection")));
+
+        services.AddDataProtection()
+            .PersistKeysToDbContext<MyKeysContext>();
 
         services.AddSingleton(TimeProvider.System);
 
@@ -66,7 +73,8 @@ public class Startup(IConfiguration configuration)
     public void Configure(
         IApplicationBuilder app,
         IWebHostEnvironment env,
-        ApplicationDbContext dbContext)
+        ApplicationDbContext dbAppContext,
+        MyKeysContext dbDpContext)
     {
         if (env.IsDevelopment())
         {
@@ -98,6 +106,7 @@ public class Startup(IConfiguration configuration)
         // https://github.com/SharpRepository/SharpRepository/blob/develop/SharpRepository.Samples.Core3Mvc/Startup.cs
         RepositoryDependencyResolver.SetDependencyResolver(app.ApplicationServices);
 
-        dbContext.Database.Migrate();
+        dbAppContext.Database.Migrate();
+        dbDpContext.Database.Migrate();
     }
 }
