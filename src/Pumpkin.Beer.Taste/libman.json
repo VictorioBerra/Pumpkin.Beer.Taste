@@ -9,11 +9,6 @@
     {
       "library": "alpinejs@3.14.3",
       "destination": "wwwroot/lib/alpinejs/"
-    },
-    {
-      "provider": "cdnjs",
-      "library": "qrcodejs@1.0.0",
-      "destination": "wwwroot/lib/qrcodejs/"
     }
   ]
 }

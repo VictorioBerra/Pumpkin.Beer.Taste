@@ -9,6 +9,12 @@
         max-height: 200px;
         object-fit: cover;
     }
+
+    .qr-code {
+        width: 100%;
+        height: auto;
+        max-width: 300pt;
+    }
 </style>
 
 <page-heading heading="Manage Tastings">
@@ -17,10 +23,10 @@
 
 @if (Model.Blinds?.Any() ?? false)
 {
-    <div class="d-flex gap-4 flex-wrap justify-content-center">
+    <div x-data="blindData" class="d-flex gap-4 flex-wrap justify-content-center">
         @foreach (var item in Model.Blinds)
         {
-            <div class="card border-primary mb-3" x-data="blindData(@item.Id, '@Url.Page("/Vote/Index", new { id = item.Id, inviteCode = item.InviteCode })')" style="width: 23rem;">
+            <div class="card border-primary mb-3" style="width: 23rem;">
                 @if (item.CoverPhotoBase64 is not null)
                 {
                     <img src="data:image/jpeg;base64,@item.CoverPhotoBase64" class="card-img-top rounded-top" alt="Cover Photo" />
@@ -60,13 +66,15 @@
 
                             @if (item.IsOpen)
                             {
-                                <div id="qrcode-@item.Id" class="mt-3"></div>
+                                <div class="mt-3">
+                                    <img class="qr-code" src="data:image/png;base64,@item.QRCodeBase64" alt="QR Code" />
+                                </div>
 
                                 <div class="mt-3">
-                                    <button @@click="copyInvite"
+                                    <button @@click="copyInvite('@item.JoinAndVoteLink', @item.Id)"
                                             class="btn btn-outline-success btn-sm"
-                                            :class="{ 'btn-success text-white': copied }">
-                                        <span x-text="copied ? 'Copied!' : 'Copy Invite Link'"></span>
+                                            :class="{ 'btn-success text-white': copiedId === @item.Id }">
+                                        <span x-text="copiedId === @item.Id ? 'Copied!' : 'Copy Invite Link'"></span>
                                     </button>
                                 </div>
                             }
@@ -79,34 +87,20 @@
 }
 
 @section Scripts {
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script>
-        function blindData(id, inviteUrl) {
-            return {
-                copied: false,
-                inviteUrl: inviteUrl,
-                async copyInvite() {
+        document.addEventListener('alpine:init', () => {
+            Alpine.data('blindData', () => ({
+                copiedId: null,
+                async copyInvite(link, id) {
                     try {
-                        await navigator.clipboard.writeText(`${window.location.origin}${this.inviteUrl}`);
-                        this.copied = true;
-                        setTimeout(() => this.copied = false, 2000);
+                        await navigator.clipboard.writeText(link);
+                        this.copiedId = id;
+                        setTimeout(() => this.copiedId = null, 2000);
                     } catch (err) {
                         console.error('Failed to copy:', err);
                     }
-                },
-                generateQRCode() {
-                    const qrCodeContainer = document.getElementById(`qrcode-${id}`);
-                    qrCodeContainer.innerHTML = '';
-                    new QRCode(qrCodeContainer, `${window.location.origin}${this.inviteUrl}`);
-                },
-                init() {
-                    this.generateQRCode();
                 }
-            };
-        }
-
-        document.addEventListener('alpine:init', () => {
-            Alpine.data('blindData', blindData);
+            }));
         });
     </script>
 }

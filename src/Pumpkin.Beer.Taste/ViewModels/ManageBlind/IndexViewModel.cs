@@ -8,6 +8,10 @@ public class IndexViewModel
 
     public string? CoverPhotoBase64 { get; set; }
 
+    public string? JoinAndVoteLink { get; set; }
+
+    public string? QRCodeBase64 { get; set; }
+
     public string InviteCode { get; set; } = null!;
 
     public int NumMembers { get; set; }
