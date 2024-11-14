@@ -32,7 +32,7 @@
                             <label asp-for="Blind.Started" class="control-label"></label>
                             <input asp-for="Blind.Started" class="form-control" x-model="startDateUtc" type="hidden" />
                             <div class="input-group">
-                                <input class="form-control" x-model="startDate" type="datetime-local" />
+                                <input class="form-control" x-model="startDate" type="datetime-local" required />
                                 <button type="button" class="btn btn-outline-warning" x-on:click="setStartDate">Start Now</button>
                             </div>
                             <span asp-validation-for="Blind.Started" class="text-danger"></span>
@@ -42,7 +42,7 @@
                             <label asp-for="Blind.Closed" class="control-label"></label>
                             <input asp-for="Blind.Closed" class="form-control" x-model="closedDateUtc" type="hidden" />
                             <div class="input-group">
-                                <input class="form-control" x-model="closedDate" type="datetime-local" />
+                                <input class="form-control" x-model="closedDate" type="datetime-local" required />
                                 <button type="button" class="btn btn-outline-warning" x-on:click="setClosedDateOneHour">+1 Hour</button>
                             </div>
                             <span asp-validation-for="Blind.Closed" class="text-danger"></span>
