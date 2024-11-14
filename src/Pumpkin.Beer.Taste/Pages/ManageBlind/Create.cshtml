@@ -63,14 +63,16 @@
                                         </li>
                                     </template>
                                 </ul>
-                                <button id="add" type="button" x-on:click="addBlindItem" class="btn btn-outline-primary">Add another item</button>
+                                <button id="add" type="button" x-on:click="addBlindItem" x-bind:disabled="addDisabled" class="btn btn-outline-primary">Add another item</button>
                             </div>
                         </div>
                     </div>
 
-                    <div class="d-grid gap-2 d-md-block">
+                    <div class="d-grid gap-2 d-md-block mb-3">
                         <input type="submit" value="Create Taste Test!" class="btn btn-success" />
-                        | <a asp-page="Index">Back</a>
+                    </div>
+                    <div>
+                        <a asp-page="Index">Back</a>
                     </div>
                 </div>
             </form>
@@ -92,6 +94,7 @@
                  }],
                  startDate: null,
                  closedDate: null,
+                 addDisabled: false,
                  get startDateUtc() {
                      if (this.startDate === null) {
                         return null;
@@ -126,10 +129,17 @@
                 },
 
                 addBlindItem() {
+
                     this.blindItems.push({
                         Name: `Drink_${enAlphabet[this.blindItems.length]}`,
                         Letter: enAlphabet[this.blindItems.length]
                     });
+
+                    // Limit to 26
+                    if (this.blindItems.length === enAlphabet.length) {
+                        this.addDisabled = true;
+                        return;
+                    }
                 },
 
                 getInputName(index) {
