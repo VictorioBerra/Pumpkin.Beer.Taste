@@ -14,7 +14,7 @@
                 <input type="hidden" asp-for="Blind.Id" />
                 <div class="row">
                     <div class="col-md-6 pb-2">
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                        <div asp-validation-summary="All" class="text-danger"></div>
 
                         <div class="mb-3">
                             <label asp-for="Blind.Name" class="control-label"></label>
@@ -52,9 +52,9 @@
                                         <li>
                                             <div class="input-group mb-3">
                                                 <input type="hidden" :name="getInputIdName(index)" x-model="blindItem.Id" />
-                                                <span class="input-group-text" x-text="'Item ' + blindItem.Letter"></span>
-                                                <input class="form-control" x-model="blindItem.Name" :name="getInputName(index)" />
-                                                <button class="btn btn-outline-danger" x-on:click="removeBlindItem(index)" type="button">Remove</button>
+                                                <span class="input-group-text" x-text="'Item ' + getBlindItemLetter(blindItem)"></span>
+                                                <input class="form-control" :placeholder="generatePlaceholder()" x-model="blindItem.Name" :name="getInputName(index)" />
+                                                <button class="btn btn-outline-danger" x-on:click="removeBlindItem(index)" x-bind:disabled="removeDisabled" type="button">Remove</button>
                                             </div>
                                         </li>
                                     </template>
@@ -86,8 +86,7 @@
             Alpine.data('blindEditData', () => ({
                 blindItems: @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.BlindItems.Select(item => new { 
                     Id = item.Id,
-                    Name = item.Name, 
-                    Letter = ((char)('A' + Model.BlindItems.IndexOf(item))).ToString() 
+                    Name = item.Name,
                 }), new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = null })),
                 startDate: @Html.Raw(Model.Blind.Started.HasValue 
                     ? System.Text.Json.JsonSerializer.Serialize(Model.Blind.Started.Value.ToLocalTime().ToString("yyyy-MM-ddTHH:mm")) 
@@ -96,6 +95,9 @@
                     ? System.Text.Json.JsonSerializer.Serialize(Model.Blind.Closed.Value.ToLocalTime().ToString("yyyy-MM-ddTHH:mm")) 
                     : "null"),
                 addDisabled: false,
+                get removeDisabled() {
+                    return this.blindItems.length == 1;
+                },
                 get startDateUtc() {
                     if (this.startDate === null) {
                         return null;
@@ -127,6 +129,11 @@
                 },
 
                 removeBlindItem(index) {
+
+                    if (this.blindItems.length === 1) {
+                        return;
+                    }
+
                     this.blindItems.splice(index, 1);
                     this.blindItems.forEach((item, i) => {
                         item.Letter = enAlphabet[i];
@@ -135,8 +142,7 @@
 
                 addBlindItem() {
                     this.blindItems.push({
-                        Id: 0,
-                        Name: `Item_${enAlphabet[this.blindItems.length]}`,
+                        Name:'',
                         Letter: enAlphabet[this.blindItems.length]
                     });
 
@@ -147,12 +153,38 @@
                     }
                 },
 
+                getBlindItemLetter(blindItem) {
+
+                    if (!blindItem.Letter) {
+                        return 'A';
+                    }
+
+                   return blindItem.Letter;
+                },
+
+                generatePlaceholder() {
+                    const alcoholItems = [
+                        "Vanilla Cinnamon Pumpkin Ale from Spooky Brew Co.",
+                        "1998 Missouri Winery Cab Sav from Haunted Vineyards",
+                        "Spiced Pumpkin Lager from Ghostly Brews",
+                        "Maple Pumpkin Stout from Witch's Brewery",
+                        "Honey Pumpkin IPA from Phantom Hops",
+                        "Pumpkin Spice Porter from Goblin's Brewery",
+                        "Pumpkin Apple Cider from Enchanted Orchards",
+                        "Pumpkin Mead with Nutmeg from Mystic Meadery",
+                        "Pumpkin Bourbon Barrel Aged from Specter Spirits",
+                        "Pumpkin Vodka Infusion from Eerie Distillery"
+                    ];
+                    const randomIndex = Math.floor(Math.random() * alcoholItems.length);
+                    return alcoholItems[randomIndex];
+                },
+
                 getInputIdName(index) {
-                    return `Blind.BlindItems[${index}].Id`;
+                    return `BlindItems[${index}].Id`;
                 },
 
                 getInputName(index) {
-                    return `Blind.BlindItems[${index}].Name`;
+                    return `BlindItems[${index}].Name`;
                 }
             }))
         })

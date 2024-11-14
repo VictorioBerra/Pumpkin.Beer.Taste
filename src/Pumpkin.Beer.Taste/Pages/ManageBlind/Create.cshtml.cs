@@ -22,7 +22,22 @@ public class CreateModel(
     [BindProperty]
     public IFormFile? Upload { get; set; }
 
-    public IActionResult OnGet() => this.Page();
+    public IActionResult OnGet()
+    {
+        this.Blind = new CreateViewModel
+        {
+            BlindItems =
+            [
+                new()
+                {
+                    Name = string.Empty,
+                    Ordinal = 0,
+                },
+            ],
+        };
+
+        return this.Page();
+    }
 
     public async Task<IActionResult> OnPostAsync()
     {

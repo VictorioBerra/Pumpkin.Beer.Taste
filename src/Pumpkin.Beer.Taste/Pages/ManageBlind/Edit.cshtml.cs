@@ -15,8 +15,7 @@ using SharpRepository.Repository;
 [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "Razor pages.")]
 public class EditModel(
     ApplicationDbContext context,
-    IRepository<Blind, int> blindRepository,
-    IRepository<BlindItem, int> blindItemRepository) : PageModel
+    IRepository<Blind, int> blindRepository) : PageModel
 {
     [BindProperty]
     public EditViewModel Blind { get; set; } = null!;
@@ -35,6 +34,7 @@ public class EditModel(
         var spec = Specifications
             .GetBlindsWithNoVotes()
             .AndAlso(x => x.Id == id);
+        spec.FetchStrategy.Include(x => x.BlindItems);
         var blind = blindRepository.Find(spec);
         if (blind == null)
         {
@@ -58,7 +58,7 @@ public class EditModel(
             Closed = blind.Closed,
         };
 
-        this.BlindItems = blindItemRepository.FindAll(x => x.BlindId == id, x => new EditItemViewModel
+        this.BlindItems = blind.BlindItems.Select(x => new EditItemViewModel
         {
             Id = x.Id,
             Name = x.Name,
@@ -83,6 +83,7 @@ public class EditModel(
         // Kick if it has votes
         var spec = Specifications.GetBlindsWithNoVotes()
             .AndAlso(x => x.Id == id);
+        spec.FetchStrategy.Include(x => x.BlindItems);
         var blind = blindRepository.Find(spec);
         if (blind == null)
         {
@@ -103,7 +104,6 @@ public class EditModel(
         blind.Closed = this.Blind.Closed;
 
         // Update BlindItems
-        var existingBlindItems = blindItemRepository.FindAll(x => x.BlindId == id).ToList();
         var updatedBlindItems = this.BlindItems.Select((item, index) => new BlindItem
         {
             Id = item.Id,
@@ -113,26 +113,26 @@ public class EditModel(
         }).ToList();
 
         // Remove old items that are not in the updated list
-        foreach (var existingItem in existingBlindItems)
+        var itemsToRemove = blind.BlindItems.Where(existingItem => !updatedBlindItems.Any(x => x.Id == existingItem.Id)).ToList();
+        foreach (var item in itemsToRemove)
         {
-            if (!updatedBlindItems.Any(x => x.Id == existingItem.Id))
-            {
-                blindItemRepository.Delete(existingItem);
-            }
+            blind.BlindItems.Remove(item);
+            context.Entry(item).State = EntityState.Deleted;
         }
 
         // Add or update items
         foreach (var updatedItem in updatedBlindItems)
         {
-            var existingItem = existingBlindItems.FirstOrDefault(x => x.Id == updatedItem.Id);
+            var existingItem = blind.BlindItems.FirstOrDefault(x => x.Id == updatedItem.Id);
             if (existingItem != null)
             {
                 existingItem.Name = updatedItem.Name;
                 existingItem.Ordinal = updatedItem.Ordinal;
+                context.Entry(existingItem).State = EntityState.Modified;
             }
             else
             {
-                blindItemRepository.Add(updatedItem);
+                blind.BlindItems.Add(updatedItem);
             }
         }
 

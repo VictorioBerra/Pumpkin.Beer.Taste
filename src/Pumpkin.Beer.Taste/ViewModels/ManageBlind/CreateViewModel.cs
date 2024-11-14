@@ -1,5 +1,6 @@
 namespace Pumpkin.Beer.Taste.ViewModels.ManageBlind;
 
+using System.ComponentModel.DataAnnotations;
 using Pumpkin.Beer.Taste.Data;
 
 public class CreateViewModel
@@ -14,5 +15,7 @@ public class CreateViewModel
 
     public DateTimeOffset? Closed { get; set; }
 
+    [MinLength(1, ErrorMessage = "At least one item is required.")]
+    [MaxLength(26, ErrorMessage = "No more than 26 items are allowed.")]
     public List<CreateItemViewModel> BlindItems { get; set; } = [];
 }
