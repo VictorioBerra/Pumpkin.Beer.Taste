@@ -58,7 +58,7 @@
                                         <li>
                                             <div class="input-group mb-3">
                                                 <span class="input-group-text" x-text="'Item ' + getBlindItemLetter(blindItem)"></span>
-                                                <input class="form-control" :placeholder="generatePlaceholder()" x-model="blindItem.Name" :name="getInputName(index)" />
+                                                <input class="form-control" :placeholder="generatePlaceholder()" x-model="blindItem.Name" :name="getInputName(index)" required />
                                                 <button class="btn btn-outline-danger" x-on:click="removeBlindItem(index)" x-bind:disabled="removeDisabled" type="button">Remove</button>
                                             </div>
                                         </li>
