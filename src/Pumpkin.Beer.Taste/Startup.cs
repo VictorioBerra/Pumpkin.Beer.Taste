@@ -2,7 +2,6 @@ namespace Pumpkin.Beer.Taste;
 
 using Ardalis.GuardClauses;
 using Autofac;
-using Logto.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Hosting;
@@ -88,7 +87,6 @@ public class Startup(IConfiguration configuration)
 
         app.UseForwardedHeaders();
 
-        app.UseStaticFiles();
         app.UseCookiePolicy();
 
         app.UseRouting();
@@ -101,7 +99,14 @@ public class Startup(IConfiguration configuration)
         app.UseAuthentication();
         app.UseAuthorization();
 
-        app.UseEndpoints(endpoints => endpoints.MapRazorPages());
+        app.UseEndpoints(endpoints =>
+        {
+            endpoints.MapStaticAssets();
+
+            endpoints
+                .MapRazorPages()
+                .WithStaticAssets();
+        });
 
         // Passes service provide to SharpRepository
         // https://github.com/SharpRepository/SharpRepository/blob/develop/SharpRepository.Samples.Core3Mvc/Startup.cs

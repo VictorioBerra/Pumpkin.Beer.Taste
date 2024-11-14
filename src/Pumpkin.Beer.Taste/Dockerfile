@@ -5,7 +5,7 @@
 
 # Base image used by Visual Studio at development time
 # (See https://docs.microsoft.com/en-us/visualstudio/containers/container-msbuild-properties)
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS base
+FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS base
 # Open Container Initiative (OCI) labels (See https://github.com/opencontainers/image-spec/blob/master/annotations.md).
 LABEL org.opencontainers.image.title="BlindTasteTest" \
     org.opencontainers.image.description="Create and administer taste tests" \
@@ -25,7 +25,7 @@ WORKDIR /app
 EXPOSE 80 443
 
 # SDK image used to build and publish the application
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS sdk
+FROM mcr.microsoft.com/dotnet/sdk:9.0 AS sdk
 # To use the debug build configuration pass --build-arg Configuration=Debug
 ARG Configuration=Release
 ENV DOTNET_CLI_TELEMETRY_OPTOUT=true \
