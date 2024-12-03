@@ -2,15 +2,17 @@ namespace Pumpkin.Beer.Taste;
 
 using System;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 using Pumpkin.Beer.Taste.Data;
 using SharpRepository.Repository.Specifications;
 
 public static class Specifications
 {
-    public static Specification<Blind> GetOpenBlinds(DateTimeOffset now)
-        => new(x => x.Started != null && x.Started < now && x.Closed != null && x.Closed > now);
+    public static Specification<Blind> GetOpenBlinds(DateTime userCurrentTime, string timeZoneId)
+        => new(x => EF.Functions.AtTimeZone(x.StartedUtc, timeZoneId) >= userCurrentTime);
 
-    public static Specification<Blind> GetClosedBlinds(DateTimeOffset now) => new(x => x.Closed != null && x.Closed < now);
+    public static Specification<Blind> GetClosedBlinds(DateTime userCurrentTime, string timeZoneId)
+        => new(x => EF.Functions.AtTimeZone(x.ClosedUtc, timeZoneId) >= userCurrentTime);
 
     public static Specification<Blind> GetOwnedBlinds(string userId) => new(x => x.CreatedByUserId == userId);
 

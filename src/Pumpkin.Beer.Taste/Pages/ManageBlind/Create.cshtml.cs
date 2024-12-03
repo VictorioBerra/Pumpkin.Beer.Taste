@@ -11,19 +11,28 @@ using Pumpkin.Beer.Taste.ViewModels.ManageBlind;
 using SharpRepository.Repository;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.Advanced;
+using TimeZoneConverter;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "Razor pages.")]
 public class CreateModel(
+    IRepository<User, string> userRepository,
     IRepository<Blind, int> blindRepository) : PageModel
 {
     [BindProperty]
     public CreateViewModel Blind { get; set; } = null!;
+
+    public string CurrentUserProfileIANATimeZoneId { get; set; } = null!;
 
     [BindProperty]
     public IFormFile? Upload { get; set; }
 
     public IActionResult OnGet()
     {
+        var userId = this.User.GetUserId();
+        var user = userRepository.Get(userId);
+
+        this.CurrentUserProfileIANATimeZoneId = TZConvert.WindowsToIana(user.WindowsTimeZoneId);
+
         this.Blind = new CreateViewModel
         {
             BlindItems =
@@ -84,6 +93,11 @@ public class CreateModel(
             coverPhoto = outputMemoryStream.ToArray();
         }
 
+        var windowsTimeZoneId = TZConvert.IanaToWindows(this.Blind.StartedAndClosedIANATimeZoneId);
+        var windowsTimeZone = TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId);
+        var startedUtc = TimeZoneInfo.ConvertTimeToUtc(this.Blind.Started.Value, windowsTimeZone);
+        var endedUtc = TimeZoneInfo.ConvertTimeToUtc(this.Blind.Closed.Value, windowsTimeZone);
+
         var blind = new Blind
         {
             InviteCode = await Nanoid.GenerateAsync(alphabet: "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789", size: 4),
@@ -91,9 +105,11 @@ public class CreateModel(
 
             CoverPhoto = coverPhoto,
 
-            // Strip offset
-            Started = new DateTimeOffset(this.Blind.Started.Value.DateTime, TimeSpan.Zero),
-            Closed = new DateTimeOffset(this.Blind.Closed.Value.DateTime, TimeSpan.Zero),
+            StartedUtc = startedUtc,
+            ClosedUtc = endedUtc,
+
+            StartedWindowsTimeZoneId = windowsTimeZoneId,
+            ClosedWindowsTimeZoneId = windowsTimeZoneId,
 
             BlindItems = this.Blind.BlindItems.Select((x, i) => new BlindItem
             {

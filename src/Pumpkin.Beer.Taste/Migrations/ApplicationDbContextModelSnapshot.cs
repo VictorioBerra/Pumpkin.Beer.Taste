@@ -18,7 +18,7 @@ namespace Pumpkin.Beer.Taste.Migrations
 #pragma warning disable 612, 618
             modelBuilder
                 .HasDefaultSchema("app")
-                .HasAnnotation("ProductVersion", "8.0.10")
+                .HasAnnotation("ProductVersion", "9.0.0")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -31,8 +31,12 @@ namespace Pumpkin.Beer.Taste.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<DateTimeOffset?>("Closed")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime>("ClosedUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ClosedWindowsTimeZoneId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<byte[]>("CoverPhoto")
                         .HasColumnType("varbinary(max)");
@@ -56,8 +60,12 @@ namespace Pumpkin.Beer.Taste.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTimeOffset?>("Started")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<DateTime>("StartedUtc")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("StartedWindowsTimeZoneId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("UpdatedByUserDisplayName")
                         .IsRequired()
@@ -169,6 +177,30 @@ namespace Pumpkin.Beer.Taste.Migrations
                     b.HasIndex("BlindItemId");
 
                     b.ToTable("BlindVote", "app");
+                });
+
+            modelBuilder.Entity("Pumpkin.Beer.Taste.Data.User", b =>
+                {
+                    b.Property<string>("Id")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("WindowsTimeZoneId")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("Central Standard Time");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("User", "app");
                 });
 
             modelBuilder.Entity("Pumpkin.Beer.Taste.Data.UserInvite", b =>

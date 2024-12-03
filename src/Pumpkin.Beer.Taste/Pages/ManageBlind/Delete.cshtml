@@ -22,13 +22,13 @@
             @Html.DisplayNameFor(model => model.Blind.Started)
         </dt>
         <dd class="col-sm-10">
-            Closes @Model.Blind.Started?.ToLocalTime().Humanize()
+            Closes @Model.Blind.Started.Humanize()
         </dd>
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Blind.Closed)
         </dt>
         <dd class="col-sm-10">
-            Closes @Model.Blind.Closed?.ToLocalTime().Humanize()
+            Closes @Model.Blind.Closed.Humanize()
         </dd>
     </dl>
     

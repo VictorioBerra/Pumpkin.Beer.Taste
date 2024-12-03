@@ -14,6 +14,7 @@ using SharpRepository.Repository;
 [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "Razor pages.")]
 public class IndexModel(
     TimeProvider timeProvider,
+    IRepository<User, string> userRepository,
     IRepository<Blind, int> blindRepository) : PageModel
 {
     public ScoreBlindViewModel Blind { get; set; } = null!;
@@ -26,10 +27,12 @@ public class IndexModel(
         }
 
         var userId = this.User.GetUserId();
-        var now = timeProvider.GetLocalNow();
+        var user = userRepository.Get(userId);
+        var now = timeProvider.GetUtcNow();
 
-        var spec = Specifications
-            .GetClosedBlinds(now)
+        var userTimeZone = TimeZoneInfo.FindSystemTimeZoneById(user.WindowsTimeZoneId);
+        var userCurrentTime = TimeZoneInfo.ConvertTimeFromUtc(now.DateTime, userTimeZone);
+        var spec = Specifications.GetClosedBlinds(userCurrentTime, user.WindowsTimeZoneId)
             .AndAlso(Specifications.GetMemberOfBlinds(userId))
             .AndAlso(x => x.Id == id);
         spec.FetchStrategy = Strategies
@@ -40,8 +43,8 @@ public class IndexModel(
             Id = x.Id,
             Name = x.Name,
             HasVotes = x.BlindItems.Any(x => x.BlindVotes.Count != 0),
-            Started = x.Started,
-            Closed = x.Closed,
+            Started = TimeZoneInfo.ConvertTimeFromUtc(x.StartedUtc, userTimeZone),
+            Closed = TimeZoneInfo.ConvertTimeFromUtc(x.ClosedUtc, userTimeZone),
             BlindItemScores = x.BlindItems.Select(y => new ScoreViewModel
             {
                 TotalScore = y.BlindVotes.Count,

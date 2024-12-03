@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Pumpkin.Beer.Taste.Data;
+using Pumpkin.Beer.Taste.Eblindtensions;
 using Pumpkin.Beer.Taste.Extensions;
 using Pumpkin.Beer.Taste.Services;
 using Pumpkin.Beer.Taste.ViewModels.Home;
@@ -18,6 +19,7 @@ public class HomeModel(
     ILogger<IndexModel> logger,
     TimeProvider timeProvider,
     IRepository<Blind, int> blindRepository,
+    IRepository<User, string> userRepository,
     IApplicationService applicationService) : PageModel
 {
     public List<IndexViewModel> Blinds { get; set; } = [];
@@ -27,12 +29,15 @@ public class HomeModel(
     [DisplayName("Invite Code")]
     public string? InviteCode { get; set; }
 
+    public DateTime CurrentUserLocalTimeByProfileTimeZone { get; set; }
+
     public IActionResult OnGet()
     {
         var userId = this.User.GetUserId();
-        var now = timeProvider.GetLocalNow();
+        var user = userRepository.Get(userId);
+        var now = timeProvider.GetUtcNow();
 
-        this.SetOpenBlinds(userId, now);
+        this.SetOpenBlinds(user, now);
 
         logger.LogInformation("Logged in user {UserId} loaded dashboard", userId);
 
@@ -42,13 +47,14 @@ public class HomeModel(
     public IActionResult OnPost()
     {
         var userId = this.User.GetUserId();
-        var now = timeProvider.GetLocalNow();
+        var user = userRepository.Get(userId);
+        var now = timeProvider.GetUtcNow();
 
         if (string.IsNullOrWhiteSpace(this.InviteCode))
         {
             this.ModelState.AddPageError("Missing code.");
 
-            this.SetOpenBlinds(userId, now);
+            this.SetOpenBlinds(user, now);
 
             return this.Page();
         }
@@ -59,7 +65,7 @@ public class HomeModel(
         {
             this.ModelState.AddPageError(inviteAcceptResult);
 
-            this.SetOpenBlinds(userId, now);
+            this.SetOpenBlinds(user, now);
 
             return this.Page();
         }
@@ -75,19 +81,28 @@ public class HomeModel(
         }
     }
 
-    private void SetOpenBlinds(string userId, DateTimeOffset now)
+    private void SetOpenBlinds(
+        User user,
+        DateTimeOffset utcNow)
     {
-        var spec = Specifications.GetOpenBlinds(now).AndAlso(Specifications.GetMemberOfBlinds(userId));
+        var userTimeZone = TimeZoneInfo.FindSystemTimeZoneById(user.WindowsTimeZoneId);
+
+        this.CurrentUserLocalTimeByProfileTimeZone = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(utcNow, user.WindowsTimeZoneId).UtcDateTime;
+
+        var spec = Specifications.GetOpenBlinds(this.CurrentUserLocalTimeByProfileTimeZone, user.WindowsTimeZoneId)
+            .AndAlso(Specifications.GetMemberOfBlinds(user.Id));
         spec.FetchStrategy = Strategies.IncludeItemsAndVotesAndMembers();
+
         this.Blinds = blindRepository.FindAll(spec, x => new IndexViewModel
         {
             Id = x.Id,
             Name = x.Name,
             CoverPhotoBase64 = x.CoverPhoto != null ? Convert.ToBase64String(x.CoverPhoto) : null,
             HasVotes = x.BlindItems.Any(x => x.BlindVotes.Count != 0),
-            Started = x.Started,
-            Closed = x.Closed,
+            Started = x.StartedUtc,
+            Closed = x.ClosedUtc,
             CreatedByUserDisplayName = x.CreatedByUserDisplayName,
+            StartsInWindowsTimeZoneId = x.StartedWindowsTimeZoneId,
             CreatedByUserId = x.CreatedByUserId,
             NumMembers = x.UserInvites.Count,
         }).ToList();

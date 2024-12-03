@@ -10,9 +10,9 @@ public class ScoreBlindViewModel
 
     public bool HasVotes { get; set; }
 
-    public DateTimeOffset? Started { get; set; }
+    public DateTime Started { get; set; }
 
-    public DateTimeOffset? Closed { get; set; }
+    public DateTime Closed { get; set; }
 
     public List<ScoreViewModel> BlindItemScores { get; set; } = [];
 }

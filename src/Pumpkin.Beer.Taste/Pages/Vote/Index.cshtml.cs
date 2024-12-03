@@ -16,6 +16,7 @@ public class IndexModel(
     TimeProvider timeProvider,
     IApplicationService applicationService,
     IRepository<Blind, int> blindRepository,
+    IRepository<User, string> userRepository,
     IRepository<BlindVote, int> blindVoteRepository,
     IRepository<BlindItem, int> blindItemRepository) : PageModel
 {
@@ -44,11 +45,13 @@ public class IndexModel(
             }
         }
 
-        var now = timeProvider.GetLocalNow();
         var userId = this.User.GetUserId();
+        var user = userRepository.Get(userId);
+        var now = timeProvider.GetUtcNow();
 
-        // Is open and I am a member?
-        var spec = Specifications.GetOpenBlinds(now)
+        var userTimeZone = TimeZoneInfo.FindSystemTimeZoneById(user.WindowsTimeZoneId);
+        var userCurrentTime = TimeZoneInfo.ConvertTimeFromUtc(now.DateTime, userTimeZone);
+        var spec = Specifications.GetOpenBlinds(userCurrentTime, user.WindowsTimeZoneId)
             .AndAlso(Specifications.GetMemberOfBlinds(userId))
             .AndAlso(x => x.Id == id);
 
@@ -61,8 +64,8 @@ public class IndexModel(
         {
             Id = x.Id,
             Name = x.Name,
-            Started = x.Started,
-            Closed = x.Closed,
+            Started = TimeZoneInfo.ConvertTimeFromUtc(x.StartedUtc, userTimeZone),
+            Closed = TimeZoneInfo.ConvertTimeFromUtc(x.ClosedUtc, userTimeZone),
         });
         if (this.Blind == null)
         {
@@ -105,11 +108,15 @@ public class IndexModel(
             return this.NotFound();
         }
 
-        var now = timeProvider.GetLocalNow();
         var userId = this.User.GetUserId();
+        var user = userRepository.Get(userId);
+        var now = timeProvider.GetUtcNow();
 
         // Is open and not closed?
-        var spec = Specifications.GetOpenBlinds(now)
+        var userTimeZone = TimeZoneInfo.FindSystemTimeZoneById(user.WindowsTimeZoneId);
+        var userCurrentTime = TimeZoneInfo.ConvertTimeFromUtc(now.DateTime, userTimeZone);
+        var spec = Specifications.GetOpenBlinds(userCurrentTime, user.WindowsTimeZoneId)
+            .AndAlso(Specifications.GetMemberOfBlinds(userId))
             .AndAlso(x => x.Id == id);
         var strat = Strategies.IncludeItemsAndVotesAndMembers();
         spec.FetchStrategy = strat;
@@ -117,8 +124,8 @@ public class IndexModel(
         {
             Id = x.Id,
             Name = x.Name,
-            Started = x.Started,
-            Closed = x.Closed,
+            Started = TimeZoneInfo.ConvertTimeFromUtc(x.StartedUtc, userTimeZone),
+            Closed = TimeZoneInfo.ConvertTimeFromUtc(x.ClosedUtc, userTimeZone),
         });
 
         if (blind == null)

@@ -23,7 +23,7 @@
                     <div class="card border-primary mb-2">
                         <div class="card-body">
                             <h5 class="card-title">@blind.Name</h5>
-                            <p>@blind.Started?.ToString("dddd, dd MMMM yyyy")</p>
+                            <p>@blind.Started.ToString("dddd, dd MMMM yyyy")</p>
                             <div class="d-grid gap-2">
                                 <a asp-area="" asp-page="/Scores/Index" asp-route-id="@blind.Id" class="btn btn-primary">See Scores</a>
                             </div>

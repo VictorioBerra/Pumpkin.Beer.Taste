@@ -14,6 +14,7 @@ using SharpRepository.Repository;
 public class CloseModel(
     ApplicationDbContext context,
     TimeProvider timeProvider,
+    IRepository<User, string> userRepository,
     IRepository<Blind, int> blindRepository) : PageModel
 {
     [BindProperty]
@@ -39,14 +40,19 @@ public class CloseModel(
             return this.Unauthorized();
         }
 
+        var now = timeProvider.GetUtcNow();
+        var user = userRepository.Get(userId);
+        var userTimeZone = TimeZoneInfo.FindSystemTimeZoneById(user.WindowsTimeZoneId);
+        var userCurrentTime = TimeZoneInfo.ConvertTimeFromUtc(now.DateTime, userTimeZone);
+
         this.Blind = new CloseViewModel
         {
             Id = blind.Id,
             Name = blind.Name,
             HasVotes = blind.BlindItems.Any(y => y.BlindVotes.Count != 0),
             CreatedByUserDisplayName = blind.CreatedByUserDisplayName,
-            Started = blind.Started,
-            Closed = blind.Closed,
+            Started = TimeZoneInfo.ConvertTimeFromUtc(blind.StartedUtc, userTimeZone),
+            Closed = TimeZoneInfo.ConvertTimeFromUtc(blind.ClosedUtc, userTimeZone),
         };
 
         if (this.Blind == null)
@@ -64,7 +70,7 @@ public class CloseModel(
             return this.NotFound();
         }
 
-        var now = timeProvider.GetLocalNow();
+        var now = timeProvider.GetUtcNow();
 
         var blind = blindRepository.Get((int)id);
         if (blind == null)
@@ -79,7 +85,7 @@ public class CloseModel(
             return this.Unauthorized();
         }
 
-        blind.Closed = now.UtcDateTime;
+        blind.ClosedUtc = now.UtcDateTime;
         context.Attach(blind).State = EntityState.Modified;
         await context.SaveChangesAsync();
 

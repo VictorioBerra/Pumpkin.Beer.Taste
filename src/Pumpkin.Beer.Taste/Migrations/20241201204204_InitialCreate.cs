@@ -12,18 +12,26 @@ namespace Pumpkin.Beer.Taste.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "app");
+
             migrationBuilder.CreateTable(
                 name: "Blind",
+                schema: "app",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Started = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Closed = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    InviteCode = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CoverPhoto = table.Column<byte[]>(type: "varbinary(max)", nullable: true),
+                    StartedUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ClosedUtc = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    StartedWindowsTimeZoneId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ClosedWindowsTimeZoneId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     CreatedByUserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     UpdatedByUserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedByUserDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UpdatedByUserDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: false)
@@ -34,7 +42,23 @@ namespace Pumpkin.Beer.Taste.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "User",
+                schema: "app",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    DisplayName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Email = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    WindowsTimeZoneId = table.Column<string>(type: "nvarchar(max)", nullable: false, defaultValue: "Central Standard Time")
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_User", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "BlindItem",
+                schema: "app",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
@@ -42,9 +66,9 @@ namespace Pumpkin.Beer.Taste.Migrations
                     Name = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Ordinal = table.Column<int>(type: "int", nullable: false),
                     BlindId = table.Column<int>(type: "int", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     CreatedByUserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     UpdatedByUserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedByUserDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UpdatedByUserDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: false)
@@ -55,6 +79,34 @@ namespace Pumpkin.Beer.Taste.Migrations
                     table.ForeignKey(
                         name: "FK_BlindItem_Blind_BlindId",
                         column: x => x.BlindId,
+                        principalSchema: "app",
+                        principalTable: "Blind",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "UserInvite",
+                schema: "app",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    BlindId = table.Column<int>(type: "int", nullable: false),
+                    CreatedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    CreatedByUserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UpdatedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    UpdatedByUserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedByUserDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    UpdatedByUserDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserInvite", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_UserInvite_Blind_BlindId",
+                        column: x => x.BlindId,
+                        principalSchema: "app",
                         principalTable: "Blind",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -62,16 +114,18 @@ namespace Pumpkin.Beer.Taste.Migrations
 
             migrationBuilder.CreateTable(
                 name: "BlindVote",
+                schema: "app",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Score = table.Column<int>(type: "int", nullable: false),
+                    Public = table.Column<bool>(type: "bit", nullable: false),
                     Note = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     BlindItemId = table.Column<int>(type: "int", nullable: false),
-                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     CreatedByUserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    UpdatedDate = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     UpdatedByUserId = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CreatedByUserDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     UpdatedByUserDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: false)
@@ -82,6 +136,7 @@ namespace Pumpkin.Beer.Taste.Migrations
                     table.ForeignKey(
                         name: "FK_BlindVote_BlindItem_BlindItemId",
                         column: x => x.BlindItemId,
+                        principalSchema: "app",
                         principalTable: "BlindItem",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -89,26 +144,45 @@ namespace Pumpkin.Beer.Taste.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_BlindItem_BlindId",
+                schema: "app",
                 table: "BlindItem",
                 column: "BlindId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_BlindVote_BlindItemId",
+                schema: "app",
                 table: "BlindVote",
                 column: "BlindItemId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserInvite_BlindId",
+                schema: "app",
+                table: "UserInvite",
+                column: "BlindId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "BlindVote");
+                name: "BlindVote",
+                schema: "app");
 
             migrationBuilder.DropTable(
-                name: "BlindItem");
+                name: "User",
+                schema: "app");
 
             migrationBuilder.DropTable(
-                name: "Blind");
+                name: "UserInvite",
+                schema: "app");
+
+            migrationBuilder.DropTable(
+                name: "BlindItem",
+                schema: "app");
+
+            migrationBuilder.DropTable(
+                name: "Blind",
+                schema: "app");
         }
     }
 }

@@ -12,6 +12,8 @@ using SharpRepository.Repository;
 [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "Razor pages.")]
 public class DeleteModel(
     ApplicationDbContext context,
+    TimeProvider timeProvider,
+    IRepository<User, string> userRepository,
     IRepository<Blind, int> blindRepository) : PageModel
 {
     [BindProperty]
@@ -41,13 +43,18 @@ public class DeleteModel(
             return this.Unauthorized();
         }
 
+        var now = timeProvider.GetUtcNow();
+        var user = userRepository.Get(userId);
+        var userTimeZone = TimeZoneInfo.FindSystemTimeZoneById(user.WindowsTimeZoneId);
+        var userCurrentTime = TimeZoneInfo.ConvertTimeFromUtc(now.DateTime, userTimeZone);
+
         this.Blind = new DeleteViewModel
         {
             Id = blind.Id,
             Name = blind.Name,
             HasVotes = blind.BlindItems.Any(y => y.BlindVotes.Count != 0),
-            Started = blind.Started,
-            Closed = blind.Closed,
+            Started = TimeZoneInfo.ConvertTimeFromUtc(blind.StartedUtc, userTimeZone),
+            Closed = TimeZoneInfo.ConvertTimeFromUtc(blind.ClosedUtc, userTimeZone),
             CreatedByUserDisplayName = blind.CreatedByUserDisplayName,
         };
 

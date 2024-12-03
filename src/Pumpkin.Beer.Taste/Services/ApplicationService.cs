@@ -11,11 +11,13 @@ public class ApplicationService(
     ILogger<ApplicationService> logger,
     TimeProvider timeProvider,
     IRepository<Blind, int> blindRepository,
+    IRepository<User, string> userRepository,
     IRepository<UserInvite, int> inviteRepository) : IApplicationService
 {
     public Result<Blind> AcceptInvite(ClaimsPrincipal user, string inviteCode)
     {
         var userId = user.GetUserId();
+        var dbUser = userRepository.Get(userId);
         var now = timeProvider.GetLocalNow();
 
         var blindForInvite = blindRepository.Find(blind => blind.InviteCode == inviteCode);
@@ -39,7 +41,7 @@ public class ApplicationService(
             logger.LogInformation("User {UserId} joined blind {BlindId} with invite code {InviteCode}", userId, blindForInvite.Id, inviteCode);
         }
 
-        if (blindForInvite.IsOpen(now))
+        if (blindForInvite.HasEventStarted(now, dbUser.WindowsTimeZoneId))
         {
             return Result.Success(blindForInvite);
         }

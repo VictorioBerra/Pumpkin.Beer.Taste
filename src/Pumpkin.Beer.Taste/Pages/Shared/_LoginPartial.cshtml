@@ -10,9 +10,17 @@
                 <a class="nav-link active" asp-area="" asp-page="/ManageBlind/Index">Create/Manage Tastings</a>
             </li>
         </ul>
-        
-        <div class="d-flex">
-            <a asp-area="Identity" asp-page="/Account/Logout" title="Manage">@User.Identity!.Name</a>
+
+        <div class="d-flex text-white">
+            <div class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    @User.Identity!.Name
+                </a>
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+                    <li><a class="dropdown-item text-black" asp-area="Identity" asp-page="/Account/Profile">Edit Profile</a></li>
+                    <li><a class="dropdown-item text-black" asp-area="Identity" asp-page="/Account/Logout">Logout</a></li>
+                </ul>
+            </div>
         </div>
     }
     else
@@ -25,4 +33,3 @@
         </span>
     }
 </div>
-

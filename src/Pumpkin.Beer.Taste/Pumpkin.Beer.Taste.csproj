@@ -47,6 +47,7 @@
     
 	  <PackageReference Include="SixLabors.ImageSharp" Version="3.1.5" />
 	  <PackageReference Include="TechGems.RazorComponentTagHelpers" Version="1.1.0" />
+	  <PackageReference Include="TimeZoneConverter" Version="6.1.0" />
   </ItemGroup>
 
 </Project>

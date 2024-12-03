@@ -10,15 +10,7 @@
 <div class="card border-primary mb-2">
     <div class="card-body">
         <h3 class="card-title">@Model.Blind.Name</h3>
-        @if (Model.Blind.Closed != null)
-        {
-            <span>Closed @Model.Blind.Closed?.ToLocalTime().Humanize()</span>
-            // TODO: Closes soon! Warning?
-        }
-        else
-        {
-            // Never ends...
-        }
+        <span>Closes @Model.Blind.Closed.Humanize()</span>
     </div>
 </div>
 

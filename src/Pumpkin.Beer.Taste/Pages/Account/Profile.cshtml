@@ -1,0 +1,56 @@
+@page
+@model Pumpkin.Beer.Taste.Pages.Account.ProfileModel
+@{
+}
+
+<!-- alpinejs is already included by the main Layout -->
+
+<page-heading heading="Profile" />
+
+@if (Request.Query.ContainsKey("first"))
+{
+    <div class="alert alert-success" role="alert">
+        Welcome! Please update your profile, especially your Time Zone if needed.
+    </div>
+}
+
+<form method="post" x-data="timezoneSelector()">
+
+    <div class="mb-3">
+        <label for="ianaTimeZone">Time Zone</label>
+        <select id="ianaTimeZone" class="form-control" name="IanaTimeZoneId" x-model="selectedIanaTimeZone">
+            <template x-for="timeZone in timeZones" :key="timeZone">
+                <option
+                    x-text="timeZone"
+                    :value="timeZone"
+                        :selected="timeZone === selectedIanaTimeZone"></option>
+            </template>
+        </select>
+        <span asp-validation-for="IanaTimeZoneId" class="text-danger"></span>
+    </div>
+
+    <div class="mb-3" x-show="browsersTimeZone !== selectedIanaTimeZone">
+        <div class="alert alert-info d-flex align-items-center" role="alert">
+            <svg class="bi flex-shrink-0 me-3" width="24" height="24" role="img" aria-label="Info:"><use xlink:href="#info-fill" /></svg>
+            <p>It looks like you might not be in <strong x-text="selectedIanaTimeZone"></strong>, should we change you to <strong x-text="browsersTimeZone"></strong>?</p>
+        </div>
+        <button type="button" class="btn btn-secondary" x-on:click="setToBrowsersTimeZone">Yes, change my TimeZone to <span x-text="browsersTimeZone"></span></button>
+    </div>
+
+    <input type="submit" class="btn btn-primary" value="Save" />
+</form>
+
+@section scripts {
+    <script>
+        function timezoneSelector() {
+            return {
+                timeZones: Intl.supportedValuesOf('timeZone'),
+                browsersTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+                selectedIanaTimeZone: '@Html.Raw(Model.IanaTimeZoneId)',
+                setToBrowsersTimeZone() {
+                    this.selectedIanaTimeZone = this.browsersTimeZone;
+                }
+            }
+        }
+    </script>
+}

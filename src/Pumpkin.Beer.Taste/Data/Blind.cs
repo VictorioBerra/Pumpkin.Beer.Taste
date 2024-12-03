@@ -13,9 +13,13 @@ public class Blind : AuditableEntity
 
     public byte[]? CoverPhoto { get; set; }
 
-    public DateTimeOffset? Started { get; set; }
+    public DateTime StartedUtc { get; set; }
 
-    public DateTimeOffset? Closed { get; set; }
+    public DateTime ClosedUtc { get; set; }
+
+    public string StartedWindowsTimeZoneId { get; set; } = null!;
+
+    public string ClosedWindowsTimeZoneId { get; set; } = null!;
 
     public ICollection<UserInvite> UserInvites { get; set; } = [];
 

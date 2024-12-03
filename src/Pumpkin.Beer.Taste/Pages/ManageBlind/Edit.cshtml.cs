@@ -11,10 +11,13 @@ using Pumpkin.Beer.Taste.Data;
 using Pumpkin.Beer.Taste.Extensions;
 using Pumpkin.Beer.Taste.ViewModels.ManageBlind;
 using SharpRepository.Repository;
+using TimeZoneConverter;
 
 [System.Diagnostics.CodeAnalysis.SuppressMessage("StyleCop.CSharp.DocumentationRules", "SA1649:File name should match first type name", Justification = "Razor pages.")]
 public class EditModel(
     ApplicationDbContext context,
+    TimeProvider timeProvider,
+    IRepository<User, string> userRepository,
     IRepository<Blind, int> blindRepository) : PageModel
 {
     [BindProperty]
@@ -22,6 +25,8 @@ public class EditModel(
 
     [BindProperty]
     public List<EditItemViewModel> BlindItems { get; set; } = [];
+
+    public string CurrentUserProfileIANATimeZoneId { get; set; } = null!;
 
     public IActionResult OnGet(int? id)
     {
@@ -49,13 +54,28 @@ public class EditModel(
             return this.Unauthorized();
         }
 
+        var now = timeProvider.GetUtcNow();
+        var user = userRepository.Get(userId);
+
+        var startedWindowsTimeZone = TimeZoneInfo.FindSystemTimeZoneById(blind.StartedWindowsTimeZoneId);
+        var startedUtc = TimeZoneInfo.ConvertTimeToUtc(blind.StartedUtc, startedWindowsTimeZone);
+
+        var closedWindowsTimeZone = TimeZoneInfo.FindSystemTimeZoneById(blind.ClosedWindowsTimeZoneId);
+        var closedUtc = TimeZoneInfo.ConvertTimeToUtc(blind.ClosedUtc, closedWindowsTimeZone);
+
+        var startedAndClosedIANATimeZoneId = TZConvert.WindowsToIana(startedWindowsTimeZone.Id);
+
         this.Blind = new EditViewModel
         {
             Id = blind.Id,
             Name = blind.Name,
             HasVotes = blind.BlindItems.Any(y => y.BlindVotes.Count != 0),
-            Started = blind.Started,
-            Closed = blind.Closed,
+            Started = TimeZoneInfo.ConvertTimeFromUtc(blind.StartedUtc, startedWindowsTimeZone),
+            Closed = TimeZoneInfo.ConvertTimeFromUtc(blind.ClosedUtc, closedWindowsTimeZone),
+
+            // Just using startedWindowsTimeZone as both for now, maybe one day we'll allow setting different time zones for start and close
+            // Should work right now though if we did, just wanted to simplify UI.
+            StartedAndClosedIANATimeZoneId = startedAndClosedIANATimeZoneId,
         };
 
         this.BlindItems = blind.BlindItems.Select(x => new EditItemViewModel
@@ -98,10 +118,20 @@ public class EditModel(
             return this.Unauthorized();
         }
 
+        var now = timeProvider.GetUtcNow();
+        var user = userRepository.Get(userId);
+
+        var windowsTimeZoneId = TZConvert.IanaToWindows(this.Blind.StartedAndClosedIANATimeZoneId);
+        var windowsTimeZone = TimeZoneInfo.FindSystemTimeZoneById(windowsTimeZoneId);
+        var startedUtc = TimeZoneInfo.ConvertTimeToUtc(this.Blind.Started, windowsTimeZone);
+        var endedUtc = TimeZoneInfo.ConvertTimeToUtc(this.Blind.Closed, windowsTimeZone);
+
         // Update the properties of the existing Blind entity
         blind.Name = this.Blind.Name;
-        blind.Started = this.Blind.Started;
-        blind.Closed = this.Blind.Closed;
+        blind.StartedUtc = startedUtc;
+        blind.ClosedUtc = endedUtc;
+        blind.StartedWindowsTimeZoneId = windowsTimeZoneId;
+        blind.ClosedWindowsTimeZoneId = windowsTimeZoneId;
 
         // Update BlindItems
         var updatedBlindItems = this.BlindItems.Select((item, index) => new BlindItem

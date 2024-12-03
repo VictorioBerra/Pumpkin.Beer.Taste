@@ -16,6 +16,8 @@ public class ApplicationDbContext(
     TimeProvider timeProvider,
     IHttpContextAccessor httpContextAccessor) : DbContext(options)
 {
+    public DbSet<User> User { get; set; }
+
     public DbSet<Blind> Blind { get; set; }
 
     public DbSet<UserInvite> UserInvite { get; set; }
@@ -54,6 +56,10 @@ public class ApplicationDbContext(
 
         // Set the default schema
         modelBuilder.HasDefaultSchema("app");
+
+        modelBuilder.Entity<User>()
+            .Property(x => x.WindowsTimeZoneId)
+            .HasDefaultValue("Central Standard Time");
     }
 
     private void AuditEntities()
@@ -68,12 +74,7 @@ public class ApplicationDbContext(
             return;
         }
 
-        var userId = httpContextAccessor.HttpContext.User.GetUserId();
-        var username = httpContextAccessor.HttpContext.User.GetUsername();
-
-        Guard.Against.Null(userId);
-
-        var now = timeProvider.GetLocalNow();
+        var now = timeProvider.GetUtcNow();
 
         foreach (var entry in modifiedEntries)
         {
@@ -81,6 +82,9 @@ public class ApplicationDbContext(
             {
                 continue;
             }
+
+            var userId = httpContextAccessor.HttpContext.User.GetUserId();
+            var username = httpContextAccessor.HttpContext.User.GetUsername();
 
             if (entry.State == EntityState.Added)
             {

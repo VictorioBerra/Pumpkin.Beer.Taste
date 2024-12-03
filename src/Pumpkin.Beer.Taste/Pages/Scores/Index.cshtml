@@ -9,15 +9,7 @@
 <div class="my-4">
     <h1 class="display-1">Scores</h1>
     <h2 class="display-3">@Model.Blind.Name</h2>
-    @if (Model.Blind.Closed != null)
-    {
-        <span>Closed @Model.Blind.Closed?.ToLocalTime().Humanize()</span>
-        <!-- TODO: Closes soon! Warning? -->
-    }
-    else
-    {
-        <!-- Never ends... -->
-    }
+    <span>Closes @Model.Blind.Closed.Humanize()</span>
 </div>
 
 @if (!Model.Blind.BlindItemScores.Any())

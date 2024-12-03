@@ -10,9 +10,9 @@ public class IndexViewModel
 
     public int NumMembers { get; set; }
 
-    public DateTimeOffset? Started { get; set; }
+    public DateTime Started { get; set; }
 
-    public DateTimeOffset? Closed { get; set; }
+    public DateTime Closed { get; set; }
 
     public string CreatedByUserDisplayName { get; set; } = null!;
 }

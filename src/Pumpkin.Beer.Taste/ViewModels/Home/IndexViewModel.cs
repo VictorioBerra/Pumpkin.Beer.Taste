@@ -12,9 +12,16 @@ public class IndexViewModel
 
     public int NumMembers { get; set; }
 
-    public DateTimeOffset? Started { get; set; }
+    public DateTime Started { get; set; }
 
-    public DateTimeOffset? Closed { get; set; }
+    public DateTime Closed { get; set; }
+
+    // This is just for the projection
+    public string StartsInWindowsTimeZoneId { get; set; } = null!;
+
+    // Just using startedWindowsTimeZone as both for now, maybe one day we'll allow setting different time zones for start and close
+    // Should work right now though if we did, just wanted to simplify UI.
+    public string StartsAndClosesIANATimeZoneId { get; set; } = null!;
 
     public string CreatedByUserId { get; set; } = null!;
 

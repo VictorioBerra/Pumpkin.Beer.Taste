@@ -1,5 +1,7 @@
 namespace Pumpkin.Beer.Taste.ViewModels.ManageBlind;
 
+using System.ComponentModel;
+
 public class EditViewModel
 {
     public int Id { get; set; }
@@ -8,7 +10,10 @@ public class EditViewModel
 
     public bool HasVotes { get; set; }
 
-    public DateTimeOffset? Started { get; set; }
+    public DateTime Started { get; set; }
 
-    public DateTimeOffset? Closed { get; set; }
+    public DateTime Closed { get; set; }
+
+    [DisplayName("Event Start/Close Time Zone")]
+    public string StartedAndClosedIANATimeZoneId { get; set; } = null!;
 }

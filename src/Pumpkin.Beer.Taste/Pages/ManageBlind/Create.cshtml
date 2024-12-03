@@ -47,6 +47,40 @@
                             </div>
                             <span asp-validation-for="Blind.Closed" class="text-danger"></span>
                         </div>
+
+                        <div class="mb-3">
+                            <div class="accordion" id="advancedTimeZones">
+                                <div class="accordion-item">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#timezones" aria-expanded="false" aria-controls="timezones">
+                                            Advanced Options
+                                        </button>
+                                    </h2>
+                                    <div id="timezones" class="accordion-collapse collapse" data-bs-parent="#advancedTimeZones">
+                                        <div class="accordion-body">
+
+                                            <div class="mb-3">
+                                                <p>If you want this event to start and end in a different Time Zone, you can change that here.</p>
+
+                                                <label for="ianaTimeZone">Time Zone</label>
+                                                <select id="ianaTimeZone" class="form-control" name="Blind.StartedAndClosedIANATimeZoneId" x-model="browsersTimeZone">
+                                                    <template x-for="timeZone in timeZones" :key="timeZone">
+                                                        <option x-text="timeZone"
+                                                                :value="timeZone"
+                                                                :selected="timeZone === browsersTimeZone"></option>
+                                                    </template>
+                                                </select>
+                                                <div id="ianaTimeZoneHelpBlock" class="form-text">
+                                                    <p>Your profile TimeZone is set to: <strong>@Model.CurrentUserProfileIANATimeZoneId</strong>. <a asp-area="" asp-page="/Account/Profile">Click here</a> to update it if needed. Your profile time zone determines what events you see across the site.</p>
+                                                </div>
+                                                <span asp-validation-for="Blind.StartedAndClosedIANATimeZoneId" class="text-danger"></span>
+                                            </div>
+
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="col-md-6 pb-2">
@@ -96,24 +130,29 @@
                 }), new System.Text.Json.JsonSerializerOptions { PropertyNamingPolicy = null })),
                 startDate: '@Model.Blind?.Started?.ToString("yyyy-MM-ddTHH:mm:ss")',
                 closedDate: '@Model.Blind?.Closed?.ToString("yyyy-MM-ddTHH:mm:ss")',
+                timeZones: Intl.supportedValuesOf('timeZone'),
+                browsersTimeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
                 addDisabled: false,
+                get currentTimezone() {
+                    return Intl.DateTimeFormat().resolvedOptions().timeZone;
+                },
                 get removeDisabled() {
                     return this.blindItems.length == 1;
                 },
                 get startDateUtc() {
                     if (this.startDate === null) {
-                    return null;
+                        return null;
                     }
-                return moment(this.startDate).utc().format(aspNetCoreMomentFormat);
+                    return moment(this.startDate).format(aspNetCoreMomentFormat);
                 },
                 get closedDateUtc() {
                     if (this.closedDate === null) {
                     return null;
                     }
-                    return moment(this.closedDate).utc().format(aspNetCoreMomentFormat);
+                    return moment(this.closedDate).format(aspNetCoreMomentFormat);
                 },
                 setStartDate() {
-                this.startDate=moment().format(aspNetCoreMomentFormat);
+                    this.startDate=moment().format(aspNetCoreMomentFormat);
                 },
                 setClosedDate() {
                     let now = moment();
@@ -127,60 +166,60 @@
                 },
                 removeBlindItem(index) {
 
-                if (this.blindItems.length === 1) {
-                    return;
+                    if (this.blindItems.length === 1) {
+                        return;
+                    }
+
+                    this.blindItems.splice(index, 1);
+                    this.blindItems.forEach((item, i)=>
+                    {
+                        item.Letter = enAlphabet[i];
+                    });
+                },
+
+                addBlindItem() {
+
+                    this.blindItems.push({
+                        Name:'',
+                        Letter: enAlphabet[this.blindItems.length]
+                    });
+
+                    // Limit to 26
+                    if (this.blindItems.length === enAlphabet.length) {
+                        this.addDisabled = true;
+                        return;
+                    }
+                },
+
+                getBlindItemLetter(blindItem) {
+
+                    if (!blindItem.Letter) {
+                        return 'A';
+                    }
+
+                   return blindItem.Letter;
+                },
+
+                generatePlaceholder() {
+                    const alcoholItems = [
+                        "Vanilla Cinnamon Pumpkin Ale from Spooky Brew Co.",
+                        "1998 Missouri Winery Cab Sav from Haunted Vineyards",
+                        "Spiced Pumpkin Lager from Ghostly Brews",
+                        "Maple Pumpkin Stout from Witch's Brewery",
+                        "Honey Pumpkin IPA from Phantom Hops",
+                        "Pumpkin Spice Porter from Goblin's Brewery",
+                        "Pumpkin Apple Cider from Enchanted Orchards",
+                        "Pumpkin Mead with Nutmeg from Mystic Meadery",
+                        "Pumpkin Bourbon Barrel Aged from Specter Spirits",
+                        "Pumpkin Vodka Infusion from Eerie Distillery"
+                    ];
+                    const randomIndex = Math.floor(Math.random() * alcoholItems.length);
+                    return alcoholItems[randomIndex];
+                },
+
+                getInputName(index) {
+                    return `Blind.BlindItems[${index}].Name`;
                 }
-
-                this.blindItems.splice(index, 1);
-                this.blindItems.forEach((item, i)=>
-                {
-                    item.Letter = enAlphabet[i];
-                });
-            },
-
-            addBlindItem() {
-
-                this.blindItems.push({
-                    Name:'',
-                    Letter: enAlphabet[this.blindItems.length]
-                });
-
-                // Limit to 26
-                if (this.blindItems.length === enAlphabet.length) {
-                    this.addDisabled = true;
-                    return;
-                }
-            },
-
-            getBlindItemLetter(blindItem) {
-
-                if (!blindItem.Letter) {
-                    return 'A';
-                }
-
-               return blindItem.Letter;
-            },
-
-            generatePlaceholder() {
-                const alcoholItems = [
-                    "Vanilla Cinnamon Pumpkin Ale from Spooky Brew Co.",
-                    "1998 Missouri Winery Cab Sav from Haunted Vineyards",
-                    "Spiced Pumpkin Lager from Ghostly Brews",
-                    "Maple Pumpkin Stout from Witch's Brewery",
-                    "Honey Pumpkin IPA from Phantom Hops",
-                    "Pumpkin Spice Porter from Goblin's Brewery",
-                    "Pumpkin Apple Cider from Enchanted Orchards",
-                    "Pumpkin Mead with Nutmeg from Mystic Meadery",
-                    "Pumpkin Bourbon Barrel Aged from Specter Spirits",
-                    "Pumpkin Vodka Infusion from Eerie Distillery"
-                ];
-                const randomIndex = Math.floor(Math.random() * alcoholItems.length);
-                return alcoholItems[randomIndex];
-            },
-
-            getInputName(index) {
-                return `Blind.BlindItems[${index}].Name`;
-            }
             }))
         })
     </script>
