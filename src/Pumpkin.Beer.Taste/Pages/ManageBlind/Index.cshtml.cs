@@ -21,7 +21,7 @@ public class IndexModel(
 {
     public List<IndexViewModel> Blinds { get; set; } = [];
 
-    public DateTime CurrentUserLocalTimeByProfileTimeZone { get; set; }
+    public DateTime CurrentUserLocalTimeAsUtcByProfileTimeZone { get; set; }
 
     public void OnGet()
     {
@@ -31,9 +31,8 @@ public class IndexModel(
 
         var userTimeZone = TimeZoneInfo.FindSystemTimeZoneById(user.WindowsTimeZoneId);
 
-        this.CurrentUserLocalTimeByProfileTimeZone = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(utcNow, user.WindowsTimeZoneId).UtcDateTime;
+        this.CurrentUserLocalTimeAsUtcByProfileTimeZone = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(utcNow, user.WindowsTimeZoneId).UtcDateTime;
         // TODO: Convert utcNow to users profile TimeZone and display in the title attributes
-        // this.CurrentUserLocalTimeByProfileTimeZone is actually UTC, rename it.
 
         var strat = Specifications.GetOwnedBlinds(userId);
         strat.FetchStrategy = Strategies.IncludeItemsAndVotesAndMembers();

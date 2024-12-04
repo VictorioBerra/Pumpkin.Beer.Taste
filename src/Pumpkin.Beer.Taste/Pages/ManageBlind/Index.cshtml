@@ -39,8 +39,8 @@
                         Invite Code: <span class="text-warning">@Html.DisplayFor(modelItem => item.InviteCode)</span>
                     </h4>
 
-                    <p class="mb-1"><strong>Starts:</strong> <span title="@item.Started.ToString()">@item.Started.Humanize(true, Model.CurrentUserLocalTimeByProfileTimeZone)</span></p>
-                    <p class="mb-1"><strong>Closes:</strong> <span title="@item.Closed.ToString()">@item.Closed.Humanize(true, Model.CurrentUserLocalTimeByProfileTimeZone)</span></p>
+                    <p class="mb-1"><strong>Starts:</strong> <span title="@item.Started.ToString()">@item.Started.Humanize(true, Model.CurrentUserLocalTimeAsUtcByProfileTimeZone)</span></p>
+                    <p class="mb-1"><strong>Closes:</strong> <span title="@item.Closed.ToString()">@item.Closed.Humanize(true, Model.CurrentUserLocalTimeAsUtcByProfileTimeZone)</span></p>
                     <p class="mb-1"><strong>Starts in Time Zone:</strong> <span>@item.StartsAndClosesIANATimeZoneId</span></p>
                     <p class="mb-1"><strong>Member Count:</strong> <span>@item.NumMembers</span></p>
                     <p class="mb-1"><strong>Items Count:</strong> <span>@item.NumItems</span></p>
