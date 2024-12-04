@@ -38,7 +38,7 @@ public class IndexModel(
         spec.FetchStrategy = Strategies
             .IncludeItemsAndVotes();
 
-        var blind = blindRepository.Find(spec, x => new ScoreBlindViewModel
+        this.Blind = blindRepository.Find(spec, x => new ScoreBlindViewModel
         {
             Id = x.Id,
             Name = x.Name,
@@ -67,7 +67,7 @@ public class IndexModel(
             }).ToList(),
         });
 
-        if (blind == null)
+        if (this.Blind == null)
         {
             return this.NotFound();
         }

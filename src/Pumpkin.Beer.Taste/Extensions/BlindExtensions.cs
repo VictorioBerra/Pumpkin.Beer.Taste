@@ -16,12 +16,8 @@ public static class BlindExtensions
         DateTimeOffset serverTimeNow,
         string userTimeZoneId)
     {
-        var eventStartTimeLocal = blind.StartedUtc;
-        var eventTimeZoneId = blind.StartedWindowsTimeZoneId;
-
-        // Convert event start time to UTC using its time zone
-        var eventTimeZone = TimeZoneInfo.FindSystemTimeZoneById(eventTimeZoneId);
-        var eventStartTimeUtc = TimeZoneInfo.ConvertTimeToUtc(eventStartTimeLocal, eventTimeZone);
+        // This was already converted into UTC based on blind.StartedWindowsTimeZoneId when it was stored.
+        var eventStartTimeUtc = blind.StartedUtc;
 
         // User in another time zone
         var userTimeZone = TimeZoneInfo.FindSystemTimeZoneById(userTimeZoneId);
@@ -38,12 +34,8 @@ public static class BlindExtensions
         DateTimeOffset serverTimeNow,
         string userTimeZoneId)
     {
-        var eventStartTimeLocal = blind.ClosedUtc;
-        var eventTimeZoneId = blind.ClosedWindowsTimeZoneId;
-
-        // Convert event start time to UTC using its time zone
-        var eventTimeZone = TimeZoneInfo.FindSystemTimeZoneById(eventTimeZoneId);
-        var eventStartTimeUtc = TimeZoneInfo.ConvertTimeToUtc(eventStartTimeLocal, eventTimeZone);
+        // This was already converted into UTC based on blind.StartedWindowsTimeZoneId when it was stored.
+        var eventStartTimeUtc = blind.ClosedUtc;
 
         // User in another time zone
         var userTimeZone = TimeZoneInfo.FindSystemTimeZoneById(userTimeZoneId);

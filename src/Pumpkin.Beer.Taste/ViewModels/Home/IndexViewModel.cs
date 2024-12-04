@@ -12,6 +12,10 @@ public class IndexViewModel
 
     public int NumMembers { get; set; }
 
+    public DateTime StartedUtc { get; set; }
+
+    public DateTime ClosedUtc { get; set; }
+
     public DateTime Started { get; set; }
 
     public DateTime Closed { get; set; }

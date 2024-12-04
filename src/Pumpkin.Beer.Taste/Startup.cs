@@ -10,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using NodaTime;
 using Pumpkin.Beer.Taste.Data;
 using Pumpkin.Beer.Taste.Services;
 using SharpRepository.Ioc.Autofac;
@@ -64,8 +63,6 @@ public class Startup(IConfiguration configuration)
             .PersistKeysToDbContext<MyKeysContext>();
 
         services.AddSingleton(TimeProvider.System);
-
-        services.AddSingleton<IClock>(SystemClock.Instance);
 
         services.AddScoped<IApplicationService, ApplicationService>();
     }

@@ -57,8 +57,8 @@
                         <div class="card-body">
                             <h5 class="card-title">@blind.Name</h5>
                             <div>
-                                <p>Opened @blind.Started.Humanize(true, Model.CurrentUserLocalTimeByProfileTimeZone)!</p>
-                                <p>Closes @blind.Closed.Humanize(true, Model.CurrentUserLocalTimeByProfileTimeZone)!</p>
+                                <p class="mb-1"><strong>Starts:</strong> <span title="@blind.Started.ToString()">@blind.StartedUtc.Humanize(true, Model.CurrentUserLocalTimeAsUtcByProfileTimeZone)</span></p>
+                                <p class="mb-1"><strong>Closes:</strong> <span title="@blind.Closed.ToString()">@blind.ClosedUtc.Humanize(true, Model.CurrentUserLocalTimeAsUtcByProfileTimeZone)</span></p>
                                 <p>Created By: @blind.CreatedByUserDisplayName</p>
                             </div>
                             @if (blind.CreatedByUserId == this.User.GetUserId())

@@ -6,12 +6,6 @@
 
 <page-heading heading="Scores" />
 
-<div class="my-4">
-    <h1 class="display-1">Scores</h1>
-    <h2 class="display-3">@Model.Blind.Name</h2>
-    <span>Closes @Model.Blind.Closed.Humanize()</span>
-</div>
-
 @if (!Model.Blind.BlindItemScores.Any())
 {
     <h4 class="text-danger">No votes were recorded for this tasting.</h4>

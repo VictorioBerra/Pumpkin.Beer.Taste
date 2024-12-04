@@ -32,15 +32,15 @@
                     <img src="data:image/jpeg;base64,@item.CoverPhotoBase64" class="card-img-top rounded-top" alt="Cover Photo" />
                 }
                 <div class="card-body">
-                    <h3 class="card-title">
+                    <h3 class="card-title"> 
                         Name: @Html.DisplayFor(modelItem => item.Name)
                     </h3>
                     <h4 class="card-subtitle mb-2 text-muted">
                         Invite Code: <span class="text-warning">@Html.DisplayFor(modelItem => item.InviteCode)</span>
                     </h4>
 
-                    <p class="mb-1"><strong>Starts:</strong> <span title="@item.Started.ToString()">@item.Started.Humanize(true, Model.CurrentUserLocalTimeAsUtcByProfileTimeZone)</span></p>
-                    <p class="mb-1"><strong>Closes:</strong> <span title="@item.Closed.ToString()">@item.Closed.Humanize(true, Model.CurrentUserLocalTimeAsUtcByProfileTimeZone)</span></p>
+                    <p class="mb-1"><strong>Starts:</strong> <span title="@item.Started.ToString()">@item.StartedUtc.Humanize(true, Model.CurrentUserLocalTimeAsUtcByProfileTimeZone)</span></p>
+                    <p class="mb-1"><strong>Closes:</strong> <span title="@item.Closed.ToString()">@item.ClosedUtc.Humanize(true, Model.CurrentUserLocalTimeAsUtcByProfileTimeZone)</span></p>
                     <p class="mb-1"><strong>Starts in Time Zone:</strong> <span>@item.StartsAndClosesIANATimeZoneId</span></p>
                     <p class="mb-1"><strong>Member Count:</strong> <span>@item.NumMembers</span></p>
                     <p class="mb-1"><strong>Items Count:</strong> <span>@item.NumItems</span></p>

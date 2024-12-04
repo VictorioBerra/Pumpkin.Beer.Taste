@@ -32,16 +32,13 @@ public class IndexModel(
         var userTimeZone = TimeZoneInfo.FindSystemTimeZoneById(user.WindowsTimeZoneId);
 
         this.CurrentUserLocalTimeAsUtcByProfileTimeZone = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(utcNow, user.WindowsTimeZoneId).UtcDateTime;
-        // TODO: Convert utcNow to users profile TimeZone and display in the title attributes
-
         var strat = Specifications.GetOwnedBlinds(userId);
         strat.FetchStrategy = Strategies.IncludeItemsAndVotesAndMembers();
 
         var sortingOptions = new SortingOptions<Blind, DateTime>(x => x.StartedUtc, isDescending: true);
 
-        this.Blinds = [.. blindRepository.FindAll(
-            strat,
-            x => new IndexViewModel
+        this.Blinds = blindRepository.FindAll(strat, sortingOptions)
+            .Select(x => new IndexViewModel
             {
                 Id = x.Id,
                 Name = x.Name,
@@ -51,12 +48,13 @@ public class IndexModel(
                 NumItems = x.BlindItems.Count,
                 NumVotes = x.BlindItems.SelectMany(x => x.BlindVotes).Count(),
                 IsOpen = x.IsOpen(utcNow, user.WindowsTimeZoneId),
-                Started = x.StartedUtc,
-                Closed = x.ClosedUtc,
+                StartedUtc = x.StartedUtc,
+                ClosedUtc = x.ClosedUtc,
+                Started = TimeZoneInfo.ConvertTimeFromUtc(x.StartedUtc, userTimeZone),
+                Closed = TimeZoneInfo.ConvertTimeFromUtc(x.ClosedUtc, userTimeZone),
                 StartsInWindowsTimeZoneId = x.StartedWindowsTimeZoneId,
                 CreatedByUserDisplayName = x.CreatedByUserDisplayName,
-            },
-            sortingOptions)];
+            }).ToList();
 
         foreach (var blind in this.Blinds)
         {

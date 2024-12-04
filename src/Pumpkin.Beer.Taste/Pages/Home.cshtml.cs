@@ -29,7 +29,7 @@ public class HomeModel(
     [DisplayName("Invite Code")]
     public string? InviteCode { get; set; }
 
-    public DateTime CurrentUserLocalTimeByProfileTimeZone { get; set; }
+    public DateTime CurrentUserLocalTimeAsUtcByProfileTimeZone { get; set; }
 
     public IActionResult OnGet()
     {
@@ -87,24 +87,28 @@ public class HomeModel(
     {
         var userTimeZone = TimeZoneInfo.FindSystemTimeZoneById(user.WindowsTimeZoneId);
 
-        this.CurrentUserLocalTimeByProfileTimeZone = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(utcNow, user.WindowsTimeZoneId).UtcDateTime;
+        this.CurrentUserLocalTimeAsUtcByProfileTimeZone = TimeZoneInfo.ConvertTimeBySystemTimeZoneId(utcNow, user.WindowsTimeZoneId).UtcDateTime;
 
-        var spec = Specifications.GetOpenBlinds(this.CurrentUserLocalTimeByProfileTimeZone, user.WindowsTimeZoneId)
+        var spec = Specifications.GetOpenBlinds(this.CurrentUserLocalTimeAsUtcByProfileTimeZone, user.WindowsTimeZoneId)
             .AndAlso(Specifications.GetMemberOfBlinds(user.Id));
         spec.FetchStrategy = Strategies.IncludeItemsAndVotesAndMembers();
 
-        this.Blinds = blindRepository.FindAll(spec, x => new IndexViewModel
-        {
-            Id = x.Id,
-            Name = x.Name,
-            CoverPhotoBase64 = x.CoverPhoto != null ? Convert.ToBase64String(x.CoverPhoto) : null,
-            HasVotes = x.BlindItems.Any(x => x.BlindVotes.Count != 0),
-            Started = x.StartedUtc,
-            Closed = x.ClosedUtc,
-            CreatedByUserDisplayName = x.CreatedByUserDisplayName,
-            StartsInWindowsTimeZoneId = x.StartedWindowsTimeZoneId,
-            CreatedByUserId = x.CreatedByUserId,
-            NumMembers = x.UserInvites.Count,
-        }).ToList();
+        this.Blinds = blindRepository.FindAll(spec)
+            .Select(x => new IndexViewModel
+            {
+                Id = x.Id,
+                Name = x.Name,
+                CoverPhotoBase64 = x.CoverPhoto != null ? Convert.ToBase64String(x.CoverPhoto) : null,
+                HasVotes = x.BlindItems.Any(x => x.BlindVotes.Count != 0),
+                StartedUtc = x.StartedUtc,
+                ClosedUtc = x.ClosedUtc,
+                Started = TimeZoneInfo.ConvertTimeFromUtc(x.StartedUtc, userTimeZone),
+                Closed = TimeZoneInfo.ConvertTimeFromUtc(x.ClosedUtc, userTimeZone),
+                CreatedByUserDisplayName = x.CreatedByUserDisplayName,
+                StartsInWindowsTimeZoneId = x.StartedWindowsTimeZoneId,
+                CreatedByUserId = x.CreatedByUserId,
+                NumMembers = x.UserInvites.Count,
+            })
+            .ToList();
     }
 }

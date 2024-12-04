@@ -22,6 +22,10 @@ public class IndexViewModel
 
     public bool IsOpen { get; set; }
 
+    public DateTime StartedUtc { get; set; }
+
+    public DateTime ClosedUtc { get; set; }
+
     public DateTime Started { get; set; }
 
     public DateTime Closed { get; set; }
