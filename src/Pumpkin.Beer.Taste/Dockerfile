@@ -17,9 +17,7 @@ RUN apk add --no-cache \
     # Install cultures to enable use of System.CultureInfo
     icu-libs \
     # Install time zone database to enable use of System.TimeZoneInfo
-    tzdata \
-    # Install kerberos module for the .NET MSSQL Client
-    krb5-libs
+    tzdata
 # Set the default locale and language.
 ENV LC_ALL=en_US.UTF-8
 ENV LANG=en_US.UTF-8
