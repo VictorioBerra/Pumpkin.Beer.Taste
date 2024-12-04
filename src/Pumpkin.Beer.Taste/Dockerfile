@@ -5,7 +5,7 @@
 
 # Base image used by Visual Studio at development time
 # (See https://docs.microsoft.com/en-us/visualstudio/containers/container-msbuild-properties)
-FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS base
+FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS base
 # Open Container Initiative (OCI) labels (See https://github.com/opencontainers/image-spec/blob/master/annotations.md).
 LABEL org.opencontainers.image.title="BlindTasteTest" \
     org.opencontainers.image.description="Create and administer taste tests" \
@@ -13,6 +13,13 @@ LABEL org.opencontainers.image.title="BlindTasteTest" \
 # Disable the culture invariant mode which defaults to true in the base alpine image
 # (See https://github.com/dotnet/corefx/blob/8245ee1e8f6063ccc7a3a60cafe821d29e85b02f/Documentation/architecture/globalization-invariant-mode.md)
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+RUN apk add --no-cache \
+    # Install cultures to enable use of System.CultureInfo
+    icu-libs \
+    # Install time zone database to enable use of System.TimeZoneInfo
+    tzdata \
+    # Install kerberos module for the .NET MSSQL Client
+    libkrb53
 # Set the default locale and language.
 ENV LC_ALL=en_US.UTF-8
 ENV LANG=en_US.UTF-8
