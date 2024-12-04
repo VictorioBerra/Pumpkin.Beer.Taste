@@ -13,11 +13,6 @@ LABEL org.opencontainers.image.title="BlindTasteTest" \
 # Disable the culture invariant mode which defaults to true in the base alpine image
 # (See https://github.com/dotnet/corefx/blob/8245ee1e8f6063ccc7a3a60cafe821d29e85b02f/Documentation/architecture/globalization-invariant-mode.md)
 ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
-RUN apk add --no-cache \
-    # Install cultures to enable use of System.CultureInfo
-    icu-libs \
-    # Install time zone database to enable use of System.TimeZoneInfo
-    tzdata
 # Set the default locale and language.
 ENV LC_ALL=en_US.UTF-8
 ENV LANG=en_US.UTF-8
