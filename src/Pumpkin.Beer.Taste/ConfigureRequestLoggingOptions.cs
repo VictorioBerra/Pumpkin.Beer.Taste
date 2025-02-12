@@ -21,6 +21,11 @@ public class ConfigureRequestLoggingOptions : IConfigureOptions<RequestLoggingOp
     private const string ContentTypePropertyName = "ContentType";
     private const string RemoteIpPropertyName = "RemoteIP";
     private const string RemotePortPropertyName = "RemotePort";
+    private const string LocalIpPropertyName = "LocalIP";
+    private const string LocalPortPropertyName = "LocalPort";
+    private const string ForwardedForPropertyName = "ForwardedFor";
+    private const string ForwardedHostPropertyName = "ForwardedHost";
+    private const string ForwardedSchemePropertyName = "ForwardedScheme";
 
     public void Configure(RequestLoggingOptions options)
     {
@@ -34,13 +39,32 @@ public class ConfigureRequestLoggingOptions : IConfigureOptions<RequestLoggingOp
         var response = httpContext.Response;
 
         var remoteIp = httpContext.Connection.RemoteIpAddress;
-        var remotePort = httpContext.Connection.RemoteIpAddress;
+        var remotePort = httpContext.Connection.RemotePort;
+        var localIp = httpContext.Connection.LocalIpAddress;
+        var lcoalPort = httpContext.Connection.LocalPort;
 
         diagnosticContext.Set(HostPropertyName, request.Host);
         diagnosticContext.Set(ProtocolPropertyName, request.Protocol);
         diagnosticContext.Set(SchemePropertyName, request.Scheme);
         diagnosticContext.Set(RemoteIpPropertyName, remoteIp == null ? string.Empty : remoteIp);
-        diagnosticContext.Set(RemotePortPropertyName, remotePort == null ? string.Empty : remotePort);
+        diagnosticContext.Set(RemotePortPropertyName, remotePort);
+        diagnosticContext.Set(LocalIpPropertyName, localIp == null ? string.Empty : localIp);
+        diagnosticContext.Set(LocalPortPropertyName, lcoalPort);
+
+        if (request.Headers.TryGetValue("X-Forwarded-For", out var forwardedFor))
+        {
+            diagnosticContext.Set(ForwardedForPropertyName, forwardedFor);
+        }
+
+        if (request.Headers.TryGetValue("X-Forwarded-Host", out var forwardedHost))
+        {
+            diagnosticContext.Set(ForwardedHostPropertyName, forwardedHost);
+        }
+
+        if (request.Headers.TryGetValue("X-Forwarded-Proto", out var forwardedScheme))
+        {
+            diagnosticContext.Set(ForwardedSchemePropertyName, forwardedScheme);
+        }
 
         var queryString = request.QueryString;
         if (queryString.HasValue)
