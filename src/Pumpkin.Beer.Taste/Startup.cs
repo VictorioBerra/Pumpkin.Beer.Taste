@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Pumpkin.Beer.Taste.Data;
 using Pumpkin.Beer.Taste.Services;
+using Serilog;
 using SharpRepository.Ioc.Autofac;
 using SharpRepository.Repository.Ioc;
 
@@ -66,6 +67,8 @@ public class Startup(IConfiguration configuration)
         services.AddSingleton(TimeProvider.System);
 
         services.AddScoped<IApplicationService, ApplicationService>();
+
+        services.ConfigureOptions<ConfigureRequestLoggingOptions>();
     }
 
     public void ConfigureContainer(ContainerBuilder builder)
@@ -77,6 +80,8 @@ public class Startup(IConfiguration configuration)
         ApplicationDbContext dbAppContext,
         MyKeysContext dbDpContext)
     {
+        app.UseSerilogRequestLogging();
+
         if (env.IsDevelopment())
         {
             app.UseDeveloperExceptionPage();
@@ -98,11 +103,6 @@ public class Startup(IConfiguration configuration)
         app.UseCookiePolicy();
 
         app.UseRouting();
-
-        app.UseForwardedHeaders(new ForwardedHeadersOptions
-        {
-            ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
-        });
 
         app.UseAuthentication();
         app.UseAuthorization();

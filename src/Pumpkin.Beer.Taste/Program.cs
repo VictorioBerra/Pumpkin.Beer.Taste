@@ -57,10 +57,8 @@ public class Program
             .ReadFrom.Services(services)
             .Enrich.WithProperty("Application", context.HostingEnvironment.ApplicationName)
             .Enrich.WithProperty("Environment", context.HostingEnvironment.EnvironmentName)
+            .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture)
             .WriteTo.Conditional(
                 x => context.HostingEnvironment.IsDevelopment(),
-                x => x
-                    .Console(formatProvider: CultureInfo.InvariantCulture)
-                    .WriteTo
-                    .Debug(formatProvider: CultureInfo.InvariantCulture));
+                x => x.Debug(formatProvider: CultureInfo.InvariantCulture));
 }
