@@ -37,7 +37,7 @@ public class IndexModel(
 
         var sortingOptions = new SortingOptions<Blind, DateTime>(x => x.StartedUtc, isDescending: true);
 
-        this.Blinds = blindRepository.FindAll(strat, sortingOptions)
+        this.Blinds = [.. blindRepository.FindAll(strat, sortingOptions)
             .Select(x => new IndexViewModel
             {
                 Id = x.Id,
@@ -54,7 +54,7 @@ public class IndexModel(
                 Closed = TimeZoneInfo.ConvertTimeFromUtc(x.ClosedUtc, userTimeZone),
                 StartsInWindowsTimeZoneId = x.StartedWindowsTimeZoneId,
                 CreatedByUserDisplayName = x.CreatedByUserDisplayName,
-            }).ToList();
+            })];
 
         foreach (var blind in this.Blinds)
         {

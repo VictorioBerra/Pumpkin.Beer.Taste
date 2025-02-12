@@ -6,5 +6,5 @@ using Pumpkin.Beer.Taste.Data;
 
 public interface IApplicationService
 {
-    Result<Blind> AcceptInvite(ClaimsPrincipal user, string inviteCode);
+    public Result<Blind> AcceptInvite(ClaimsPrincipal user, string inviteCode);
 }

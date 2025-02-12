@@ -78,12 +78,12 @@ public class EditModel(
             StartedAndClosedIANATimeZoneId = startedAndClosedIANATimeZoneId,
         };
 
-        this.BlindItems = blind.BlindItems.Select(x => new EditItemViewModel
+        this.BlindItems = [.. blind.BlindItems.Select(x => new EditItemViewModel
         {
             Id = x.Id,
             Name = x.Name,
             Ordinal = x.Ordinal,
-        }).ToList();
+        })];
 
         return this.Page();
     }

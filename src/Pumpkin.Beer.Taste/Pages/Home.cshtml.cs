@@ -93,7 +93,7 @@ public class HomeModel(
             .AndAlso(Specifications.GetMemberOfBlinds(user.Id));
         spec.FetchStrategy = Strategies.IncludeItemsAndVotesAndMembers();
 
-        this.Blinds = blindRepository.FindAll(spec)
+        this.Blinds = [.. blindRepository.FindAll(spec)
             .Select(x => new IndexViewModel
             {
                 Id = x.Id,
@@ -108,7 +108,6 @@ public class HomeModel(
                 StartsInWindowsTimeZoneId = x.StartedWindowsTimeZoneId,
                 CreatedByUserId = x.CreatedByUserId,
                 NumMembers = x.UserInvites.Count,
-            })
-            .ToList();
+            })];
     }
 }

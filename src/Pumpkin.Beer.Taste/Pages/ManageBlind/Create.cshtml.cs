@@ -111,11 +111,11 @@ public class CreateModel(
             StartedWindowsTimeZoneId = windowsTimeZoneId,
             ClosedWindowsTimeZoneId = windowsTimeZoneId,
 
-            BlindItems = this.Blind.BlindItems.Select((x, i) => new BlindItem
+            BlindItems = [.. this.Blind.BlindItems.Select((x, i) => new BlindItem
             {
                 Name = x.Name,
                 Ordinal = i,
-            }).ToList(),
+            })],
 
             // Test this and make sure creator gets "invited"
             // An accepted invite is essentially the BlindId + CreatedByUserId (should be set automatically)

@@ -32,7 +32,7 @@ public class ClosedModel(
 
         var closedBlinds = blindRepository.FindAll(spec).ToList();
 
-        this.ClosedBlinds = closedBlinds
+        this.ClosedBlinds = [.. closedBlinds
             .Where(x => x.HasEventStarted(now, user.WindowsTimeZoneId))
             .Select(x => new IndexViewModel
             {
@@ -43,6 +43,6 @@ public class ClosedModel(
                 Closed = x.ClosedUtc,
                 CreatedByUserDisplayName = x.CreatedByUserDisplayName,
                 NumMembers = x.UserInvites.Count,
-            }).ToList();
+            })];
     }
 }
