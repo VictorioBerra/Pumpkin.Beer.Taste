@@ -22,6 +22,25 @@ Build using Docker Compose
 - `ALTER LOGIN sa ENABLE; GO;`
 - `ALTER LOGIN sa WITH PASSWORD = 'myStong_Password123!'; GO;`
 
+## Prod deployment 
+
+Get into the container using something like Portainer Console and run these commands. **Type GO after each command!!**
+
+- `/opt/mssql-tools18/bin/sqlcmd -S localhost -U SA -C`
+- `CREATE DATABASE BlindTasteTest`
+- `CREATE LOGIN [pumpkinuser] WITH PASSWORD=N'MyPassword'`
+- `USE BlindTasteTest`
+- `CREATE USER [pumpkinuser] FOR LOGIN [pumpkinuser]`
+- `ALTER ROLE db_owner ADD MEMBER [pumpkinuser]`
+
+List users and roles
+
+- `SELECT * FROM sys.database_principals;`
+
+To change the password for the user
+
+- `ALTER LOGIN [pumpkinuser] WITH PASSWORD = '6^9*xF4t~5K0-!Gm|wPnxqf'; GO;`
+
 ## Deployment
 
 - Automated by GitHub Actions

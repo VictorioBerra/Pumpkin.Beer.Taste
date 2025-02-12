@@ -20,6 +20,7 @@ public class Startup(IConfiguration configuration)
     public void ConfigureServices(IServiceCollection services)
     {
         services.AddHttpContextAccessor();
+
         services.Configure<ForwardedHeadersOptions>(
             options =>
             {
@@ -84,6 +85,13 @@ public class Startup(IConfiguration configuration)
         {
             app.UseExceptionHandler("/Error");
         }
+
+        // This site is hosted on Caprover behind Cloudflare tunnel. It is always HTTPS
+        app.Use((context, next) =>
+        {
+            context.Request.Scheme = "https";
+            return next(context);
+        });
 
         app.UseForwardedHeaders();
 
